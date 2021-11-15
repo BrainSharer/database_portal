@@ -1,0 +1,12 @@
+{
+  "type": "service_account",
+  "project_id": "ornate-axiom-279117",
+  "private_key_id": "c2874c363e9717bbc9adae2750e9aaeb84673e1a",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQDIyIFiw7ltWu5i\nd7Fa9qmUzz9WUeBPZQdfU73Dxu/kwZXE0q0SAGZ0GGEZdC98se732fJElnHSZafl\nRXETRPJhYNMLdKeoJvO3snZJB9yG0lVisVKoEmF9kGy+g6XvcVYSo34MhEA0RdvP\nubJ9x5gdAnYPb/NZLn3ybYoVzYkOmF6/d6ZlsOwu6B9iLipPtjvkl9J5kGqJMu7g\nRcEJPbpp6Hgrwk20iiKa5sd7KU9mLpu48F422e9cxsR3qPBDrKz7c1QL00pgoRvA\nZ2EAaDAb8SK7BPT4a2IY6INJoSrNtnyolHvUxdN6ghFOvimItB5m0jSjYFmgGyoQ\n4kzLOwSPAgMBAAECggEAP4xKez50ZVqm4Y59mUtBoCI6KzFt2+Mfgrnn8Vt5GP92\nTh3Z/j0XMD55GQvPbdmJR3P5PGEbdFqNWcDxSYaEanKxSUpqOAvgDm+TBYlR8HAI\n61wxS5XJumqoKGJVdiP6eJq7be27vm+v4x6kki/GgsQBJuCpdjwDS+QElOMBMpdS\ntAY47eYWLD6B8TT8tnO3ghZQZP3S8O9cQ6aBCtYhI13HfQCQtPEunQ2yN61g31KT\noAX5dgjxOpdDSnizqyWdVT8y57zyfRZGyKvEfSwyiCrngLltaUkx1V3CUV/zWHNu\nRPSd1BRGL7aZepZz5un5a/KPfH0ggT7S40XWVSY2mQKBgQDoEfeB3t7GilvHIP2L\nvWIoqEN753nsn5T6lu+Pe3Xc8i9JrA5IWTBmo/Foq4uHmEWR0uc69NBsB2sdbRd1\nkGJIWX2OFNAkIu3gVsrbEkJl4Nla9rGbHTJ+hxL1evkECgrVjdUoVnN6sKeMVD9p\njf3nsqAuNW7cKJVJYuC/tGG+NwKBgQDdfKV7wDqG6rWNP2t0LaBUWn0lhtXqBgx/\nVESqczNU7JIKl9GFfUq4QMiKo2m3SEetIuRVqv/QtcKPWr2i9hGSV55nXAm7Hq6P\n8svSOM6eAwTHLENUZHfP67ZYa81CsfAnO33Zbjbe5Q69z2q4I0S7ltDiL+fjZK9v\n4v+/d/wAaQKBgQCRR2YdjCsEOWtZDmMLTuSbNTMB5xfhtMkr0r9noE9ZoNdPlIFg\nc00khC9Falav7PhoYJJWyxmK913sDvYnp9qPFk7OWmMurBskXNEjMZwVcRxAoLzw\nsOeCZAbPXEt1Zt//bonpda1XOi25YKhN6RDxMlaqdtLOyi0iwt6VxFOIIwKBgQCZ\nsVYP4pt6ZcJn6ntBGiwofMZc1Qz5oQrpDGu9r8UOCD9rNGCC9id0ZhgDBFRmh7Sd\nMxopTEjJ5mbFHV18iK4207Aq3xYtj6PoZb4D+cF+qm+VWmS6WiE92b4l62B7CIiy\nYLj6uV1AHMi29AiFEIwwc/4tBrst8v8+b9GyZqsrCQKBgF4mAoceUJsbl7VLnq5r\nqY5GIJu2ZcdG6g7WQiB7nI4EX8xPe4dzWwpPuxnPtDkTqkOfUjQZBic5Ns+zU2OC\nn18Mo1zVO276uLXPHOKI6w6VrKix9yr/wc9mzLVkRJRWJm/OgYeyPD3DQkF4E/rE\nwPNmKXArqTH4I3Zr6NzQOykg\n-----END PRIVATE KEY-----\n",
+  "client_email": "dklabs@ornate-axiom-279117.iam.gserviceaccount.com",
+  "client_id": "103136262731879483084",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/dklabs%40ornate-axiom-279117.iam.gserviceaccount.com"
+}

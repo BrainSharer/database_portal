@@ -1,0 +1,153 @@
+{% extends "admin/base_site.html" %}
+{% load i18n admin_urls static admin_list %}
+
+{% block extrastyle %}
+    {{ block.super }}
+    <link rel="stylesheet" type="text/css" href="{% static "admin/css/changelists.css" %}">
+    {% if cl.formset %}
+        <link rel="stylesheet" type="text/css" href="{% static "admin/css/forms.css" %}">
+    {% endif %}
+    {% if cl.formset or action_form %}
+        <script type="text/javascript" src="{% url 'admin:jsi18n' %}"></script>
+    {% endif %}
+    {{ media.css }}
+    {% if not actions_on_top and not actions_on_bottom %}
+        <style>
+            #changelist table thead th:first-child {
+                width: inherit
+            }
+        </style>
+    {% endif %}
+{% endblock %}
+
+{% block extrahead %}
+    {{ block.super }}
+    {{ media.js }}
+
+    <!-- extra js here -->
+
+    {% load bootstrap4 %}
+    {# Load CSS and JavaScript #}
+    {% bootstrap_css %}
+    {% bootstrap_javascript jquery='full' %}
+
+    {# Display django.contrib.messages as Bootstrap alerts #}
+    {% bootstrap_messages %}
+
+
+
+
+{% endblock %}
+
+{% block bodyclass %}{{ block.super }} app-{{ opts.app_label }} model-{{ opts.model_name }} change-list{% endblock %}
+
+{% if not is_popup %}
+    {% block breadcrumbs %}
+        <div class="breadcrumbs">
+            <a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
+            &rsaquo; <a
+                href="{% url 'admin:app_list' app_label=cl.opts.app_label %}">{{ cl.opts.app_config.verbose_name }}</a>
+            &rsaquo; {{ cl.opts.verbose_name_plural|capfirst }}
+        </div>
+    {% endblock %}
+{% endif %}
+
+{% block coltype %}flex{% endblock %}
+{% block content %}
+    <div id="content-main">
+
+
+
+
+
+    {% if cl.formset and cl.formset.errors %}
+        <p class="errornote">
+            {% if cl.formset.total_error_count == 1 %}{% trans "Please correct the error below." %}{% else %}
+                {% trans "Please correct the errors below." %}{% endif %}
+        </p>
+        {{ cl.formset.non_form_errors }}
+    {% endif %}
+    <div class="module{% if cl.has_filters %} filtered{% endif %}" id="changelist">
+    {% block search %}{% search_form cl %}{% endblock %}
+
+    {% if prep_id %}
+
+        <div class="container">
+        <div class="row border border-primary">
+            <div class="col-3 border border-secondary">Slide</div>
+            <div class="col-9 border border-secondary">
+                {{ current_section.section_number }} - {{ current_section.thumbnail_name }}
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-3 border border-secondary">{{ current_slide.file_name }}
+                {% for tif in current_slide.slideczis.all %}
+                    {% for section in tif.sections.all %}
+                        {% if section.channel == 1 %}
+                            <li>{{ section.destination_file }}</li>
+                        {% endif %}
+                    {% endfor %}
+                {% endfor %}
+            </div>
+            <div class="col-9  border border-secondary">
+
+
+                <div id="carouselExampleControls" class="carousel slide" data-ride="carousel">
+
+                    <div class="carousel-inner">
+
+                        {% for section in sections %}
+                            {% if forloop.first %}
+                                <div class="carousel-item active">
+                            {% else %}
+                                <div class="carousel-item">
+                            {% endif %}
+                        <p>{{ section.thumbnail_name }}</p>
+                        <img class="d-block"
+                             width="640"
+                             src="https://activebrainatlas.ucsd.edu/data/{{ prep_id }}/thumbnail/{{ section.thumbnail_name }}"
+                             alt="{{ section.source_file }}">
+                        </div>
+                        {% endfor %}
+
+                        </div>
+
+                        <a class="carousel-control-prev" href="#carouselExampleControls" role="button"
+                           data-slide="prev">
+                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                            <span class="sr-only">Previous</span>
+                        </a>
+                        <a class="carousel-control-next" href="#carouselExampleControls" role="button"
+                           data-slide="next">
+                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                            <span class="sr-only">Next</span>
+                        </a>
+                    </div>
+
+                </div>
+
+
+            </div>
+            <div class="row">
+                <div class="col-3" style="text-align: center;">
+                    <a href="move-slide/-1">
+                        <img src="https://activebrainatlas.ucsd.edu/images/backward.png"></a>
+                    <a href="move-slide/1">
+                        <img src="https://activebrainatlas.ucsd.edu/images/forward.png"></a>
+                </div>
+                <div class="col-9" style="text-align: center;">
+                    <a href="/admin/brain/rawsection/move-section/0"><img
+                            src="https://activebrainatlas.ucsd.edu/images/backward.png"></a>
+                    <a href="/admin/brain/rawsection/move-section/1"><img
+                            src="https://activebrainatlas.ucsd.edu/images/forward.png"></a>
+                </div>
+            </div>
+
+        </div>
+
+    {% endif %}
+
+
+</div>
+{% endblock %}

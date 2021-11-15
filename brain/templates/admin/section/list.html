@@ -1,0 +1,43 @@
+{% extends "admin/base_site.html" %}
+
+{% block content %}
+
+{% if results %}
+
+<div class="results">
+    <table id="result_list">
+        <thead>
+        <tr>
+            <th>Prep ID</th>
+			<th>Source file</th>
+            <th>Section #</th>
+            <th>Channel 1</th>
+            <th>Channel 2</th>
+            <th>Channel 3</th>
+            <th>Channel 4</th>
+        </tr>
+        </thead>
+
+        <tbody>
+        {% for result in results %}
+        <tr class="{% cycle 'row1' 'row2' %}">
+            <td>{{ result.prep_id }}</td>
+            <td>{{ result.slide.file_name }}</td>
+            <td>{{ forloop.counter }}</td>
+            <td>{{ result.ch_1_path }}</td>
+            <td>{{ result.ch_2_path }}</td>
+            <td>{{ result.ch_3_path }}</td>
+            <td>{{ result.ch_4_path }}</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+
+    </table>
+
+</div>
+{{ df | safe }}
+
+{% else %}
+<p>There are no sections.</p>
+{% endif %}
+{% endblock %}

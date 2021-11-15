@@ -1,0 +1,18 @@
+#!/bin/bash
+ 
+ NAME="ActiveBrainAtlas Pipeline - celery_worker_start"
+ 
+ PROJECT_DIR=/home/eddyod/programming/activebrainatlas/
+ ENV_DIR=/usr/local/share/pipeline/
+ 
+ echo "Starting $NAME as `whoami`"
+ 
+ # Activate the virtual environment
+ cd "${PROJECT_DIR}"
+ 
+ if [ -d "${ENV_DIR}" ]
+ then
+     . "${ENV_DIR}bin/activate"
+ fi
+ 
+ celery -A pipeline worker -P threads -l info

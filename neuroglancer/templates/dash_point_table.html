@@ -1,0 +1,77 @@
+{% load static %}
+{% load plotly_dash %}
+{% plotly_header %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Active Brain Atlas Graphs</title>
+    {% block head-css %}
+    <link href="{% static 'bootstrap/css/bootstrap.css' %}"
+          rel="stylesheet" media="screen">
+    <link href="{% static 'bootstrap/css/bootstrap.min.css' %}"
+          rel="stylesheet" media="screen">
+    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
+    {% endblock %}
+<style>
+        /* Modify the background color */
+
+        .navbar-custom {
+            background-color: #417690;
+        }
+        /* Modify brand and text color */
+        .navbar-custom .navbar-brand,
+        .navbar-custom .navbar-text {
+            color: #F5D969;
+        }
+        .navbar-custom a {
+            color:#FFFFFF;
+        }
+    </style>
+</head>
+
+<body>
+
+
+<nav class="navbar navbar-expand-lg navbar-custom">
+    <a class="navbar-brand" href="#">Active Brain Atlas</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav mr-auto">
+            <li class="nav-item">
+                <a class="nav-link" href="https://activebrainatlas.ucsd.edu/activebrainatlas/admin/">Home</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="https://activebrainatlas.ucsd.edu/activebrainatlas/admin/neuroglancer/">Neuroglancer</a>
+            </li>
+            <li class="nav-item active">
+                <a class="nav-link" href="https://activebrainatlas.ucsd.edu/activebrainatlas/admin/neuroglancer/points/">Points</a>
+            </li>
+        </ul>
+        <li class="form-inline my-2 my-lg-0 nav-item">
+            <div>Hello {{ user.get_full_name|default:user.username }}</div>
+        </li>
+    </div>
+</nav>
+
+
+<div class="container" style="padding-bottom: 10px;">
+
+    <br/>
+
+
+        <div class="{% plotly_class name="DashPointTable" %} card">
+            {% plotly_direct name="DashPointTable" %}
+        </div>
+
+
+
+</div>
+</body>
+
+{% plotly_footer %}
+</html>

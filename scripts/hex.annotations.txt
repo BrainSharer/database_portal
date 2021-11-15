@@ -1,0 +1,29 @@
+Hexadecimal	Landmark
+#FF8E6B	oculomotor nucleus
+#C6FF6B	trochlear nucleus
+#FFDA45	trigeminal motor nucleus
+#0CFF95	abducens nucleus
+#5E80FF	area postrema
+#7633FF	facial nucleus
+#FF1B09	facial nerve
+#0CFF95	dorsal nuc of vagus
+#FF3578	hypoglossal nucleus
+#4EFF45	nucleus ambiguus
+#2FD5FF	dorsal cochlear nucl
+#FF0BE5	lateral retic nucleus
+#6C96FF	locus coeruleus
+#F66EFF	inferior colliculus
+#FF417B	ventral cochlear nucleus anterior
+#B6FF58	ventral cochlear nucleus posterior
+#A144FF	ventral lateral lemniscus
+#1EFF29	parabigeminal nucleus
+#FFE031	pontine grey
+#FF8E6B	Red Nucleus
+#9BFF0B	Reticulotegmental nucleus
+#22D8FF	Superior Colliculus
+#2FD5FF	Spinal Trigeminal Caudalis
+#42E2FF	Spinal Trigeminal Interpolaris
+#F369FF	Spinal Trigeminal Oralis
+#7490EF	Substantia Nigra- pars reticulata
+#32FF32	Substantia Nigra- pars compacta
+#78FFCB	Nucleus of trapezoid body

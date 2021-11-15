@@ -1,0 +1,8 @@
+{% extends "admin/change_form.html" %}
+{% block after_field_sets %}{{ block.super }}
+    <ul>
+    {% for tif in tifs %}
+        <li>{{ tif.file_name }}</li>
+    {% endfor %}
+    </ul>
+{% endblock %}

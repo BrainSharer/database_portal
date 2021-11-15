@@ -7,14 +7,13 @@ from django.db import models
 import csv
 from django.http import HttpResponse
 from django.contrib.admin.widgets import AdminDateWidget
-from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from django.urls import path
 from django.template.response import TemplateResponse
 
 from brain.forms import save_slide_model, TifInlineFormset
 from brain.models import (Animal, Histology, Injection, Virus, InjectionVirus,
-                          OrganicLabel, ScanRun, Slide, SlideCziToTif, Section)
+                          ScanRun, Slide, SlideCziToTif, Section)
 
 
 class ExportCsvMixin:
@@ -95,10 +94,10 @@ class AnimalAdmin(AtlasAdminModel, ExportCsvMixin):
 
 @admin.register(Histology)
 class HistologyAdmin(AtlasAdminModel, ExportCsvMixin):
-    list_display = ('prep_id', 'label', 'performance_center')
+    list_display = ('prep_id', 'performance_center')
     search_fields = ('prep__prep_id',)
     autocomplete_fields = ['prep_id']
-    ordering = ['prep_id', 'label']
+    ordering = ['prep_id']
     exclude = ('created',)
 
 @admin.register(Injection)
@@ -129,18 +128,11 @@ class InjectionVirusAdmin(AtlasAdminModel):
     def virus_name(self, instance):
         return instance.virus.virus_name
 
-@admin.register(OrganicLabel)
-class OrganicLabelAdmin(AtlasAdminModel, ExportCsvMixin):
-    list_display = ('label_id', 'label_type', 'type_details', 'created')
-    search_fields = ('label_id',)
-    ordering = ['label_id', 'label_type', 'type_details', 'created']
-
 @admin.register(ScanRun)
 class ScanRunAdmin(AtlasAdminModel, ExportCsvMixin):
     list_display = ('prep_id', 'performance_center', 'machine','comments', 'created')
     search_fields = ('prep__prep_id',)
     ordering = ['prep_id', 'performance_center', 'machine','comments', 'created']
-
 
 class TifInline(admin.TabularInline):
     model = SlideCziToTif
@@ -361,7 +353,7 @@ class LogEntryAdmin(admin.ModelAdmin):
         return request.user.is_superuser
 
 
-admin.site.site_header = 'Active Brain Atlas Admin'
-admin.site.site_title = "Active Brain Atlas"
-admin.site.index_title = "Welcome to Active Brain Atlas Portal"
-admin.site.site_url = "https://github.com/ActiveBrainAtlas2"
+admin.site.site_header = 'BrainSharer Admin'
+admin.site.site_title = "BrainSharer"
+admin.site.index_title = "Welcome to Brainsharer Portal"
+admin.site.site_url = "https://github.com/BrainSharer"

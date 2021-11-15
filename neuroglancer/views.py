@@ -1,4 +1,3 @@
-from neuroglancer.atlas import align_atlas, get_scales
 from django.shortcuts import render
 from rest_framework import viewsets, views
 from rest_framework import permissions
@@ -12,9 +11,10 @@ from collections import defaultdict
 import numpy as np
 from scipy.interpolate import splprep, splev
 from neuroglancer.serializers import AnnotationSerializer, \
-    AnnotationsSerializer, LineSerializer, RotationSerializer, UrlSerializer, \
-    AnimalInputSerializer, IdSerializer
+    AnnotationsSerializer, LineSerializer, UrlSerializer, IdSerializer
 from neuroglancer.models import InputType, UrlModel, LayerData, Structure
+from neuroglancer.atlas import get_scales
+
 import logging
 logging.basicConfig()
 logger = logging.getLogger(__name__)
@@ -27,25 +27,6 @@ class UrlViewSet(viewsets.ModelViewSet):
     queryset = UrlModel.objects.all()
     serializer_class = UrlSerializer
     permission_classes = [permissions.AllowAny]
-
-class AlignAtlasView(views.APIView):
-    """This will be run when a user clicks the align link/button in Neuroglancer
-    It will return the json rotation and translation matrix"""
-
-    def get(self, request, *args, **kwargs):
-        # Validate the incoming input (provided through query parameters)
-        serializer = AnimalInputSerializer(data=request.query_params)
-        serializer.is_valid(raise_exception=True)
-        animal = serializer.validated_data['animal']
-        data = {}
-        # if request.user.is_authenticated and animal:
-        R, t = align_atlas(animal)
-        rl = R.tolist()
-        tl = t.tolist()
-        data['rotation'] = rl
-        data['translation'] = tl
-
-        return JsonResponse(data)
 
 class UrlDataView(views.APIView):
     """This will be run when a a ID is sent to:
@@ -154,59 +135,6 @@ class Annotations(views.APIView):
         serializer = AnnotationsSerializer(data, many=True)
         return Response(serializer.data)
 
-class Rotation(views.APIView):
-    """This will be run when a user clicks the align link/button in Neuroglancer
-    It will return the json rotation and translation matrix
-    Fetch center of mass for the prep_id, input_type and person_id.
-    url is of the the form https://activebrainatlas.ucsd.edu/activebrainatlas/rotation/DK39/manual/2
-    Where DK39 is the prep_id, manual is the input_type and 2 is the person_id
-    """
-
-    def get(self, request, prep_id, input_type, person_id, format=None):
-
-        input_type_id = get_input_type_id(input_type)
-        data = {}
-        # if request.user.is_authenticated and animal:
-        R, t = align_atlas(prep_id, input_type_id=input_type_id, 
-                           person_id=person_id)
-        data['rotation'] = R.tolist()
-        data['translation'] = t.tolist()
-
-        return JsonResponse(data)
-
-class Rotations(views.APIView):
-    """
-    Fetch distinct prep_id, input_type, person_id and username:
-    url is of the the form https://activebrainatlas.ucsd.edu/activebrainatlas/rotations
-    """
-
-    def get(self, request, format=None):
-        data = []
-        com_manual = LayerData.objects.order_by('prep_id', 'person_id', 'input_type_id')\
-            .filter(layer='COM').filter(person_id=2)\
-            .filter(active=True).filter(input_type__input_type__in=['manual'])\
-            .values('prep_id', 'input_type__input_type', 'person_id', 'person__username').distinct()
-        com_detected = LayerData.objects.order_by('prep_id', 'person_id', 'input_type_id')\
-            .filter(layer='COM').filter(person_id=23)\
-            .filter(active=True).filter(input_type__input_type__in=['detected'])\
-            .values('prep_id', 'input_type__input_type', 'person_id', 'person__username').distinct()
-        for com in com_manual:
-            data.append({
-                "prep_id":com['prep_id'],
-                "input_type":com['input_type__input_type'],
-                "person_id":com['person_id'],
-                "username":com['person__username'],
-                })
-        for com in com_detected:
-            data.append({
-                "prep_id":com['prep_id'],
-                "input_type":com['input_type__input_type'],
-                "person_id":com['person_id'],
-                "username":com['person__username'],
-                })
-        serializer = RotationSerializer(data, many=True)
-        return Response(serializer.data)
-
 def interpolate(points, new_len):
     points = np.array(points)
     pu = points.astype(int)
@@ -253,8 +181,6 @@ def public_list(request):
     """
     urls = UrlModel.objects.filter(public=True).order_by('comments')
     return render(request, 'public.html', {'urls': urls})
-
-from django.contrib.auth.decorators import login_required
 
 class LandmarkList(views.APIView):
 

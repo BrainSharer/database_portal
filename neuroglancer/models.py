@@ -9,15 +9,6 @@ from django.template.defaultfilters import truncatechars
 from brain.models import AtlasModel, Animal
 from django_mysql.models import EnumField
 
-COL_LENGTH = 1000
-ROW_LENGTH = 1000
-Z_LENGTH = 300
-ATLAS_X_BOX_SCALE = 10
-ATLAS_Y_BOX_SCALE = 10
-ATLAS_Z_BOX_SCALE = 20
-ATLAS_RAW_SCALE = 10
-ANNOTATION_ID = 52
-LAUREN_ID = 16
 
 class AnnotationChoice(str, Enum):
     POINT = 'point'
@@ -118,7 +109,7 @@ class UrlModel(models.Model):
         return layer_list
 
     class Meta:
-        managed = False
+        managed = True
         verbose_name = "Url"
         verbose_name_plural = "Urls"
         ordering = ('comments', 'created')
@@ -167,7 +158,7 @@ class Structure(AtlasModel):
     hexadecimal = models.CharField(max_length=7)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'structure'
         verbose_name = 'Structure'
         verbose_name_plural = 'Structures'
@@ -184,7 +175,7 @@ class InputType(models.Model):
     updated = models.DateTimeField(auto_now=True, editable=False, null=False, blank=False)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'com_type'
         verbose_name = 'COM Type'
         verbose_name_plural = 'COM Types'
@@ -192,31 +183,8 @@ class InputType(models.Model):
     def __str__(self):
         return u'{}'.format(self.input_type)
 
-class Transformation(models.Model):
-    id = models.BigAutoField(primary_key=True)
-    prep = models.ForeignKey(Animal, models.CASCADE, null=True, db_column="prep_id", verbose_name="Animal")
-    person = models.ForeignKey(settings.AUTH_USER_MODEL, models.CASCADE, db_column="person_id",
-                               verbose_name="User", blank=False, null=False)
-    input_type = models.ForeignKey(InputType, models.CASCADE, db_column="input_type_id",
-                               verbose_name="Input", blank=False, null=False)
-    com_name = models.CharField(max_length=50, null=False, blank=False, verbose_name="Name")
-    active = models.BooleanField(default = True, db_column='active')
-    created = models.DateTimeField(auto_now_add=True)
-    updated = models.DateTimeField(auto_now=True, editable=False, null=False, blank=False)
-
-    class Meta:
-        managed = False
-        db_table = 'transformation'
-        verbose_name = 'Transformation'
-        verbose_name_plural = 'Transformations'
-
-    def __str__(self):
-        return u'{} {}'.format(self.prep.prep_id, self.com_name)
-
 class Layers(models.Model):
     id = models.BigAutoField(primary_key=True)
-    # url = models.ForeignKey(UrlModel, models.CASCADE, null=True, db_column="url_id",
-    #                            verbose_name="Url")
     prep = models.ForeignKey(Animal, models.CASCADE, null=True, db_column="prep_id", verbose_name="Animal")
     
     structure = models.ForeignKey(Structure, models.CASCADE, null=True, db_column="structure_id",
@@ -243,7 +211,7 @@ class Layers(models.Model):
 class LayerData(Layers):
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'layer_data'
         verbose_name = 'Annotation Data'
         verbose_name_plural = 'Annotation Data'
@@ -251,13 +219,3 @@ class LayerData(Layers):
     def __str__(self):
         return u'{} {}'.format(self.prep, self.layer)
 
-
-class AlignmentScore(models.Model):
-    class Meta:
-        managed = False
-        db_table = 'layer_data'
-        verbose_name = 'Alignment Score'
-        verbose_name_plural = 'Alignment Scores'
-
-    def __str__(self):
-        return u'{}'.format(self.prep_id)

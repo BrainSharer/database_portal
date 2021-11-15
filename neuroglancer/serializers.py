@@ -1,11 +1,11 @@
 from datetime import datetime
-from neuroglancer.atlas import update_center_of_mass
 from rest_framework import serializers
 from rest_framework.exceptions import APIException
 import logging
 
 from brain.models import Animal
 from neuroglancer.models import LayerData, Structure, UrlModel
+from neuroglancer.atlas import update_center_of_mass
 from django.contrib.auth.models import User
 
 logging.basicConfig()
@@ -101,20 +101,6 @@ class CenterOfMassSerializer(serializers.ModelSerializer):
 
         return com
 
-
-class RotationModelSerializer(serializers.ModelSerializer):
-    username = serializers.CharField(read_only=True, source="person__username")
-
-    class Meta:
-        model = LayerData
-        fields = ['prep_id', 'input_type_id', 'person_id', 'username']
-
-
-class RotationSerializer(serializers.Serializer):
-    prep_id = serializers.CharField()
-    input_type = serializers.CharField()
-    person_id = serializers.IntegerField()
-    username = serializers.CharField()
 
 
 class UrlSerializer(serializers.ModelSerializer):

@@ -35,15 +35,11 @@ class Animal(AtlasModel):
     shipper = EnumField(choices=['FedEx','UPS'], blank=True, null=True)
     tracking_number = models.CharField(max_length=100, blank=True, null=True)
     # cshl_send_date = models.DateField(blank=True, null=True, verbose_name='CSHL ship date')
-    aliases_1 = models.CharField(max_length=100, blank=True, null=True)
-    aliases_2 = models.CharField(max_length=100, blank=True, null=True)
-    aliases_3 = models.CharField(max_length=100, blank=True, null=True)
-    aliases_4 = models.CharField(max_length=100, blank=True, null=True)
-    aliases_5 = models.CharField(max_length=100, blank=True, null=True)
+    aliases = models.CharField(max_length=100, blank=True, null=True)
     comments = models.TextField(max_length=2001, blank=True, null=True)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'animal'
         verbose_name = 'Animal'
         verbose_name_plural = 'Animals'
@@ -74,7 +70,7 @@ class FileOperation(AtlasModel):
     active = models.IntegerField()
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'file_operation'
         verbose_name = 'File Operation'
         verbose_name_plural = 'File Operations'
@@ -83,7 +79,6 @@ class Histology(AtlasModel):
     id = models.AutoField(primary_key=True)
     prep = models.ForeignKey(Animal, models.CASCADE)
     virus = models.ForeignKey('Virus', models.CASCADE, blank=True, null=True)
-    label = models.ForeignKey('OrganicLabel', models.CASCADE, blank=True, null=True)
     performance_center = EnumField(choices=['CSHL','Salk','UCSD','HHMI'], blank=True, null=True)
     anesthesia = EnumField(choices=['ketamine','isoflurane','pentobarbital','fatal plus'], blank=True, null=True)
     perfusion_age_in_days = models.PositiveIntegerField()
@@ -105,7 +100,7 @@ class Histology(AtlasModel):
     comments = models.TextField(max_length=2001, blank=True, null=True)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'histology'
         verbose_name = 'Histology'
         verbose_name_plural = 'Histologies'
@@ -121,7 +116,6 @@ class Histology(AtlasModel):
 class Injection(AtlasModel):
     id = models.AutoField(primary_key=True)
     prep = models.ForeignKey(Animal, models.CASCADE)
-    label = models.ForeignKey('OrganicLabel', models.CASCADE, blank=True, null=True)
     performance_center = EnumField(choices=['CSHL','Salk','UCSD','HHMI','Duke'], blank=True, null=True)
     anesthesia = EnumField(choices=['ketamine','isoflurane'], blank=True, null=True)
     method = EnumField(choices=['iontophoresis','pressure','volume'], blank=True, null=True)
@@ -138,7 +132,7 @@ class Injection(AtlasModel):
     comments = models.TextField(max_length=2001, blank=True, null=True)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'injection'
         verbose_name = 'Injection'
         verbose_name_plural = 'Injections'
@@ -152,38 +146,10 @@ class InjectionVirus(AtlasModel):
     virus = models.ForeignKey('Virus', models.CASCADE)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'injection_virus'
         verbose_name = 'Injection Virus'
         verbose_name_plural = 'Injection Viruses'
-
-class OrganicLabel(AtlasModel):
-    id = models.AutoField(primary_key=True)
-    label_id = models.CharField(max_length=20)
-    label_type = EnumField(choices=['Cascade Blue','Chicago Blue','Alexa405','Alexa488','Alexa647','Cy2','Cy3','Cy5','Cy5.5','Cy7','Fluorescein','Rhodamine B','Rhodamine 6G','Texas Red','TMR'], blank=True, null=True)
-    type_lot_number = models.CharField(max_length=20, blank=True, null=True)
-    type_tracer = EnumField(choices=['BDA','Dextran','FluoroGold','DiI','DiO'], blank=True, null=True)
-    type_details = models.CharField(max_length=500, blank=True, null=True)
-    concentration = models.FloatField()
-    excitation_1p_wavelength = models.IntegerField()
-    excitation_1p_range = models.IntegerField()
-    excitation_2p_wavelength = models.IntegerField()
-    excitation_2p_range = models.IntegerField()
-    lp_dichroic_cut = models.IntegerField()
-    emission_wavelength = models.IntegerField()
-    emission_range = models.IntegerField()
-    label_source = EnumField(choices=['Invitrogen','Sigma','Thermo-Fisher'], blank=True, null=True)
-    source_details = models.CharField(max_length=100, blank=True, null=True)
-    comments = models.TextField(max_length=2000, blank=True, null=True)
-
-    class Meta:
-        managed = False
-        db_table = 'organic_label'
-        verbose_name = 'Organic Label'
-        verbose_name_plural = 'Organic Labels'
-
-    def __str__(self):
-        return "{} {}".format(self.label_id, self.label_type)
 
 class ScanRun(AtlasModel):
     id = models.AutoField(primary_key=True)
@@ -216,7 +182,7 @@ class ScanRun(AtlasModel):
         return "{} Scan ID: {}".format(self.prep.prep_id, self.id)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'scan_run'
 
 class Slide(AtlasModel):
@@ -270,7 +236,7 @@ class Slide(AtlasModel):
         return "{}".format(self.file_name)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'slide'
 
 class SlideCziToTif(AtlasModel):
@@ -288,13 +254,11 @@ class SlideCziToTif(AtlasModel):
     file_size = models.FloatField(verbose_name='File size (bytes)')
     processing_duration = models.FloatField(verbose_name="Processing time (seconds)")
 
-
-
     def max_scene(self):
         return self.slide.scenes
 
     class Meta():
-        managed = False
+        managed = True
         db_table = 'slide_czi_to_tif'
         verbose_name = 'Slide CZI to TIF'
         verbose_name_plural = 'Slides CZI to TIF'
@@ -378,7 +342,7 @@ class Virus(AtlasModel):
     comments = models.TextField(max_length=2000, blank=True, null=True)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'virus'
         verbose_name = 'Virus'
         verbose_name_plural = 'Viruses'

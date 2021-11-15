@@ -5,4 +5,17 @@
 1. `source /usr/local/share/brainsharer/bin/activate`
 1. upgrade pip: `pip install -U pip`
 1. pip install -r requirements.txt
-1. as root install libmysqlclient-dev and 
+1. as root install libmysqlclient-dev
+1. as root go into mysql and do:
+    1. `create database brainsharer;`
+    1. `grant all privileges on brainsharer.* to 'brainsharer'@'localhost' identified by 'CHANGEME';
+    1. `flush privileges;`
+1. Make the Django database migrations:
+    1. `python manage.py makemigrations`
+    1. `python manage.py showmigrations` # there should be migrations
+    for admin, auth, brain, contenttypes, neuroglancer and sessions.
+    If not you might need to do something like `python manage.py
+    makemigrations neuroglancer`
+1. Create a superuser: `python manage.py createsuperuser`
+1. Create a view from the existing tables with the script in the sql
+dir with `mysql brainsharer < sql/create_sections.sql

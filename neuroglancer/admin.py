@@ -3,8 +3,10 @@ import json
 from django.conf import settings
 from django.contrib import admin
 from django.forms import TextInput
-from django.urls import reverse
+from django.urls import reverse, path
 from django.utils.html import format_html, escape
+from django.template.response import TemplateResponse
+
 from pygments import highlight
 from pygments.formatters import HtmlFormatter
 from pygments.lexers import JsonLexer
@@ -70,43 +72,13 @@ class UrlModelAdmin(admin.ModelAdmin):
     open_multiuser.short_description = 'Multi-User'
     open_multiuser.allow_tags = True
 
-@admin.register(Points)
+#@admin.register(Points)
 class PointsAdmin(admin.ModelAdmin):
-    list_display = ('animal', 'comments', 'person','show_points', 'updated')
+    list_display = ('animal', 'comments', 'person', 'updated')
     ordering = ['-created']
     readonly_fields = ['url', 'created', 'user_date', 'updated']
     search_fields = ['comments']
     list_filter = ['created', 'updated','vetted']
-
-    def created_display(self, obj):
-        return datetime_format(obj.created)
-    created_display.short_description = 'Created'  
-
-    def get_queryset(self, request):
-        points = Points.objects.filter(url__layers__contains={'type':'annotation'})
-        return points
-
-    def show_points(self, obj):
-        return format_html(
-            '<a href="{}">3D Graph</a>&nbsp; <a href="{}">Data</a>',
-            reverse('admin:points-3D-graph', args=[obj.pk]),
-            reverse('admin:points-data', args=[obj.pk])
-        )
-
-    def get_urls(self):
-        urls = super().get_urls()
-        custom_urls = []
-        return custom_urls + urls
-
-
-    def has_delete_permission(self, request, obj=None):
-        return False
-
-    def has_add_permission(self, request, obj=None):
-        return False
-
-    def has_change_permission(self, request, obj=None):
-        return False
 
 @admin.register(Structure)
 class StructureAdmin(admin.ModelAdmin, ExportCsvMixin):

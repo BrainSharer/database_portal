@@ -1,12 +1,14 @@
 ### Setup the database portal on your local machine
 1. Get repo: `git clone git@github.com:BrainSharer/database_portal.git`
-1. create a virtual environment in your home dir: python3 -m venv /usr/local/share/brainsharer
+1. Create a virtual environment in your home dir: python3 -m venv /usr/local/share/brainsharer
 1. cd database_portal
 1. `source /usr/local/share/brainsharer/bin/activate`
-1. upgrade pip: `pip install -U pip`
-1. pip install -r requirements.txt
-1. as root install libmysqlclient-dev
-1. as root go into mysql and do:
+1. Upgrade pip: `pip install -U pip`
+1. run: `pip install -r requirements.txt`
+1. On MacOS you might need to do this: 
+`CFLAGS="-I$(brew --prefix)/include" LDFLAGS="-L$(brew --prefix)/lib" pip install mysqlclient`
+1. On ubuntu/debian, as root install libmysqlclient-dev
+1. As root go into mysql and do:
     1. `create database brainsharer;`
     1. `CREATE USER 'brainsharer'@'localhost' IDENTIFIED BY 'CHANGME'`;
     1. `grant all privileges on brainsharer.* to 'brainsharer'@'localhost' WITH GRANT OPTION;`

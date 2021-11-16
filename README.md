@@ -8,9 +8,12 @@
 1. as root install libmysqlclient-dev
 1. as root go into mysql and do:
     1. `create database brainsharer;`
-    1. `grant all privileges on brainsharer.* to 'brainsharer'@'localhost' identified by 'CHANGEME';
+    1. `CREATE USER 'brainsharer'@'localhost' IDENTIFIED BY 'CHANGME'`;
+    1. `grant all privileges on brainsharer.* to 'brainsharer'@'localhost' WITH GRANT OPTION;`
+    1. `update user set Super_Priv='Y' where user='brainsharer';`
     1. `flush privileges;`
 1. Make the Django database migrations:
+    1. `python manage.py check`
     1. `python manage.py makemigrations`
     1. `python manage.py showmigrations` # there should be migrations
     for admin, auth, brain, contenttypes, neuroglancer and sessions.

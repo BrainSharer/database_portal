@@ -12,6 +12,7 @@
     1. `create database brainsharer;`
     1. `CREATE USER 'brainsharer'@'localhost' IDENTIFIED BY 'CHANGME'`;
     1. `grant all privileges on brainsharer.* to 'brainsharer'@'localhost' WITH GRANT OPTION;`
+    1. `use mysql;`
     1. `update user set Super_Priv='Y' where user='brainsharer';`
     1. `flush privileges;`
 1. Make the Django database migrations:
@@ -20,7 +21,9 @@
     1. `python manage.py showmigrations` # there should be migrations
     for admin, auth, brain, contenttypes, neuroglancer and sessions.
     If not you might need to do something like `python manage.py
-    makemigrations neuroglancer`
+    makemigrations neuroglancer` and `python manage.py
+    makemigrations brain`
+    1. `python manage.py migrate`
 1. Create a superuser: `python manage.py createsuperuser`
 1. Create a view from the existing tables with the script in the sql
 dir with `mysql brainsharer < sql/create_sections.sql

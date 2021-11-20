@@ -3,7 +3,7 @@ These are methods taken from notebooks, mostly Bili's
 There are constants defined in the models.py script and imported here
 so we can resuse them througout the code.
 """
-from django.contrib.auth.models import User
+from authentication.models import User
 import datetime
 from brain.models import Animal, ScanRun
 from neuroglancer.models import Structure, LayerData
@@ -105,7 +105,7 @@ def update_or_insert_annotations(prep,layer,loggedInUser,existing_structures,lay
                     add_com(prep,structure,(x,y,z),loggedInUser,layer_name)
     return existing_structures
 
-def update_center_of_mass(urlModel):
+def update_center_of_mass(neuroglancerModel):
     """
     This method checks if there is center of mass data. If there is,
     then it first find the center of mass rows for that
@@ -118,17 +118,17 @@ def update_center_of_mass(urlModel):
         structure name must be in the description field
         structures must exactly match the structure names in the database,
         though this script does strip line breaks, white space off.
-    :param urlModel: the long url from neuroglancer
+    :param neuroglancerModel: the long neuroglancer from neuroglancer
     :return: nothing
     """
-    json_txt = urlModel.url
+    json_txt = neuroglancerModel.neuroglancer_state
     try:
-        loggedInUser = User.objects.get(pk=urlModel.person.id)
+        loggedInUser = User.objects.get(pk=neuroglancerModel.person.id)
     except User.DoesNotExist:
         logger.error("User does not exist")
         return
     try:
-        prep = Animal.objects.get(pk=urlModel.animal)
+        prep = Animal.objects.get(pk=neuroglancerModel.animal)
     except Animal.DoesNotExist:
         logger.error("Animal does not exist")
         return

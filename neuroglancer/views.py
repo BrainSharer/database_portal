@@ -11,8 +11,8 @@ from collections import defaultdict
 import numpy as np
 from scipy.interpolate import splprep, splev
 from neuroglancer.serializers import AnnotationSerializer, \
-    AnnotationsSerializer, LineSerializer, UrlSerializer, IdSerializer
-from neuroglancer.models import InputType, UrlModel, LayerData, Structure
+    AnnotationsSerializer, LineSerializer, NeuroglancerSerializer, IdSerializer
+from neuroglancer.models import InputType, NeuroglancerModel, LayerData, Structure
 from neuroglancer.atlas import get_scales
 
 import logging
@@ -20,15 +20,15 @@ logging.basicConfig()
 logger = logging.getLogger(__name__)
 
 
-class UrlViewSet(viewsets.ModelViewSet):
+class NeuroglancerViewSet(viewsets.ModelViewSet):
     """
-    API endpoint that allows the neuroglancer urls to be viewed or edited.
+    API endpoint that allows the neuroglancer states to be viewed or edited.
     """
-    queryset = UrlModel.objects.all()
-    serializer_class = UrlSerializer
+    queryset = NeuroglancerModel.objects.all()
+    serializer_class = NeuroglancerSerializer
     permission_classes = [permissions.AllowAny]
 
-class UrlDataView(views.APIView):
+class NeuroglancerDataView(views.APIView):
     """This will be run when a a ID is sent to:
     https://site.com/activebrainatlas/urldata?id=999
     Where 999 is the primary key of the url model"""
@@ -38,13 +38,13 @@ class UrlDataView(views.APIView):
         serializer = IdSerializer(data=request.query_params)
         serializer.is_valid(raise_exception=True)
         id = serializer.validated_data['id']
-        urlModel = UrlModel.objects.get(pk=id)
-        return HttpResponse(f"#!{escape(urlModel.url)}")
+        neuroglancerModel = NeuroglancerModel.objects.get(pk=id)
+        return HttpResponse(f"#!{escape(neuroglancerModel.neuroglancer_state)}")
 
 class Annotation(views.APIView):
     """
     Fetch LayerData model and return parsed annotation layer.
-    url is of the the form
+    neuroglancer is of the the form
     https://activebrainatlas.ucsd.edu/activebrainatlas/annotation/DKXX/premotor/2
     Where:
          DKXX is the animal,
@@ -106,7 +106,7 @@ class Annotation(views.APIView):
 
 class Annotations(views.APIView):
     """
-    Fetch UrlModel and return a set of two dictionaries. 
+    Fetch NeuroglancerModel and return a set of two dictionaries. 
     One is from the layer_data
     table and the other is the COMs that have been set as transformations.
     {'id': 213, 'description': 'DK39 COM Test', 'layer_name': 'COM'}
@@ -168,9 +168,9 @@ def random_string():
 def load_layers(request):
     layers = []
     url_id = request.GET.get('id')
-    urlModel = UrlModel.objects.get(pk=url_id).all()
-    if urlModel.layers is not None:
-        layers = urlModel.layers
+    neuroglancerModel = NeuroglancerModel.objects.get(pk=url_id).all()
+    if neuroglancerModel.layers is not None:
+        layers = neuroglancerModel.layers
     return render(request, 'layer_dropdown_list_options.html', {'layers': layers})
 
 def public_list(request):
@@ -179,8 +179,8 @@ def public_list(request):
     :param request:
     :return:
     """
-    urls = UrlModel.objects.filter(public=True).order_by('comments')
-    return render(request, 'public.html', {'urls': urls})
+    neuroglancer_states = NeuroglancerModel.objects.filter(public=True).order_by('comments')
+    return render(request, 'public.html', {'neuroglancer_states': neuroglancer_states})
 
 class LandmarkList(views.APIView):
 

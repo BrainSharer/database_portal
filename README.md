@@ -23,4 +23,13 @@
     makemigrations neuroglancer`
 1. Create a superuser: `python manage.py createsuperuser`
 1. Create a view from the existing tables with the script in the sql
-dir with `mysql brainsharer < sql/create_sections.sql
+dir with `mysql brainsharer < sql/create_sections.sql`
+
+## To redo all database migrations and start from scratch
+1. go to the top level dir of the project (same dir as the manage.py script)
+1. run: `find . -path "*/migrations/*.py" -not -name "__init__.py" -delete`
+1. run: `find . -path "*/migrations/*.pyc"  -delete`
+1. go to the mysql/mariadb prompty and delete and recreate the database:
+    1. `drop database brainsharer`
+    1. `create database brainsharer`
+1. rerun the migrations as above.

@@ -2,12 +2,12 @@ import json
 import numpy as np
 from rest_framework import status
 from django.test import Client, TransactionTestCase
-from django.contrib.auth.models import User
+from authentication.models import User
 # Create your tests here.
-from neuroglancer.models import UrlModel
+from neuroglancer.models import NeuroglancerModel
 
 
-class TestUrlModel(TransactionTestCase):
+class TestNeuroglancerModel(TransactionTestCase):
     client = Client()
 
     def setUp(self):
@@ -16,7 +16,7 @@ class TestUrlModel(TransactionTestCase):
                                                    password='pass')
         # ids 168, 188,210,211,209,200
         pk = 273
-        self.urlModel = UrlModel.objects.get(pk=pk)
+        self.urlModel = NeuroglancerModel.objects.get(pk=pk)
 
         self.serializer_data = {
             'url': self.urlModel.url,

@@ -13,7 +13,7 @@ from django.template.response import TemplateResponse
 
 from brain.forms import save_slide_model, TifInlineFormset
 from brain.models import (Animal, Histology, Injection, Virus, InjectionVirus,
-                          ScanRun, Slide, SlideCziToTif, Section)
+                          ScanRun, Slide, ImageFile, Section)
 
 
 class ExportCsvMixin:
@@ -135,7 +135,7 @@ class ScanRunAdmin(AtlasAdminModel, ExportCsvMixin):
     ordering = ['prep_id', 'performance_center', 'machine','comments', 'created']
 
 class TifInline(admin.TabularInline):
-    model = SlideCziToTif
+    model = ImageFile
     fields = ('file_name','scene_number', 'scene_index', 'channel', 'scene_image', 'section_image')
     readonly_fields = ['file_name', 'scene_number', 'channel', 'scene_index', 'scene_image', 'section_image']
     ordering = ['-active', 'scene_number', 'scene_index']
@@ -225,7 +225,7 @@ class SlideAdmin(AtlasAdminModel, ExportCsvMixin):
     inlines = [TifInline, ]
 
     def scene_count(self, obj):
-        count = SlideCziToTif.objects.filter(slide_id=obj.id).filter(channel=1).filter(active=True).count()
+        count = ImageFile.objects.filter(slide_id=obj.id).filter(channel=1).filter(active=True).count()
         return count
 
     scene_count.short_description = "Active Scenes"
@@ -246,8 +246,8 @@ class SlideAdmin(AtlasAdminModel, ExportCsvMixin):
     def prep_id(self, instance):
         return instance.scan_run.prep.prep_id
 
-@admin.register(SlideCziToTif)
-class SlideCziToTifAdmin(AtlasAdminModel, ExportCsvMixin):
+@admin.register(ImageFile)
+class ImageFileAdmin(AtlasAdminModel, ExportCsvMixin):
     list_display = ('file_name', 'scene_number', 'channel','file_size')
     ordering = ['file_name', 'scene_number', 'channel', 'file_size']
     exclude = ['processing_duration']

@@ -21,9 +21,9 @@ class AnnotationChoice(str, Enum):
     def __str__(self):
         return self.value
 
-class UrlModel(models.Model):
+class NeuroglancerModel(models.Model):
     id = models.BigAutoField(primary_key=True)
-    url = models.JSONField()
+    neuroglancer_state = models.JSONField()
     person = models.ForeignKey(settings.AUTH_USER_MODEL, models.CASCADE, null=True, db_column="person_id",
                                verbose_name="User")
     public = models.BooleanField(default = True, db_column='active')
@@ -35,11 +35,11 @@ class UrlModel(models.Model):
 
     @property
     def short_description(self):
-        return truncatechars(self.url, 50)
+        return truncatechars(self.neuroglancer_state, 50)
 
     @property
-    def escape_url(self):
-        return escape(self.url)
+    def escape_state(self):
+        return escape(self.neuroglancer_state)
 
     @property
     def animal(self):
@@ -49,7 +49,7 @@ class UrlModel(models.Model):
         return: the first match if found, otherwise NA
         """
         animal = "NA"
-        match = re.search('data/(.+?)/neuroglancer_data', str(self.url))
+        match = re.search('data/(.+?)/neuroglancer_data', str(self.neuroglancer_state))
         if match is not None and match.group(1) is not None:
             animal = match.group(1)
         return animal
@@ -57,8 +57,8 @@ class UrlModel(models.Model):
     @property
     def point_frame(self):
         df = None
-        if self.url is not None:
-            point_data = self.find_values('annotations', self.url)
+        if self.neuroglancer_state is not None:
+            point_data = self.find_values('annotations', self.neuroglancer_state)
             if len(point_data) > 0:
                 d = [row['point'] for row in point_data[0]]
                 df = pd.DataFrame(d, columns=['X', 'Y', 'Section'])
@@ -69,8 +69,8 @@ class UrlModel(models.Model):
     def points(self):
         result = None
         dfs = []
-        if self.url is not None:
-            json_txt = self.url
+        if self.neuroglancer_state is not None:
+            json_txt = self.neuroglancer_state
             layers = json_txt['layers']
             for layer in layers:
                 if 'annotations' in layer:
@@ -98,8 +98,8 @@ class UrlModel(models.Model):
     @property
     def layers(self):
         layer_list = []
-        if self.url is not None:
-            json_txt = self.url
+        if self.neuroglancer_state is not None:
+            json_txt = self.neuroglancer_state
             layers = json_txt['layers']
             for layer in layers:
                 if 'annotations' in layer:
@@ -110,10 +110,10 @@ class UrlModel(models.Model):
 
     class Meta:
         managed = True
-        verbose_name = "Url"
-        verbose_name_plural = "Urls"
+        verbose_name = "Neuroglancer State"
+        verbose_name_plural = "Neuroglancer States"
         ordering = ('comments', 'created')
-        db_table = 'neuroglancer_urls'
+        db_table = 'neuroglancer_state'
 
     def __str__(self):
         return u'{}'.format(self.comments)
@@ -142,7 +142,7 @@ class UrlModel(models.Model):
         json.loads(json_repr, object_hook=_decode_dict)  # Return value ignored.
         return results
 
-class Points(UrlModel):
+class Points(NeuroglancerModel):
 
     class Meta:
         managed = False
@@ -168,7 +168,7 @@ class Structure(AtlasModel):
 
 class InputType(models.Model):
     id = models.BigAutoField(primary_key=True)
-    input_type = models.CharField(max_length=50, blank=False, null=False, verbose_name='Input')
+    input_type = models.CharField(max_length=50, blank=False, null=False, verbose_name='Annotation Type')
     description = models.TextField(max_length=255, blank=False, null=False)
     active = models.BooleanField(default = True, db_column='active')
     created = models.DateTimeField(auto_now_add=True)
@@ -176,9 +176,9 @@ class InputType(models.Model):
 
     class Meta:
         managed = True
-        db_table = 'com_type'
-        verbose_name = 'COM Type'
-        verbose_name_plural = 'COM Types'
+        db_table = 'input_type'
+        verbose_name = 'Annotation Type'
+        verbose_name_plural = 'Annotation Types'
 
     def __str__(self):
         return u'{}'.format(self.input_type)

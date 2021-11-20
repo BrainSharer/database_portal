@@ -1,13 +1,10 @@
-import datetime, random
-from django import forms
+import random
 from django.contrib.admin.options import ModelAdmin
 from django.contrib.admin.sites import AdminSite
-from django.contrib.auth.models import User
-from django.test import SimpleTestCase, TestCase, TransactionTestCase
-from brain.models import Animal, ScanRun, Slide, SlideCziToTif
-from brain.forms import save_slide_model
+from authentication.models import User
+from django.test import TransactionTestCase
+from brain.models import Animal, ScanRun, Slide, ImageFile
 from brain.admin import SlideAdmin
-from unittest import mock
 
 
 class TestSlideForms(TransactionTestCase):
@@ -35,7 +32,7 @@ class TestSlideForms(TransactionTestCase):
         )
         self.site = AdminSite()
 
-        self.tif1 = SlideCziToTif.objects.create(slide=self.slide,
+        self.tif1 = ImageFile.objects.create(slide=self.slide,
                                                  file_name='S1C1.tif',
                                                  scene_number=1,
                                                  scene_index=0,
@@ -44,7 +41,7 @@ class TestSlideForms(TransactionTestCase):
                                                  height=0,
                                                  file_size=0,
                                                  processing_duration=0)
-        self.tif2 = SlideCziToTif.objects.create(slide=self.slide,
+        self.tif2 = ImageFile.objects.create(slide=self.slide,
                                                  file_name='S2C1.tif',
                                                  scene_number=2,
                                                  scene_index=0,
@@ -53,7 +50,7 @@ class TestSlideForms(TransactionTestCase):
                                                  height=0,
                                                  file_size=0,
                                                  processing_duration=0)
-        self.tif3 = SlideCziToTif.objects.create(slide=self.slide,
+        self.tif3 = ImageFile.objects.create(slide=self.slide,
                                                  file_name='S3C1.tif',
                                                  scene_number=3,
                                                  scene_index=0,
@@ -98,9 +95,9 @@ class TestSlideForms(TransactionTestCase):
                 'insert_between_four_five': 0,
                 'insert_between_five_six': 0}
             total_inserts = i * 3
-            precount = SlideCziToTif.objects.filter(slide_id=self.slide.id).filter(active=1).count()
+            precount = ImageFile.objects.filter(slide_id=self.slide.id).filter(active=1).count()
             ma.save_model(obj=self.slide, request=request, form=form, change=None)
-            postcount = SlideCziToTif.objects.filter(slide_id=self.slide.id).filter(active=1).count()
+            postcount = ImageFile.objects.filter(slide_id=self.slide.id).filter(active=1).count()
             # some test assertions here
             self.assertEquals(precount + total_inserts, postcount)
         """

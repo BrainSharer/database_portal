@@ -13,13 +13,13 @@ from pygments.lexers import JsonLexer
 from django.utils.safestring import mark_safe
 from brain.admin import AtlasAdminModel, ExportCsvMixin
 from neuroglancer.models import InputType, LayerData, \
-    UrlModel,  Structure, Points
+    NeuroglancerModel,  Structure, Points
 from neuroglancer.url_filter import UrlFilter
 def datetime_format(dtime):
     return dtime.strftime("%d %b %Y %H:%M")
 
-@admin.register(UrlModel)
-class UrlModelAdmin(admin.ModelAdmin):
+@admin.register(NeuroglancerModel)
+class NeuroglancerModelAdmin(admin.ModelAdmin):
     formfield_overrides = {
         models.CharField: {'widget': TextInput(attrs={'size': '100'})},
     }
@@ -27,7 +27,7 @@ class UrlModelAdmin(admin.ModelAdmin):
                     'person', 'updated')
     ordering = ['-vetted', '-updated']
     readonly_fields = ['pretty_url', 'created', 'user_date', 'updated']
-    exclude = ['url']
+    exclude = ['neuroglancer_state']
     list_filter = ['updated', 'created', 'vetted',UrlFilter,]
     search_fields = ['comments']
 
@@ -35,7 +35,7 @@ class UrlModelAdmin(admin.ModelAdmin):
         """Function to display pretty version of our data"""
 
         # Convert the data to sorted, indented JSON
-        response = json.dumps(instance.url, sort_keys=True, indent=2)
+        response = json.dumps(instance.neuroglancer_state, sort_keys=True, indent=2)
         # Truncate the data. Alter as needed
         # response = response[:5000]
         # Get the Pygments formatter
@@ -76,7 +76,7 @@ class UrlModelAdmin(admin.ModelAdmin):
 class PointsAdmin(admin.ModelAdmin):
     list_display = ('animal', 'comments', 'person', 'updated')
     ordering = ['-created']
-    readonly_fields = ['url', 'created', 'user_date', 'updated']
+    readonly_fields = ['neuroglancer_state', 'created', 'user_date', 'updated']
     search_fields = ['comments']
     list_filter = ['created', 'updated','vetted']
 

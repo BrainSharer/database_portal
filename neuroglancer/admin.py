@@ -82,7 +82,7 @@ class PointsAdmin(admin.ModelAdmin):
 
 @admin.register(Structure)
 class StructureAdmin(admin.ModelAdmin, ExportCsvMixin):
-    list_display = ('abbreviation', 'description','color','show_hexadecimal','active','created_display')
+    list_display = ('abbreviation', 'description','active','created_display')
     ordering = ['abbreviation']
     readonly_fields = ['created']
     list_filter = ['created', 'active']

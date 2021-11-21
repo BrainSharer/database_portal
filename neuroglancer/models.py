@@ -7,7 +7,7 @@ import pandas as pd
 from enum import Enum
 from django.template.defaultfilters import truncatechars
 from brain.models import AtlasModel, Animal
-from django_mysql.models import EnumField
+from authentication.models import Lab
 
 
 class AnnotationChoice(str, Enum):
@@ -21,13 +21,14 @@ class AnnotationChoice(str, Enum):
     def __str__(self):
         return self.value
 
+
 class NeuroglancerModel(models.Model):
     id = models.BigAutoField(primary_key=True)
     neuroglancer_state = models.JSONField()
     person = models.ForeignKey(settings.AUTH_USER_MODEL, models.CASCADE, null=True, db_column="person_id",
                                verbose_name="User")
-    public = models.BooleanField(default = True, db_column='active')
-    vetted = models.BooleanField(default = False)
+    # lab = models.ForeignKey(Lab, models.CASCADE, null=True, db_column="lab_id", verbose_name="Lab")
+    vetted = models.BooleanField(default=False)
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True, editable=False, null=False, blank=False)
     user_date = models.CharField(max_length=25)
@@ -128,7 +129,6 @@ class NeuroglancerModel(models.Model):
                 result = "display:inline;"
         return result
 
-
     def find_values(self, id, json_repr):
         results = []
 
@@ -142,6 +142,7 @@ class NeuroglancerModel(models.Model):
         json.loads(json_repr, object_hook=_decode_dict)  # Return value ignored.
         return results
 
+
 class Points(NeuroglancerModel):
 
     class Meta:
@@ -150,12 +151,11 @@ class Points(NeuroglancerModel):
         verbose_name = 'Points'
         verbose_name_plural = 'Points'
 
+
 class Structure(AtlasModel):
     id = models.BigAutoField(primary_key=True)
     abbreviation = models.CharField(max_length=200)
     description = models.TextField(max_length=2001, blank=False, null=False)
-    color = models.PositiveIntegerField()
-    hexadecimal = models.CharField(max_length=7)
 
     class Meta:
         managed = True
@@ -166,11 +166,12 @@ class Structure(AtlasModel):
     def __str__(self):
         return f'{self.description} {self.abbreviation}'
 
+
 class InputType(models.Model):
     id = models.BigAutoField(primary_key=True)
     input_type = models.CharField(max_length=50, blank=False, null=False, verbose_name='Annotation Type')
     description = models.TextField(max_length=255, blank=False, null=False)
-    active = models.BooleanField(default = True, db_column='active')
+    active = models.BooleanField(default=True, db_column='active')
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True, editable=False, null=False, blank=False)
 
@@ -182,6 +183,7 @@ class InputType(models.Model):
 
     def __str__(self):
         return u'{}'.format(self.input_type)
+
 
 class Layers(models.Model):
     id = models.BigAutoField(primary_key=True)
@@ -195,18 +197,17 @@ class Layers(models.Model):
                                verbose_name="Updater", blank=True, null=True, related_name="updater")
     input_type = models.ForeignKey(InputType, models.CASCADE, db_column="input_type_id",
                                verbose_name="Input", blank=False, null=False)
-    vetted = EnumField(choices=['yes','no'], blank=True, null=True)
     layer = models.CharField(max_length=255)
     x = models.FloatField(verbose_name="X (um)")
     y = models.FloatField(verbose_name="Y (um)")
     section = models.FloatField(verbose_name="Section (um)")
-    # segment_id = models.IntegerField(blank=True, null=True)
-    active = models.BooleanField(default = True, db_column='active')
+    active = models.BooleanField(default=True, db_column='active')
     created = models.DateTimeField(auto_now_add=False)
     updated = models.DateTimeField(auto_now=True, editable=False, null=False, blank=False)
 
     class Meta:
         abstract = True
+
 
 class LayerData(Layers):
 

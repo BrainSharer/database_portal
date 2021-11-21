@@ -5,7 +5,7 @@ import logging
 
 from brain.models import Animal
 from neuroglancer.models import LayerData, Structure, NeuroglancerModel
-from neuroglancer.atlas import update_center_of_mass
+from neuroglancer.atlas import update_annotation_data
 from authentication.models import User
 
 logging.basicConfig()
@@ -122,20 +122,21 @@ class NeuroglancerSerializer(serializers.ModelSerializer):
             neuroglancer_state=validated_data['neuroglancer_state'],
             user_date=validated_data['user_date'],
             comments=validated_data['comments'],
-            public=False,
             vetted=False,
         )
         if 'person_id' in validated_data:
             try:
                 authUser = User.objects.get(pk=validated_data['person_id'])
                 neuroglancerModel.person = authUser
+                # neuroglancerModel.lab = authUser.lab
             except User.DoesNotExist:
                 logger.error('Person was not in validated data')
+                return
         try:
             neuroglancerModel.save()
         except APIException:
             logger.error('Could not save neuroglancer model')
-        update_center_of_mass(neuroglancerModel)
+        update_annotation_data(neuroglancerModel)
         neuroglancerModel.neuroglancer_state = None
         return neuroglancerModel
 
@@ -157,6 +158,6 @@ class NeuroglancerSerializer(serializers.ModelSerializer):
             instance.save()
         except APIException:
             logger.error('Could not save Neuroglancer model')
-        update_center_of_mass(instance)
+        update_annotation_data(instance)
         instance.neuroglancer_state = None
         return instance

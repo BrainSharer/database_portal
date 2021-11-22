@@ -63,7 +63,7 @@ class Animal(AtlasModel):
 
 class FileOperation(AtlasModel):
     id = models.AutoField(primary_key=True)
-    tif = models.ForeignKey('SlideCziToTif', models.CASCADE)
+    tif = models.ForeignKey('ImageFile', models.CASCADE)
     operation = models.CharField(max_length=200)
     created = models.DateTimeField(auto_now_add=True)
     file_size = models.FloatField()
@@ -239,9 +239,9 @@ class Slide(AtlasModel):
         managed = True
         db_table = 'slide'
 
-class SlideCziToTif(AtlasModel):
+class ImageFile(AtlasModel):
     id = models.AutoField(primary_key=True)
-    slide = models.ForeignKey(Slide, models.CASCADE, related_name='slideczis')
+    slide = models.ForeignKey(Slide, models.CASCADE, related_name='slides')
     file_name = models.CharField(max_length=200, null=False)
     scene_number = models.IntegerField(blank=False, null=False, default=1,
                                                     verbose_name='Scene',
@@ -259,9 +259,9 @@ class SlideCziToTif(AtlasModel):
 
     class Meta():
         managed = True
-        db_table = 'slide_czi_to_tif'
-        verbose_name = 'Slide CZI to TIF'
-        verbose_name_plural = 'Slides CZI to TIF'
+        db_table = 'image_file'
+        verbose_name = 'Image File'
+        verbose_name_plural = 'Image Files'
         ordering = ['scene_number', 'channel']
 
     def __str__(self):
@@ -273,7 +273,7 @@ class Section(AtlasModel):
     czi_file = models.CharField(max_length=200)
     slide_physical_id = models.IntegerField(null=False, verbose_name='Slide')
     file_name = models.CharField(max_length=200)
-    tif = models.ForeignKey(SlideCziToTif, models.DO_NOTHING, db_column='tif_id')
+    tif = models.ForeignKey(ImageFile, models.DO_NOTHING, db_column='tif_id')
     scene_number = models.IntegerField(null=False, verbose_name='Scene')
     scene_index = models.IntegerField(null=False, verbose_name='Scene Index')
     channel = models.IntegerField(null=False)

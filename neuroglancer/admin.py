@@ -3,9 +3,7 @@ import json
 from django.conf import settings
 from django.contrib import admin
 from django.forms import TextInput
-from django.urls import reverse, path
 from django.utils.html import format_html, escape
-from django.template.response import TemplateResponse
 
 from pygments import highlight
 from pygments.formatters import HtmlFormatter
@@ -13,13 +11,13 @@ from pygments.lexers import JsonLexer
 from django.utils.safestring import mark_safe
 from brain.admin import AtlasAdminModel, ExportCsvMixin
 from neuroglancer.models import InputType, LayerData, \
-    UrlModel,  Structure, Points
-from neuroglancer.url_filter import UrlFilter
+    NeuroglancerModel,  Structure
+
 def datetime_format(dtime):
     return dtime.strftime("%d %b %Y %H:%M")
 
-@admin.register(UrlModel)
-class UrlModelAdmin(admin.ModelAdmin):
+@admin.register(NeuroglancerModel)
+class NeuroglancerModelAdmin(admin.ModelAdmin):
     formfield_overrides = {
         models.CharField: {'widget': TextInput(attrs={'size': '100'})},
     }
@@ -27,15 +25,26 @@ class UrlModelAdmin(admin.ModelAdmin):
                     'person', 'updated')
     ordering = ['-vetted', '-updated']
     readonly_fields = ['pretty_url', 'created', 'user_date', 'updated']
-    exclude = ['url']
-    list_filter = ['updated', 'created', 'vetted',UrlFilter,]
+    exclude = ['neuroglancer_state']
+    list_filter = ['updated', 'created', 'vetted']
     search_fields = ['comments']
+
+    def get_queryset(self, request, obj=None):
+        user = request.user
+        rows = None
+        if user.lab is not None:
+            rows = NeuroglancerModel.objects.filter(person__lab=user.lab).order_by('-vetted', '-updated')
+        else:
+            rows = NeuroglancerModel.objects.order_by('-vetted', '-updated')
+            
+        return rows
+
 
     def pretty_url(self, instance):
         """Function to display pretty version of our data"""
 
         # Convert the data to sorted, indented JSON
-        response = json.dumps(instance.url, sort_keys=True, indent=2)
+        response = json.dumps(instance.neuroglancer_state, sort_keys=True, indent=2)
         # Truncate the data. Alter as needed
         # response = response[:5000]
         # Get the Pygments formatter
@@ -72,17 +81,9 @@ class UrlModelAdmin(admin.ModelAdmin):
     open_multiuser.short_description = 'Multi-User'
     open_multiuser.allow_tags = True
 
-#@admin.register(Points)
-class PointsAdmin(admin.ModelAdmin):
-    list_display = ('animal', 'comments', 'person', 'updated')
-    ordering = ['-created']
-    readonly_fields = ['url', 'created', 'user_date', 'updated']
-    search_fields = ['comments']
-    list_filter = ['created', 'updated','vetted']
-
 @admin.register(Structure)
 class StructureAdmin(admin.ModelAdmin, ExportCsvMixin):
-    list_display = ('abbreviation', 'description','color','show_hexadecimal','active','created_display')
+    list_display = ('abbreviation', 'description','active','created_display')
     ordering = ['abbreviation']
     readonly_fields = ['created']
     list_filter = ['created', 'active']
@@ -123,6 +124,17 @@ class LayerDataAdmin(AtlasAdminModel):
     list_filter = ['created', 'active','input_type']
     search_fields = ['prep__prep_id', 'structure__abbreviation', 'layer', 'person__username']
     scales = {'dk':0.325, 'md':0.452, 'at':10}
+
+    def get_queryset(self, request, obj=None):
+        user = request.user
+        rows = None
+        if user.lab is not None:
+            rows = LayerData.objects.filter(person__lab=user.lab)\
+            .order_by('prep', 'layer','structure__abbreviation', 'section')
+        else:
+            rows = LayerData.objects.order_by('prep', 'layer','structure__abbreviation', 'section')
+            
+        return rows
 
     def save_model(self, request, obj, form, change):
         obj.person = request.user

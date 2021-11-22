@@ -4,9 +4,9 @@ from rest_framework.exceptions import APIException
 import logging
 
 from brain.models import Animal
-from neuroglancer.models import LayerData, Structure, UrlModel
-from neuroglancer.atlas import update_center_of_mass
-from django.contrib.auth.models import User
+from neuroglancer.models import LayerData, Structure, NeuroglancerModel
+from neuroglancer.atlas import update_annotation_data
+from authentication.models import User
 
 logging.basicConfig()
 logger = logging.getLogger(__name__)
@@ -103,14 +103,14 @@ class CenterOfMassSerializer(serializers.ModelSerializer):
 
 
 
-class UrlSerializer(serializers.ModelSerializer):
-    """Override method of entering a url into the DB.
-    The url can't be in the UrlModel when it is returned
+class NeuroglancerSerializer(serializers.ModelSerializer):
+    """Override method of entering a neuroglancer_state into the DB.
+    The neuroglancer_state can't be in the NeuroglancerModel when it is returned
     to neuroglancer as it crashes neuroglancer."""
     person_id = serializers.IntegerField()
 
     class Meta:
-        model = UrlModel
+        model = NeuroglancerModel
         fields = '__all__'
         ordering = ['-created']
 
@@ -118,32 +118,33 @@ class UrlSerializer(serializers.ModelSerializer):
         """
         This gets called when a user clicks New in Neuroglancer
         """
-        urlModel = UrlModel(
-            url=validated_data['url'],
+        neuroglancerModel = NeuroglancerModel(
+            neuroglancer_state=validated_data['neuroglancer_state'],
             user_date=validated_data['user_date'],
             comments=validated_data['comments'],
-            public=False,
             vetted=False,
         )
         if 'person_id' in validated_data:
             try:
                 authUser = User.objects.get(pk=validated_data['person_id'])
-                urlModel.person = authUser
+                neuroglancerModel.person = authUser
+                # neuroglancerModel.lab = authUser.lab
             except User.DoesNotExist:
                 logger.error('Person was not in validated data')
+                return
         try:
-            urlModel.save()
+            neuroglancerModel.save()
         except APIException:
-            logger.error('Could not save url model')
-        update_center_of_mass(urlModel)
-        urlModel.url = None
-        return urlModel
+            logger.error('Could not save neuroglancer model')
+        update_annotation_data(neuroglancerModel)
+        neuroglancerModel.neuroglancer_state = None
+        return neuroglancerModel
 
     def update(self, instance, validated_data):
         """
         This gets called when a user clicks Save in Neuroglancer
         """
-        instance.url = validated_data.get('url', instance.url)
+        instance.neuroglancer_state = validated_data.get('neuroglancer_state', instance.neuroglancer_state)
         instance.user_date = validated_data.get(
             'user_date', instance.user_date)
         instance.comments = validated_data.get('comments', instance.comments)
@@ -156,9 +157,9 @@ class UrlSerializer(serializers.ModelSerializer):
         try:
             instance.save()
         except APIException:
-            logger.error('Could not save url model')
-        update_center_of_mass(instance)
-        instance.url = None
+            logger.error('Could not save Neuroglancer model')
+        update_annotation_data(instance)
+        instance.neuroglancer_state = None
         return instance
 
 class NeuronSerializer(serializers.Serializer):

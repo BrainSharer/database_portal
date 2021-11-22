@@ -26,4 +26,10 @@
     1. `python manage.py migrate`
 1. Create a superuser: `python manage.py createsuperuser`
 1. Create a view from the existing tables with the script in the sql
-dir with `mysql brainsharer < sql/create_sections.sql
+dir with `mysql brainsharer < sql/create_sections.sql`
+
+## To redo all database migrations and start from scratch
+1. go to the top level dir of the project (same dir as the manage.py script)
+1. Edit the reset.sh script and change the passwords in the createsuperuser line.
+1. You might also need to add password/host/user info to the mysql commands.
+1. Run: `./reset.sh` this will drop and recreate all migrations and database.

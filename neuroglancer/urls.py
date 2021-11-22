@@ -5,7 +5,7 @@ from rest_framework import routers
 app_name = 'neuroglancer'
 
 router = routers.DefaultRouter(trailing_slash=False)
-router.register(r'neuroglancer', views.UrlViewSet, basename='neuroglancer')
+router.register(r'neuroglancer', views.NeuroglancerViewSet, basename='neuroglancer')
 
 urlpatterns = [
     path('', include(router.urls)),

@@ -12,7 +12,7 @@ from django.utils.safestring import mark_safe
 from brain.admin import AtlasAdminModel, ExportCsvMixin
 from neuroglancer.models import InputType, LayerData, \
     NeuroglancerModel,  Structure
-from pickle import NONE
+
 def datetime_format(dtime):
     return dtime.strftime("%d %b %Y %H:%M")
 
@@ -33,9 +33,9 @@ class NeuroglancerModelAdmin(admin.ModelAdmin):
         user = request.user
         rows = None
         if user.lab is not None:
-            rows = NeuroglancerModel.objects.filter(person__lab=user.lab).order_by('updated').all()
+            rows = NeuroglancerModel.objects.filter(person__lab=user.lab).order_by('-vetted', '-updated')
         else:
-            rows = NeuroglancerModel.objects.order_by('updated').all()
+            rows = NeuroglancerModel.objects.order_by('-vetted', '-updated')
             
         return rows
 
@@ -124,6 +124,17 @@ class LayerDataAdmin(AtlasAdminModel):
     list_filter = ['created', 'active','input_type']
     search_fields = ['prep__prep_id', 'structure__abbreviation', 'layer', 'person__username']
     scales = {'dk':0.325, 'md':0.452, 'at':10}
+
+    def get_queryset(self, request, obj=None):
+        user = request.user
+        rows = None
+        if user.lab is not None:
+            rows = LayerData.objects.filter(person__lab=user.lab)\
+            .order_by('prep', 'layer','structure__abbreviation', 'section')
+        else:
+            rows = LayerData.objects.order_by('prep', 'layer','structure__abbreviation', 'section')
+            
+        return rows
 
     def save_model(self, request, obj, form, change):
         obj.person = request.user

@@ -2,12 +2,9 @@ from django.db import models
 from django.conf import settings
 from django.utils.html import escape
 import re
-import json
-import pandas as pd
 from enum import Enum
 from django.template.defaultfilters import truncatechars
 from brain.models import AtlasModel, Animal
-from authentication.models import Lab
 
 
 class AnnotationChoice(str, Enum):

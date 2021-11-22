@@ -2,7 +2,7 @@
 
 find . -path "*/migrations/*.py" -not -name "__init__.py" -delete
 find . -path "*/migrations/*.pyc"  -delete
-mysql -e "use mysql;drop database brainsharer;create database brainsharer;"
+mysql -e "drop database brainsharer;create database brainsharer;"
 python manage.py makemigrations
 python manage.py showmigrations
 python manage.py migrate

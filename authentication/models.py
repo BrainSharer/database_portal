@@ -17,7 +17,7 @@ class Lab(models.Model):
 
 class User(AbstractUser):
     # labs = models.ManyToManyField(Lab, related_name="labs")
-    lab = models.ForeignKey(Lab, models.CASCADE, null=True, db_column="lab_id", verbose_name="Lab")
+    lab = models.ForeignKey(Lab, models.CASCADE, null=True, blank=True, db_column="lab_id", verbose_name="Lab")
 
     
     

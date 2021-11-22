@@ -55,46 +55,6 @@ class NeuroglancerModel(models.Model):
             animal = match.group(1)
         return animal
 
-    @property
-    def point_frame(self):
-        df = None
-        if self.neuroglancer_state is not None:
-            point_data = self.find_values('annotations', self.neuroglancer_state)
-            if len(point_data) > 0:
-                d = [row['point'] for row in point_data[0]]
-                df = pd.DataFrame(d, columns=['X', 'Y', 'Section'])
-                df = df.round(decimals=0)
-        return df
-
-    @property
-    def points(self):
-        result = None
-        dfs = []
-        if self.neuroglancer_state is not None:
-            json_txt = self.neuroglancer_state
-            layers = json_txt['layers']
-            for layer in layers:
-                if 'annotations' in layer:
-                    name = layer['name']
-                    annotation = layer['annotations']
-                    d = [row['point'] for row in annotation if 'point' in row and 'pointA' not in row]
-                    df = pd.DataFrame(d, columns=['X', 'Y', 'Section'])
-                    df['Section'] = df['Section'].astype(int)
-                    df['Layer'] = name
-                    structures = [row['description'] for row in annotation if 'description' in row]
-                    if len(structures) != len(df):
-                        structures = ['' for row in annotation if 'point' in row and 'pointA' not in row]
-                    df['Description'] = structures
-                    df = df[['Layer', 'Description', 'X', 'Y', 'Section']]
-                    dfs.append(df)
-            if len(dfs) == 0:
-                result = None
-            elif len(dfs) == 1:
-                result = dfs[0]
-            else:
-                result = pd.concat(dfs)
-
-        return result
 
     @property
     def layers(self):
@@ -119,37 +79,6 @@ class NeuroglancerModel(models.Model):
     def __str__(self):
         return u'{}'.format(self.comments)
 
-    @property
-    def point_count(self):
-        result = "display:none;"
-        if self.points is not None:
-            df = self.points
-            df = df[(df.Layer == 'PM nucleus') | (df.Layer == 'premotor')]
-            if len(df) > 0:
-                result = "display:inline;"
-        return result
-
-    def find_values(self, id, json_repr):
-        results = []
-
-        def _decode_dict(a_dict):
-            try:
-                results.append(a_dict[id])
-            except KeyError:
-                pass
-            return a_dict
-
-        json.loads(json_repr, object_hook=_decode_dict)  # Return value ignored.
-        return results
-
-
-class Points(NeuroglancerModel):
-
-    class Meta:
-        managed = False
-        proxy = True
-        verbose_name = 'Points'
-        verbose_name_plural = 'Points'
 
 
 class Structure(AtlasModel):

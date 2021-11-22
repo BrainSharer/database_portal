@@ -18,3 +18,5 @@ mysql brainsharer -e "insert into input_type (input_type,description,active,crea
 mysql brainsharer -e "insert into input_type (input_type,description,active,created,updated) values ('detected','Data created by scripts',1,NOW(),NOW())"
 # structure
 mysql brainsharer -e "insert into structure (abbreviation,description,active,created) values ('point','Point data described by x,y,z',1,NOW())"
+# sections
+mysql brainsharer < sql/sections.sql

@@ -62,46 +62,15 @@ class Annotation(views.APIView):
         except LayerData.DoesNotExist:
             raise Http404
         scale_xy, z_scale = get_scales(prep_id)
-        if input_type_id != 5:
-            for row in rows:
-                point_dict = {}
-                point_dict['id'] = random_string()
-                point_dict['point'] = \
-                    [int(round(row.x/scale_xy)), int(round(row.y/scale_xy)), int(round(row.section/z_scale))]
-                point_dict['type'] = 'point'
-                if 'COM' or 'Rough Alignment' in layer_name:
-                    point_dict['description'] = row.structure.abbreviation
-                else:
-                    point_dict['description'] = ""
-                data.append(point_dict)
-            serializer = AnnotationSerializer(data, many=True)
-        else:
-            data_dict = defaultdict(list)
-            for row in rows:
-                id = row.segment_id
-                x = row.x / scale_xy
-                y = row.y / scale_xy
-                section = row.section / z_scale
-                data_dict[(id, section)].append((x, y))
-            for (k,section), points in data_dict.items():
-                lp = len(points)
-                if lp > 3:
-                    new_len = max(lp, 200)
-                    points = interpolate(points, new_len)
-                    for i in range(new_len):
-                        tmp_dict = {}
-                        pointA = points[i]
-                        try:
-                            pointB = points[i+1]
-                        except IndexError:
-                            pointB = points[0]
-                        tmp_dict['id'] = random_string()
-                        tmp_dict['pointA'] = [pointA[0], pointA[1], section]
-                        tmp_dict['pointB'] = [pointB[0], pointB[1], section]
-                        tmp_dict['type'] = 'line'
-                        tmp_dict['description'] = ""
-                        data.append(tmp_dict)
-            serializer = LineSerializer(data, many=True)
+        for row in rows:
+            point_dict = {}
+            point_dict['type'] = 'point'
+            point_dict['id'] = random_string()
+            point_dict['point'] = \
+                [int(round(row.x/scale_xy)), int(round(row.y/scale_xy)), int(round(row.section/z_scale))]
+            point_dict['description'] = ""
+            data.append(point_dict)
+        serializer = AnnotationSerializer(data, many=True)
         return Response(serializer.data)
 
 class Annotations(views.APIView):
@@ -120,7 +89,7 @@ class Annotations(views.APIView):
         """
         data = []
         layers = LayerData.objects.order_by('prep_id', 'layer', 'input_type_id')\
-            .filter(active=True).filter(input_type_id__in=[1, 3, 5 , 6 , 7,4,11])\
+            .filter(active=True)\
             .filter(layer__isnull=False)\
             .values('prep_id', 'layer','input_type__input_type','input_type_id')\
             .distinct()

@@ -1,4 +1,5 @@
 asgiref==3.4.1
+brain-atlas-toolkit>=0.4.3
 Django==3.2.9
 django-cors-headers==3.10.0
 django-debug-toolbar==3.2.2

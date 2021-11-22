@@ -1,7 +1,9 @@
 from django.shortcuts import render
+from django.conf import settings
 from rest_framework import viewsets, views
 from rest_framework import permissions
 from django.http import JsonResponse, HttpResponse
+from django.templatetags.static import static
 from rest_framework.response import Response
 from django.utils.html import escape
 from django.http import Http404
@@ -9,11 +11,14 @@ import string
 import random
 from collections import defaultdict
 import numpy as np
+import os
+import pandas as pd
 from scipy.interpolate import splprep, splev
 from neuroglancer.serializers import AnnotationSerializer, \
-    AnnotationsSerializer, LineSerializer, UrlSerializer, IdSerializer
+    AnnotationsSerializer, LineSerializer, UrlSerializer, IdSerializer, \
+    NeuronSerializer
 from neuroglancer.models import InputType, UrlModel, LayerData, Structure
-from neuroglancer.atlas import get_scales
+from neuroglancer.atlas import get_scales, make_ontology_graphCCFv3
 
 import logging
 logging.basicConfig()
@@ -134,6 +139,57 @@ class Annotations(views.APIView):
 
         serializer = AnnotationsSerializer(data, many=True)
         return Response(serializer.data)
+
+class MouseLightNeuron(views.APIView):
+    """
+    Fetch MouseLight neurons meeting filter criteria 
+    url is of the the form
+    /mlneuron/Cerebellum/2
+    Where:
+         Cerebellum: brain region,
+         2: threshold, e.g. number of axonal endpoints >= 2
+    """
+    def __init__(self):
+        self.mouselight_csv_file = os.path.join(settings.STATIC_ROOT,'neuroglancer/all_mouselight_neurons.csv')
+        self.mouselight_df = pd.read_csv(self.mouselight_csv_file)
+
+    def get(self, request, brain_region, thresh):
+        ontology_graph = make_ontology_graphCCFv3()
+
+        neurons = self.mouselight_df.loc[self.mouselight_df['axonal_endpoint_dict'].apply(
+            self.filter_by_region,args=(ontology_graph,brain_region,thresh,'ge'))]
+        print(neurons)
+        serializer = NeuronSerializer(neurons.to_records())
+        return Response(serializer.data)
+
+    def filter_by_region(self, dic, graph, allenID, thresh, operation):
+        """ 
+        Checks if dic[f'count_{allenID}'] (operation) thresh
+        param: dic - dictionary where key in region ID and val is number of neurons with axonal endpoints in that region
+        param: graph - ontology graph containing parent-child relationships between atlas regions 
+        param: allenID - brain region ID to check
+        param: thresh - a neuron with # of axonal endpoints above this thresh will be returned
+        param: operation - can be one of 'ge', 'le', or 'eq'
+        """
+        dic = eval(dic) # turns json string into dict type
+        # First get region name 
+        allen_name = graph.lookup_region_name_by_id(allenID)
+        # get all progeny (by name) 
+        progeny_byname = graph.get_progeny(allen_name)
+        all_regions_byid = [allenID] + [graph.get_id(name) for name in progeny_byname]
+        total_count = 0
+        for ID in all_regions_byid:
+            key = f'count_{ID}'
+            if key not in dic:
+                continue 
+            total_count += dic[key]
+
+        if operation == 'ge':
+            return total_count >= thresh
+        elif operation == 'le':
+            return total_count <= thresh
+        elif operation == 'eq':
+            return total_count == thresh
 
 def interpolate(points, new_len):
     points = np.array(points)

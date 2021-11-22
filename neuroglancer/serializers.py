@@ -160,3 +160,9 @@ class UrlSerializer(serializers.ModelSerializer):
         update_center_of_mass(instance)
         instance.url = None
         return instance
+
+class NeuronSerializer(serializers.Serializer):
+    """
+    This one feeds the data import
+    """
+    idstring = serializers.ListField()

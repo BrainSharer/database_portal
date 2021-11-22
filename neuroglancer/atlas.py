@@ -4,10 +4,15 @@ There are constants defined in the models.py script and imported here
 so we can resuse them througout the code.
 """
 from django.contrib.auth.models import User
+from django.templatetags.static import static
 import datetime
+from django.conf import settings
 from brain.models import Animal, ScanRun
 from neuroglancer.models import Structure, LayerData
 import logging
+import json
+import os
+from brain_atlas_toolkit import graph_tools
 logging.basicConfig()
 logger = logging.getLogger(__name__)
 MANUAL = 1
@@ -144,7 +149,6 @@ def update_center_of_mass(urlModel):
                     for structure in remaining_structures:
                         delete_com(prep,structure,loggedInUser,layer_name)
 
-
 def get_scales(prep_id):
     """
     A generic method to safely query and return resolutions
@@ -162,3 +166,14 @@ def get_scales(prep_id):
         scale_xy = 1
         z_scale = 1
     return scale_xy, z_scale
+
+def make_ontology_graphCCFv3():
+    """
+    Load the allen CCFv3 ontology into a graph object
+    """
+    allen_ontology_file = os.path.join(settings.STATIC_ROOT,'neuroglancer/allen.json')
+    with open(allen_ontology_file,'r') as infile:
+        ontology_dict = json.load(infile)
+    graph = graph_tools.Graph(ontology_dict)
+    return graph
+

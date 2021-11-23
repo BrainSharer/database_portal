@@ -101,8 +101,6 @@ class CenterOfMassSerializer(serializers.ModelSerializer):
 
         return com
 
-
-
 class NeuroglancerSerializer(serializers.ModelSerializer):
     """Override method of entering a neuroglancer_state into the DB.
     The neuroglancer_state can't be in the NeuroglancerModel when it is returned
@@ -164,6 +162,12 @@ class NeuroglancerSerializer(serializers.ModelSerializer):
 
 class NeuronSerializer(serializers.Serializer):
     """
-    This one feeds the data import
+    Serializes a list of brain atlas segment Ids
     """
-    idstring = serializers.ListField()
+    segmentId = serializers.ListField()
+
+class AnatomicalRegionSerializer(serializers.Serializer):
+    """
+    Serializes a list of brain atlas region names
+    """
+    segment_names = serializers.ListField()

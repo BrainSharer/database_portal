@@ -13,5 +13,6 @@ urlpatterns = [
     path('annotation/<str:prep_id>/<str:layer_name>/<int:input_type_id>', views.Annotation.as_view()),
     path('annotations', views.Annotations.as_view()),
     path('landmark_list',views.LandmarkList.as_view()),
-    path('mlneurons/<int:brain_region>/<int:thresh>',views.MouseLightNeuron.as_view())
+    path('mlneurons/<str:brain_region>/<str:filter_type>/<str:operator_type>/<int:thresh>',views.MouseLightNeuron.as_view()),
+    path('anatomical_regions/',views.AnatomicalRegions.as_view())
 ]

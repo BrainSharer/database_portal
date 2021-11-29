@@ -18,8 +18,9 @@ from neuroglancer.serializers import AnnotationSerializer, \
     AnnotationsSerializer, LineSerializer, NeuroglancerSerializer, \
     IdSerializer, NeuronSerializer, AnatomicalRegionSerializer
 from neuroglancer.models import InputType, NeuroglancerModel, LayerData, Structure
-from neuroglancer.atlas import get_scales, make_ontology_graphCCFv3
-from neuroglancer.models import InputType, NeuroglancerModel, LayerData, Structure
+from neuroglancer.atlas import get_scales, make_ontology_graph_CCFv3
+from neuroglancer.models import InputType, NeuroglancerModel, LayerData, Structure, \
+    MouselightNeuron
 
 import logging
 logging.basicConfig()
@@ -114,64 +115,40 @@ class MouseLightNeuron(views.APIView):
     """
     Fetch MouseLight neurons meeting filter criteria 
     url is of the the form
-    /mlneuron/Cerebellum/2
+    /mlneuron/Cerebellum/axon_endpoints/gte/2
     Where:
          Cerebellum: brain region,
+         axon_endpoints: neuron part
+         gte: comparator for threshold, e.g. "gte" -> "greater than or equal to"
          2: threshold, e.g. number of axonal endpoints >= 2
     """
-    def __init__(self):
-        self.mouselight_csv_file = os.path.join(settings.STATIC_ROOT,'neuroglancer/all_mouselight_neurons.csv')
-        self.mouselight_df = pd.read_csv(self.mouselight_csv_file)
 
-    def get(self, request, brain_region, filter_type,operator_type,thresh):
-        ontology_graph = make_ontology_graphCCFv3()
-        neurons = self.mouselight_df.loc[self.mouselight_df[f'{filter_type}_dict'].apply(
-            self.filter_by_region,args=(ontology_graph,brain_region,thresh,operator_type))]
-        skeleton_segment_ids = [ix*3+x for ix in neurons.index for x in [0,1,2]]
+    def get(self, request, atlas_name, brain_region, filter_type, operator_type,thresh):
+        if atlas_name == 'allen_ccfv3_25um':
+            ontology_graph = make_ontology_graph_CCFv3()
+        elif atlas_name == 'pma_25um':
+            ontology_graph = make_ontology_graph_pma()
+        brain_region_id = ontology_graph.get_id(brain_region)
+        print(brain_region_id,filter_type,operator_type,thresh)
+        filter_name = f'{filter_type}_dict__count_{brain_region_id}__{operator_type}'
+        rows = MouselightNeuron.objects.filter(**{filter_name:thresh})
+        neuron_indices = [x-1 for x in rows.values_list('id',flat=True)]
+        skeleton_segment_ids = [ix*3+x for ix in neuron_indices for x in [0,1,2]]
         serializer = NeuronSerializer({'segmentId':skeleton_segment_ids})
         return Response(serializer.data)
-
-    def filter_by_region(self, dic, graph, region_name, thresh, operation):
-        """ 
-        Checks if dic[f'count_{region_name}'] (operation) thresh
-        param: dic - dictionary where key in region ID and val is number of neurons with axonal endpoints in that region
-        param: graph - ontology graph containing parent-child relationships between atlas regions 
-        param: region_name - brain region name to check
-        param: thresh - a neuron with # of axonal endpoints above this thresh will be returned
-        param: operation - can be one of 'ge', 'le', or 'eq'
-        """
-        dic = eval(dic) # turns json string into dict type
-        # First get region id
-        region_id = graph.get_id(region_name) 
-
-        # get all progeny (by name) 
-        progeny_byname = graph.get_progeny(region_name)
-
-        # convert to ids
-        all_regions_byid = [region_id] + [graph.get_id(name) for name in progeny_byname]
-        total_count = 0
-        for ID in all_regions_byid:
-            key = f'count_{ID}'
-            if key not in dic:
-                continue 
-            total_count += dic[key]
-
-        if operation == 'ge':
-            return total_count >= thresh
-        elif operation == 'le':
-            return total_count <= thresh
-        elif operation == 'eq':
-            return total_count == thresh
 
 class AnatomicalRegions(views.APIView):
     """
     Fetch the complete list of anatomical brain regions
     url is of the the form
-    /anatomicalregions
+    /anatomicalregions/atlasName
     """
 
-    def get(self, request):
-        ontology_graph = make_ontology_graphCCFv3()
+    def get(self, request, atlas_name):
+        if atlas_name == 'allen_ccfv3_25um':
+            ontology_graph = make_ontology_graph_CCFv3()
+        elif atlas_name == 'pma_25um':
+            ontology_graph = make_ontology_graph_pma()
         segment_names = list(ontology_graph.graph.keys())
         serializer = AnatomicalRegionSerializer({'segment_names':segment_names})
         return Response(serializer.data)

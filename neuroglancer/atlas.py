@@ -168,12 +168,22 @@ def get_scales(prep_id):
         z_scale = 1
     return scale_xy, z_scale
 
-def make_ontology_graphCCFv3():
+def make_ontology_graph_CCFv3():
     """
     Load the allen CCFv3 ontology into a graph object
     """
     allen_ontology_file = os.path.join(settings.STATIC_ROOT,'neuroglancer/allen.json')
     with open(allen_ontology_file,'r') as infile:
+        ontology_dict = json.load(infile)
+    graph = graph_tools.Graph(ontology_dict)
+    return graph
+
+def make_ontology_graph_pma():
+    """
+    Load the Princeton Mouse Atlas ontology into a graph object
+    """
+    pma_ontology_file = os.path.join(settings.STATIC_ROOT,'neuroglancer/pma.json')
+    with open(pma_ontology_file,'r') as infile:
         ontology_dict = json.load(infile)
     graph = graph_tools.Graph(ontology_dict)
     return graph

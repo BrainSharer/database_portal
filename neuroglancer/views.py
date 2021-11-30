@@ -139,12 +139,12 @@ class MouseLightNeuron(views.APIView):
         
         if atlas_name == 'ccfv3_25um':
             ontology_graph = make_ontology_graph_CCFv3()
-        elif atlas_name == 'pma_25um':
+        elif atlas_name == 'pma_20um':
             ontology_graph = make_ontology_graph_pma()
         
         # filter to only get neurons in this atlas
         rows = MouselightNeuron.objects.filter(annotation_space__exact=atlas_name)
-        
+        all_ids_thisatlas = [x for x in rows.values_list('id',flat=True)]
         # Filter #1, required
         brain_region_id1 = ontology_graph.get_id(brain_region1)
         if filter_type1 == 'soma':
@@ -152,7 +152,6 @@ class MouseLightNeuron(views.APIView):
             progeny = ontology_graph.get_progeny(brain_region1)
             progeny_ids = [ontology_graph.get_id(prog) for prog in progeny]
             ids_tosearch = [brain_region_id1] + progeny_ids
-            print(ids_tosearch)
             rows = rows.filter(soma_atlas_id__in=ids_tosearch)
         else:
             filter_name1 = f'{filter_type1}_dict__count_{brain_region_id1}__{operator_type1}'
@@ -166,7 +165,6 @@ class MouseLightNeuron(views.APIView):
         # Filter #2, optional
         if filter_type2:
             brain_region_id2 = ontology_graph.get_id(brain_region2)
-            print(brain_region_id2)
             if filter_type2 == 'soma':
                 # Figure out all progeny of this region since neuron could be in this shell or any child
                 progeny = ontology_graph.get_progeny(brain_region1)
@@ -182,8 +180,8 @@ class MouseLightNeuron(views.APIView):
                     rows = rows.filter(filter2 | filter2_nullcheck)
                 else:
                     rows = rows.filter(filter2)
-        print(rows)
-        neuron_indices = [x-1 for x in rows.values_list('id',flat=True)]
+
+        neuron_indices = [all_ids_thisatlas.index(ID) for ID in rows.values_list('id',flat=True)]
         skeleton_segment_ids = [ix*3+x for ix in neuron_indices for x in [0,1,2]]
         serializer = NeuronSerializer({'segmentId':skeleton_segment_ids})
         return Response(serializer.data)
@@ -198,7 +196,7 @@ class AnatomicalRegions(views.APIView):
     def get(self, request, atlas_name):
         if atlas_name == 'ccfv3_25um':
             ontology_graph = make_ontology_graph_CCFv3()
-        elif atlas_name == 'pma_25um':
+        elif atlas_name == 'pma_20um':
             ontology_graph = make_ontology_graph_pma()
         segment_names = list(ontology_graph.graph.keys())
         serializer = AnatomicalRegionSerializer({'segment_names':segment_names})

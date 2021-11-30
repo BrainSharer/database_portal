@@ -4,6 +4,7 @@ from django.contrib.auth.models import AbstractUser
 class Lab(models.Model):
     id = models.AutoField(primary_key=True)
     lab_name = models.CharField(max_length=100, blank=False, null=False)
+    lab_url = models.CharField(max_length=250, blank=False, null=False)
     active = models.BooleanField(default = True)
     created = models.DateTimeField(auto_now_add=True)
     
@@ -16,8 +17,8 @@ class Lab(models.Model):
         return f"{self.lab_name}"
 
 class User(AbstractUser):
-    # labs = models.ManyToManyField(Lab, related_name="labs")
-    lab = models.ForeignKey(Lab, models.CASCADE, null=True, blank=True, db_column="lab_id", verbose_name="Lab")
+    lab = models.ForeignKey(Lab, models.CASCADE, null=True, blank=True, db_column="lab_id", verbose_name="Primary lab")
+    labs = models.ManyToManyField(Lab, related_name="labs", verbose_name="Viewable labs")
 
     
     

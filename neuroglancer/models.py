@@ -24,8 +24,6 @@ class NeuroglancerModel(models.Model):
     neuroglancer_state = models.JSONField()
     person = models.ForeignKey(settings.AUTH_USER_MODEL, models.CASCADE, null=True, db_column="person_id",
                                verbose_name="User")
-    # lab = models.ForeignKey(Lab, models.CASCADE, null=True, db_column="lab_id", verbose_name="Lab")
-    vetted = models.BooleanField(default=False)
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True, editable=False, null=False, blank=False)
     user_date = models.CharField(max_length=25)

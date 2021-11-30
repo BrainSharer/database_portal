@@ -9,7 +9,7 @@ python manage.py makemigrations brain
 python manage.py makemigrations neuroglancer
 python manage.py showmigrations
 python manage.py migrate
-echo "from django.contrib.auth import get_user_model; User = get_user_model(); User.objects.create_superuser('edward', 'admin@myproject.com', 'CHANGEME')" | python manage.py shell
+echo "from django.contrib.auth import get_user_model; User = get_user_model(); User.objects.create_superuser('edward', 'admin@myproject.com', '1312bir.dee')" | python manage.py shell
 
 mysql brainsharer -e "insert into authentication_lab (lab_name,active,created) values ('Princeton',1,NOW())"
 mysql brainsharer -e "insert into authentication_lab (lab_name,active,created) values ('UCSD',1,NOW())"

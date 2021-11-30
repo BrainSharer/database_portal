@@ -1,6 +1,6 @@
 from django.urls import path, include
 from neuroglancer import views
-#from neuroglancer import ajax_datatable_views
+from neuroglancer.create_state_views import createLayer, createAnimalLayer
 from rest_framework import routers
 app_name = 'neuroglancer'
 
@@ -12,5 +12,7 @@ urlpatterns = [
     path(r'public', views.public_list, name='public'),
     path('annotation/<str:prep_id>/<str:layer_name>/<int:input_type_id>', views.Annotation.as_view()),
     path('annotations', views.Annotations.as_view()),
-    path('landmark_list',views.LandmarkList.as_view())
+    path('landmark_list',views.LandmarkList.as_view()),
+    path('createlayer/<str:layer>', createLayer, name='createlayer'),
+    path('createanimallayer/<str:animal>', createAnimalLayer, name='createanimallayer')
 ]

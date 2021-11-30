@@ -12,6 +12,7 @@ from django.utils.safestring import mark_safe
 from brain.admin import AtlasAdminModel, ExportCsvMixin
 from neuroglancer.models import InputType, LayerData, \
     NeuroglancerModel,  Structure
+from neuroglancer.forms import NeuroglancerModelForm
 
 def datetime_format(dtime):
     return dtime.strftime("%d %b %Y %H:%M")
@@ -21,21 +22,36 @@ class NeuroglancerModelAdmin(admin.ModelAdmin):
     formfield_overrides = {
         models.CharField: {'widget': TextInput(attrs={'size': '100'})},
     }
-    list_display = ('animal', 'open_neuroglancer', 'open_multiuser',
+    list_display = ('animal', 'open_neuroglancer', 'lab',
                     'person', 'updated')
-    ordering = ['-vetted', '-updated']
-    readonly_fields = ['pretty_url', 'created', 'user_date', 'updated']
+    ordering = ['-updated']
+    # readonly_fields = ['pretty_url', 'created', 'user_date', 'updated']
     exclude = ['neuroglancer_state']
-    list_filter = ['updated', 'created', 'vetted']
+    list_filter = ['updated', 'created']
     search_fields = ['comments']
+    form = NeuroglancerModelForm
+    change_form_template = "create_state.html"    
+    
+    def get_form(self, request, obj=None, **kwargs):
+        """
+        Use special form during foo creation
+        """
+        return self.form
+
+    def save_model(self, request, obj, form, change):
+        obj.user = request.user
+        self.form.prepareModel(self, request, obj, form, change)
+        super().save_model(request, obj, form, change)
+
 
     def get_queryset(self, request, obj=None):
         user = request.user
         rows = None
-        if user.lab is not None:
-            rows = NeuroglancerModel.objects.filter(person__lab=user.lab).order_by('-vetted', '-updated')
+        if user.labs is not None and not user.is_superuser:
+            lab_ids = [p.id for p in user.labs.all()]
+            rows = NeuroglancerModel.objects.filter(person__lab__in=lab_ids).order_by('-updated')
         else:
-            rows = NeuroglancerModel.objects.order_by('-vetted', '-updated')
+            rows = NeuroglancerModel.objects.order_by('-updated')
             
         return rows
 
@@ -75,11 +91,18 @@ class NeuroglancerModelAdmin(admin.ModelAdmin):
         comments = "Testing"
         links = f'<a target="_blank" href="{host}?id={obj.id}&amp;multi=1">{comments}</a>'
         return format_html(links)
+    
+    def lab(self, obj):
+        lab = "NA"
+        if obj.person is not None and obj.person.lab is not None:
+            lab = obj.person.lab
+        return lab
 
     open_neuroglancer.short_description = 'Neuroglancer'
     open_neuroglancer.allow_tags = True
     open_multiuser.short_description = 'Multi-User'
     open_multiuser.allow_tags = True
+    lab.short_description = "Lab"
 
 @admin.register(Structure)
 class StructureAdmin(admin.ModelAdmin, ExportCsvMixin):

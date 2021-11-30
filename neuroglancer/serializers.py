@@ -122,7 +122,6 @@ class NeuroglancerSerializer(serializers.ModelSerializer):
             neuroglancer_state=validated_data['neuroglancer_state'],
             user_date=validated_data['user_date'],
             comments=validated_data['comments'],
-            vetted=False,
         )
         if 'person_id' in validated_data:
             try:

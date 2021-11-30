@@ -160,3 +160,5 @@ class LandmarkList(views.APIView):
         data = {}
         data['land_marks'] = list_of_landmarks
         return JsonResponse(data)
+    
+    

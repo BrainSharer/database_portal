@@ -1,6 +1,6 @@
 from django.urls import path, include
 from neuroglancer import views
-from neuroglancer.create_state_views import createLayer, createAnimalLayer
+from neuroglancer.create_state_views import fetch_layers
 from rest_framework import routers
 app_name = 'neuroglancer'
 
@@ -13,6 +13,5 @@ urlpatterns = [
     path('annotation/<str:prep_id>/<str:layer_name>/<int:input_type_id>', views.Annotation.as_view()),
     path('annotations', views.Annotations.as_view()),
     path('landmark_list',views.LandmarkList.as_view()),
-    path('createlayer/<str:layer>', createLayer, name='createlayer'),
-    path('createanimallayer/<str:animal>', createAnimalLayer, name='createanimallayer')
+    path('fetch_layers/<str:animal>', fetch_layers, name='fetch_layers')
 ]

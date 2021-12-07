@@ -27,7 +27,7 @@ class CustomUserAdmin(UserAdmin):
 
 @admin.register(Lab)
 class LabAdmin(admin.ModelAdmin):
-    list_display = ('lab_name', 'active', 'created')
+    list_display = ('lab_name', 'lab_url', 'active', 'created')
     readonly_fields = ['created']
 
 admin.site.unregister(User)

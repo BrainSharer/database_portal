@@ -8,6 +8,7 @@
 from django.db import models
 from django_mysql.models import EnumField
 from django.utils.safestring import mark_safe
+from authentication.models import Lab
 from django.core.validators import MaxValueValidator, MinValueValidator
 import os
 
@@ -21,6 +22,7 @@ class AtlasModel(models.Model):
 
 class Animal(AtlasModel):
     prep_id = models.CharField(primary_key=True, max_length=20)
+    lab = models.ForeignKey(Lab, models.CASCADE, blank=False, null=False, default=1)
     performance_center = EnumField(choices=['CSHL','Salk','UCSD','HHMI','Duke'], blank=True, null=True)
     date_of_birth = models.DateField(blank=True, null=True)
     species = EnumField(choices=['mouse','rat'], blank=True, null=True)

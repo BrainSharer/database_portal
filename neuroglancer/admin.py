@@ -25,22 +25,37 @@ class NeuroglancerModelAdmin(admin.ModelAdmin):
     list_display = ('animal', 'open_neuroglancer', 'lab',
                     'person', 'updated')
     ordering = ['-updated']
-    # readonly_fields = ['pretty_url', 'created', 'user_date', 'updated']
-    exclude = ['neuroglancer_state']
+    # exclude = ['neuroglancer_state']
     list_filter = ['updated', 'created']
     search_fields = ['comments']
-    form = NeuroglancerModelForm
-    change_form_template = "create_state.html"    
-    
-    def get_form(self, request, obj=None, **kwargs):
-        """
-        Use special form during foo creation
-        """
-        return self.form
 
+    def add_view(self, request, extra_content=None):
+        """Add a new state object with just the title and drop down of animals"""
+        self.exclude = ('animal','states', 'pretty_url', 'created', 'user_date', 'updated')
+        self.readonly_fields = []
+        self.change_form_template = "create_state.html"    
+        return super(NeuroglancerModelAdmin, self).add_view(request)
+
+    def change_view(self, request, object_id, extra_content=None):
+        """View existing state with most of the fields excluded or readonly"""
+        self.exclude = ('neuroglancer_state', 'user_date')
+        self.readonly_fields = ['pretty_url', 'created', 'updated']
+        return super(NeuroglancerModelAdmin, self).change_view(request, object_id)
+    
+    def get_form(self, request, obj=None, change=None, **kwargs):
+        """
+        Use special form only for adding. For viewing, create a pretty json
+        format and only allow the title to be changed.
+        """
+        form = super().get_form(request, obj=obj, change=change, **kwargs)
+        if not obj:
+            form = NeuroglancerModelForm
+        return form
+    
     def save_model(self, request, obj, form, change):
         obj.user = request.user
-        self.form.prepareModel(self, request, obj, form, change)
+        if not obj:
+            self.form.prepareModel(self, request, obj, form, change)
         super().save_model(request, obj, form, change)
 
 

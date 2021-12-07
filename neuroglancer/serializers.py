@@ -1,9 +1,7 @@
-from datetime import datetime
 from rest_framework import serializers
 from rest_framework.exceptions import APIException
 import logging
 
-from brain.models import Animal
 from neuroglancer.models import LayerData, Structure, NeuroglancerModel
 from neuroglancer.atlas import update_annotation_data
 from authentication.models import User
@@ -63,44 +61,6 @@ class LayerDataSerializer(serializers.ModelSerializer):
     class Meta:
         model = LayerData
         fields = '__all__'
-
-
-class CenterOfMassSerializer(serializers.ModelSerializer):
-    """Takes care of entering a set of points"""
-    structure_id = serializers.CharField()
-
-    class Meta:
-        model = LayerData
-        fields = '__all__'
-
-    def create(self, validated_data):
-        logger.debug('Creating COM')
-        com = LayerData(
-            x=validated_data['x'],
-            y=validated_data['y'],
-            section=validated_data['section'],
-            active=True,
-            created=datetime.now()
-        )
-        try:
-            structure = Structure.objects.get(
-                abbreviation__exact=validated_data['structure_id'])
-            com.structure = structure
-        except APIException as e:
-            logger.error(f'Error with structure {e}')
-
-        try:
-            prep = Animal.objects.get(prep_id=validated_data['prep'])
-            com.prep = prep
-        except Animal.DoesNotExist:
-            logger.error('Error with animal')
-        try:
-            com.save()
-        except APIException as e:
-            logger.error(f'Could not save center of mass: {e}')
-
-        return com
-
 
 
 class NeuroglancerSerializer(serializers.ModelSerializer):

@@ -1,45 +1,31 @@
-from django.http import JsonResponse
+from django.shortcuts import render
 from bs4 import BeautifulSoup
-from brain.models import ScanRun
 import requests
-import json
 import os
+from brain.models import Animal
 
-def createLayer(request, layer):
-    data = {}
-    data['layer'] = layer
-    return JsonResponse(data)
-
-def createAnimalLayer(request, animal):
-    state = {}
-    url = f"https://activebrainatlas.ucsd.edu/data/{animal}/neuroglancer_data/"
-    scan_run = ScanRun.objects.get(prep__prep_id=animal)
-    state["dimensions"] = {"x":[scan_run.resolution, "um"],
-                           "y":[scan_run.resolution, "um"],
-                           "z":[scan_run.zresolution, "um"] }
-    state["position"] = [scan_run.width / 2, scan_run.height / 2, 225]
-    state["projectionScale"] = scan_run.width
-
+def fetch_layers(request, animal):
+    obj = Animal.objects.get(pk=animal)
+    url = obj.lab.lab_url
+    if 'ucsd' in url.lower():
+        url += f'/{animal}/neuroglancer_data/' 
+    else:
+        url += animal
     directories = read_url(url, ext="C")
-    layers = create_layers(directories)
-    state["layers"] = layers
-    print(json.dumps(state))
-    return JsonResponse(state)
+    datarows = create_layer_table(animal, directories)
+    return render(request, 'layer_table.html',{'datarows': datarows})
 
-def create_layers(directories):
+def create_layer_table(animal, directories):
     layers = []
-    shaders = {}
-    shaders[0] = "#uicontrol invlerp normalized\n#uicontrol float gamma slider(min=0.05, max=2.5, default=1.0, step=0.05)\n\nvoid main() {\n    float pix =  normalized();\n    pix = pow(pix,gamma);\n  \t  emitGrayscale(pix) ;\n}"
-    shaders[1] = "#uicontrol invlerp normalized  (range=[0,45000])\n#uicontrol float gamma slider(min=0.05, max=2.5, default=1.0, step=0.05)\n#uicontrol bool colour checkbox(default=true)\n\n\n  void main() {\n    float pix =  normalized();\n    pix = pow(pix,gamma);\n\n    if (colour) {\n  \t   emitRGB(vec3(pix,0,0));\n  \t} else {\n  \t  emitGrayscale(pix) ;\n  \t}\n\n}\n"
-    shaders[2] = "#uicontrol invlerp normalized  (range=[0,5000])\n#uicontrol float gamma slider(min=0.05, max=2.5, default=1.0, step=0.05)\n#uicontrol bool colour checkbox(default=true)\n\n  void main() {\n    float pix =  normalized();\n    pix = pow(pix,gamma);\n\n    if (colour){\n       emitRGB(vec3(0, (pix),0));\n    } else {\n      emitGrayscale(pix) ;\n    }\n\n}\n"
-    for i, directory in enumerate(directories):
+    for directory in directories:
         layer_name = os.path.basename(os.path.normpath(directory))
+        if layer_name == animal:
+            continue
         layer = {}
+        layer["animal"] = animal
         layer["name"] = layer_name
-        layer["shader"] = shaders.get(i, 0)
-        layer["source"] = f"precomputed://{directory}"
-        layer["type"] = "image"
-        layer["visible"] = True
+        layer["source"] = f"{directory}"
+        layer["type"] = get_layer_type(directory)
         layers.append(layer)
     return layers
 
@@ -50,6 +36,26 @@ def read_url(url, ext='', params={}):
     else:
         return response.raise_for_status()
     soup = BeautifulSoup(response_text, 'html.parser')
-    parent = [url + node.get('href') for node in soup.find_all('a') 
-              if node.get('href').startswith(ext)]
-    return parent
+    directories = [url + node.get('href') for node in soup.find_all('a') 
+              if '?' not in node.get('href')
+              and node.get('href') != "/"]
+    return directories
+
+
+def get_layer_type(url):
+    data_type = "NA"
+    try:
+        url += "info"
+        response = requests.get(url)
+        response.raise_for_status()
+        info = response.json()
+        if '@type' in info:
+            data_type = info['@type']
+        else:
+            data_type = info['type']
+
+    except Exception as err:
+        print(f'Got error: {err}')
+    
+    return data_type
+

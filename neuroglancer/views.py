@@ -7,11 +7,10 @@ from django.utils.html import escape
 from django.http import Http404
 import string
 import random
-from collections import defaultdict
 import numpy as np
 from scipy.interpolate import splprep, splev
 from neuroglancer.serializers import AnnotationSerializer, \
-    AnnotationsSerializer, LineSerializer, NeuroglancerSerializer, IdSerializer
+    AnnotationsSerializer, NeuroglancerSerializer, IdSerializer
 from neuroglancer.models import InputType, NeuroglancerModel, LayerData, Structure
 from neuroglancer.atlas import get_scales
 

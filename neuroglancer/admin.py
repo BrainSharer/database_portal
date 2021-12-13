@@ -57,7 +57,6 @@ class NeuroglancerModelAdmin(admin.ModelAdmin):
         if not obj:
             self.form = NeuroglancerModelForm
         else:
-            #form = super().get_form(request, obj=obj, change=change, **kwargs)
             self.form = NeuroglancerUpdateForm
         return self.form
 

@@ -46,18 +46,20 @@ class NeuroglancerModelForm(forms.ModelForm):
     PANELS=[('4panel','4panel'),
          ('xy','Upper left'),
          ('yz','Lower right'),
-         ('xz','Upper right')]
+         ('xz','Upper right'),
+         ('3d', '3D')]
 
     panels = forms.ChoiceField(choices=PANELS, widget=forms.RadioSelect)
+    include_atlas = forms.ChoiceField(choices=[('yes','yes'),('no','no')], widget=forms.RadioSelect)
     
     class Meta:
         model = NeuroglancerModel
-        fields = ['comments','panels', 'animal']
+        fields = ['comments','panels', 'include_atlas', 'animal']
 
     def __init__(self, *args, **kwargs):
         #extra_fields = kwargs.pop('extra', 0)
         super().__init__(*args, **kwargs)
-        #self.fields['states'].initial = extra_fields
+        self.fields['include_atlas'].initial = 'no'
         self.fields['comments'].label = 'Title of state'
 
     def clean(self):
@@ -66,10 +68,9 @@ class NeuroglancerModelForm(forms.ModelForm):
         if selected_states is None:
             self.data = self.data.copy()
             self.data['animal'] = None
-            raise ValidationError("You must select a title, and at least one layer.")
+            raise ValidationError('You must select a title, and at least one layer.')
         
     def prepareModel(self, request, obj, form, change):
-        print('in prepare model')
         state = {}
         for key, value in request.POST.items():
             print(f'Key: {key}')
@@ -78,19 +79,21 @@ class NeuroglancerModelForm(forms.ModelForm):
         if 'animal' in request.POST and 'selected_states' in request.POST:
             animal = request.POST['animal']
             panel = request.POST['panels']
-            directories = request.POST.getlist("selected_states")
+            include_atlas = bool({'yes': True, 'no': False}[str(request.POST['include_atlas']).lower()])
+            directories = request.POST.getlist('selected_states')
+            layers, visible_layer = create_layers(directories, include_atlas)
             scan_run = ScanRun.objects.get(prep__prep_id=animal)
-            state['dimensions'] = {'x':[scan_run.resolution, "um"],
-                                   'y':[scan_run.resolution, "um"],
-                                   'z':[scan_run.zresolution, "um"] }
+            state['dimensions'] = {'x':[scan_run.resolution, 'um'],
+                                   'y':[scan_run.resolution, 'um'],
+                                   'z':[scan_run.zresolution, 'um'] }
             state['position'] = [scan_run.width / 2, scan_run.height / 2, 225]
-            state['projectionScale'] = scan_run.width
+            state['selectedLayer'] = {'visible': True, 'layer': visible_layer}
             state['crossSectionScale'] = 90
-            state['layout'] = panel,
-            state['gpuMemoryLimit'] = 2000000000,
-            state['selectedLayer'] = {'visible':'true'}
-            layers = create_layers(directories)
+            state['projectionScale'] = scan_run.width
             state['layers'] = layers
+            state['gpuMemoryLimit'] = 4000000000
+            state['systemMemoryLimit'] = 8000000000
+            state['layout'] = panel
             
         obj.neuroglancer_state = state
         obj.person = request.user
@@ -98,20 +101,42 @@ class NeuroglancerModelForm(forms.ModelForm):
         
         
 
-def create_layers(directories):
+def create_layers(directories, include_atlas):
     layers = []
     shaders = {}
-    shaders[0] = "#uicontrol invlerp normalized\n#uicontrol float gamma slider(min=0.05, max=2.5, default=1.0, step=0.05)\n\nvoid main() {\n    float pix =  normalized();\n    pix = pow(pix,gamma);\n  \t  emitGrayscale(pix) ;\n}"
-    shaders[1] = "#uicontrol invlerp normalized  (range=[0,45000])\n#uicontrol float gamma slider(min=0.05, max=2.5, default=1.0, step=0.05)\n#uicontrol bool colour checkbox(default=true)\n\n\n  void main() {\n    float pix =  normalized();\n    pix = pow(pix,gamma);\n\n    if (colour) {\n  \t   emitRGB(vec3(pix,0,0));\n  \t} else {\n  \t  emitGrayscale(pix) ;\n  \t}\n\n}\n"
-    shaders[2] = "#uicontrol invlerp normalized  (range=[0,5000])\n#uicontrol float gamma slider(min=0.05, max=2.5, default=1.0, step=0.05)\n#uicontrol bool colour checkbox(default=true)\n\n  void main() {\n    float pix =  normalized();\n    pix = pow(pix,gamma);\n\n    if (colour){\n       emitRGB(vec3(0, (pix),0));\n    } else {\n      emitGrayscale(pix) ;\n    }\n\n}\n"
+    first_layer_name =  os.path.basename(os.path.normpath(directories[0]))
+    create_atlas = False
+    shaders[0] = '#uicontrol invlerp normalized\n#uicontrol float gamma slider(min=0.05, max=2.5, default=1.0, step=0.05)\n\nvoid main() {\n    float pix =  normalized();\n    pix = pow(pix,gamma);\n  \t  emitGrayscale(pix) ;\n}'
+    shaders[1] = '#uicontrol invlerp normalized  (range=[0,45000])\n#uicontrol float gamma slider(min=0.05, max=2.5, default=1.0, step=0.05)\n#uicontrol bool colour checkbox(default=true)\n\n\n  void main() {\n    float pix =  normalized();\n    pix = pow(pix,gamma);\n\n    if (colour) {\n  \t   emitRGB(vec3(pix,0,0));\n  \t} else {\n  \t  emitGrayscale(pix) ;\n  \t}\n\n}\n'
+    shaders[2] = '#uicontrol invlerp normalized  (range=[0,5000])\n#uicontrol float gamma slider(min=0.05, max=2.5, default=1.0, step=0.05)\n#uicontrol bool colour checkbox(default=true)\n\n  void main() {\n    float pix =  normalized();\n    pix = pow(pix,gamma);\n\n    if (colour){\n       emitRGB(vec3(0, (pix),0));\n    } else {\n      emitGrayscale(pix) ;\n    }\n\n}\n'
     for i, directory in enumerate(directories):
         layer_name = os.path.basename(os.path.normpath(directory))
         layer = {}
-        layer["name"] = layer_name
-        layer["shader"] = shaders.get(i, 0)
-        layer["source"] = f"precomputed://{directory}"
-        layer["type"] = get_layer_type(directory)
-        layer["visible"] = True
+        layer['name'] = layer_name
+        layer['shader'] = shaders.get(i, 0)
+        layer['source'] = f'precomputed://{directory}'
+        layer['type'] = get_layer_type(directory)
+        layer['visible'] = True
         layers.append(layer)
-    return layers
+    
+    if include_atlas:
+        atlas = create_atlas_layer()
+        print('atlas', atlas)
+        layers.append(atlas)
+    return layers, first_layer_name
 
+
+def create_atlas_layer():
+        atlas = {}
+        atlas['type'] = 'segmentation'
+        atlas['source'] = 'precomputed://https://activebrainatlas.ucsd.edu/data/structures/atlasV7'
+        atlas['tab'] = 'segments'
+        atlas['segments'] = ['1', '2', '3','4', '5',
+                             '6','7','8','9','10', 
+                             '11', '12', '13','14', '15',
+                             '16','17','18','19','20',
+                             '21','22','23','24','25',
+                             '26','27','28']
+        atlas['name'] = 'atlasV7'
+        
+        return atlas

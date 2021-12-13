@@ -22,10 +22,10 @@ def create_layer_table(animal, directories):
         if layer_name == animal:
             continue
         layer = {}
-        layer["animal"] = animal
-        layer["name"] = layer_name
-        layer["source"] = f"{directory}"
-        layer["type"] = get_layer_type(directory)
+        layer['animal'] = animal
+        layer['name'] = layer_name
+        layer['source'] = f"{directory}"
+        layer['type'] = get_layer_type(directory)
         layers.append(layer)
     return layers
 

@@ -28,6 +28,11 @@ class LayerForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         # self.fields['layer'].queryset = LayerData.objects.all()
         self.fields['layer'].options = {'one':1, 'two':2}
+
+class NeuroglancerUpdateForm(forms.ModelForm):
+    class Meta:
+        model = NeuroglancerModel
+        fields = ['comments']
     
     
 class NeuroglancerModelForm(forms.ModelForm):
@@ -38,30 +43,41 @@ class NeuroglancerModelForm(forms.ModelForm):
                             required=True,
                             widget=forms.Select(attrs={'class': 'form-control',
                                                        'style':'display:block;'}))
-    states = forms.CharField(widget=forms.HiddenInput())
+    PANELS=[('4panel','4panel'),
+         ('xy','Upper left'),
+         ('yz','Lower right'),
+         ('xz','Upper right')]
+
+    panels = forms.ChoiceField(choices=PANELS, widget=forms.RadioSelect)
+    
     class Meta:
         model = NeuroglancerModel
-        fields = ['comments', 'animal']
+        fields = ['comments','panels', 'animal']
 
     def __init__(self, *args, **kwargs):
-        extra_fields = kwargs.pop('extra', 0)
+        #extra_fields = kwargs.pop('extra', 0)
         super().__init__(*args, **kwargs)
-        self.fields['states'].initial = extra_fields
+        #self.fields['states'].initial = extra_fields
         self.fields['comments'].label = 'Title of state'
 
     def clean(self):
-        cleaned_data = super().clean()
-        states = cleaned_data.get("selected_states")
+        selected_states = self.data.get('selected_states')
 
-        if states is None:
+        if selected_states is None:
             self.data = self.data.copy()
             self.data['animal'] = None
             raise ValidationError("You must select a title, and at least one layer.")
         
     def prepareModel(self, request, obj, form, change):
+        print('in prepare model')
         state = {}
+        for key, value in request.POST.items():
+            print(f'Key: {key}')
+            print(f'Value: {value}')
+            print()
         if 'animal' in request.POST and 'selected_states' in request.POST:
             animal = request.POST['animal']
+            panel = request.POST['panels']
             directories = request.POST.getlist("selected_states")
             scan_run = ScanRun.objects.get(prep__prep_id=animal)
             state['dimensions'] = {'x':[scan_run.resolution, "um"],
@@ -70,7 +86,8 @@ class NeuroglancerModelForm(forms.ModelForm):
             state['position'] = [scan_run.width / 2, scan_run.height / 2, 225]
             state['projectionScale'] = scan_run.width
             state['crossSectionScale'] = 90
-            state['layout'] = '4panel'
+            state['layout'] = panel,
+            state['gpuMemoryLimit'] = 2000000000,
             state['selectedLayer'] = {'visible':'true'}
             layers = create_layers(directories)
             state['layers'] = layers

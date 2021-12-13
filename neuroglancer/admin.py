@@ -12,7 +12,7 @@ from django.utils.safestring import mark_safe
 from brain.admin import AtlasAdminModel, ExportCsvMixin
 from neuroglancer.models import InputType, LayerData, \
     NeuroglancerModel,  Structure
-from neuroglancer.forms import NeuroglancerModelForm
+from neuroglancer.forms import NeuroglancerModelForm, NeuroglancerUpdateForm
 
 def datetime_format(dtime):
     return dtime.strftime("%d %b %Y %H:%M")
@@ -38,26 +38,28 @@ class NeuroglancerModelAdmin(admin.ModelAdmin):
 
     def change_view(self, request, object_id, extra_content=None):
         """View existing state with most of the fields excluded or readonly"""
-        self.exclude = ('neuroglancer_state', 'user_date')
+        self.exclude = ('neuroglancer_state', 'user_date', 'panels', 'animal')
         self.readonly_fields = ['pretty_url', 'created', 'updated']
         return super(NeuroglancerModelAdmin, self).change_view(request, object_id)
+    
+    def save_model(self, request, obj, form, change):
+        obj.user = request.user
+        if not change:
+            print('save model not change')
+            self.form.prepareModel(self, request, obj, form, change)
+        super().save_model(request, obj, form, change)
     
     def get_form(self, request, obj=None, change=None, **kwargs):
         """
         Use special form only for adding. For viewing, create a pretty json
         format and only allow the title to be changed.
         """
-        form = super().get_form(request, obj=obj, change=change, **kwargs)
         if not obj:
-            form = NeuroglancerModelForm
-        return form
-    
-    def save_model(self, request, obj, form, change):
-        obj.user = request.user
-        if not obj:
-            self.form.prepareModel(self, request, obj, form, change)
-        super().save_model(request, obj, form, change)
-
+            self.form = NeuroglancerModelForm
+        else:
+            #form = super().get_form(request, obj=obj, change=change, **kwargs)
+            self.form = NeuroglancerUpdateForm
+        return self.form
 
     def get_queryset(self, request, obj=None):
         user = request.user

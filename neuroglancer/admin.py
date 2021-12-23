@@ -65,7 +65,7 @@ class NeuroglancerModelAdmin(admin.ModelAdmin):
         rows = None
         if user.labs is not None and not user.is_superuser:
             lab_ids = [p.id for p in user.labs.all()]
-            rows = NeuroglancerModel.objects.filter(person__lab__in=lab_ids).order_by('-updated')
+            rows = NeuroglancerModel.objects.filter(owner__lab__in=lab_ids).order_by('-updated')
         else:
             rows = NeuroglancerModel.objects.order_by('-updated')
             
@@ -168,7 +168,7 @@ class AnotationPointsAdmin(AtlasAdminModel):
         user = request.user
         rows = None
         if user.lab is not None:
-            rows = AnnotationPoints.objects.filter(person__lab=user.lab)\
+            rows = AnnotationPoints.objects.filter(owner__lab=user.lab)\
             .order_by('prep', 'layer','structure__abbreviation', 'section')
         else:
             rows = AnnotationPoints.objects.order_by('prep', 'layer','structure__abbreviation', 'section')
@@ -176,7 +176,7 @@ class AnotationPointsAdmin(AtlasAdminModel):
         return rows
 
     def save_model(self, request, obj, form, change):
-        obj.person = request.user
+        obj.owner = request.user
         super().save_model(request, obj, form, change)
 
     def x_f(self, obj):

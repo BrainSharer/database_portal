@@ -10,7 +10,7 @@ from pygments.formatters import HtmlFormatter
 from pygments.lexers import JsonLexer
 from django.utils.safestring import mark_safe
 from brain.admin import AtlasAdminModel, ExportCsvMixin
-from neuroglancer.models import InputType, LayerData, \
+from neuroglancer.models import InputType, AnnotationPoints, \
     NeuroglancerModel,  Structure
 from neuroglancer.forms import NeuroglancerModelForm, NeuroglancerUpdateForm
 
@@ -23,7 +23,7 @@ class NeuroglancerModelAdmin(admin.ModelAdmin):
         models.CharField: {'widget': TextInput(attrs={'size': '100'})},
     }
     list_display = ('animal', 'open_neuroglancer', 'lab',
-                    'person', 'updated')
+                    'owner', 'updated')
     ordering = ['-updated']
     # exclude = ['neuroglancer_state']
     list_filter = ['updated', 'created']
@@ -110,8 +110,8 @@ class NeuroglancerModelAdmin(admin.ModelAdmin):
     
     def lab(self, obj):
         lab = "NA"
-        if obj.person is not None and obj.person.lab is not None:
-            lab = obj.person.lab
+        if obj.owner is not None and obj.owner.lab is not None:
+            lab = obj.owner.lab
         return lab
 
     open_neuroglancer.short_description = 'Neuroglancer'
@@ -154,24 +154,24 @@ class InputTypeAdmin(AtlasAdminModel):
     list_filter = ['created', 'active']
     search_fields = ['input_type', 'description']
 
-@admin.register(LayerData)
-class LayerDataAdmin(AtlasAdminModel):
+@admin.register(AnnotationPoints)
+class AnotationPointsAdmin(AtlasAdminModel):
     # change_list_template = 'layer_data_group.html'
-    list_display = ('prep_id', 'structure', 'layer', 'person', 'x_f', 'y_f', 'z_f', 'active')
-    ordering = ['prep', 'layer','structure__abbreviation', 'section']
+    list_display = ('animal', 'structure', 'layer', 'owner', 'x_f', 'y_f', 'z_f')
+    ordering = ['animal__animal', 'layer','structure__abbreviation', 'section']
     excluded_fields = ['created', 'updated']
-    list_filter = ['created', 'active','input_type']
-    search_fields = ['prep__prep_id', 'structure__abbreviation', 'layer', 'person__username']
+    list_filter = ['input_type']
+    search_fields = ['animal__animal', 'structure__abbreviation', 'layer', 'owner__username']
     scales = {'dk':0.325, 'md':0.452, 'at':10}
 
     def get_queryset(self, request, obj=None):
         user = request.user
         rows = None
         if user.lab is not None:
-            rows = LayerData.objects.filter(person__lab=user.lab)\
+            rows = AnnotationPoints.objects.filter(person__lab=user.lab)\
             .order_by('prep', 'layer','structure__abbreviation', 'section')
         else:
-            rows = LayerData.objects.order_by('prep', 'layer','structure__abbreviation', 'section')
+            rows = AnnotationPoints.objects.order_by('prep', 'layer','structure__abbreviation', 'section')
             
         return rows
 
@@ -180,11 +180,11 @@ class LayerDataAdmin(AtlasAdminModel):
         super().save_model(request, obj, form, change)
 
     def x_f(self, obj):
-        initial = str(obj.prep_id[0:2]).lower()
+        initial = str(obj.animal[0:2]).lower()
         number = int(round(obj.x / self.scales[initial]))
         return format_html(f"<div style='text-align:left;'>{number:,}</div>")
     def y_f(self, obj):
-        initial = str(obj.prep_id[0:2]).lower()
+        initial = str(obj.animal[0:2]).lower()
         number = int(round(obj.y / self.scales[initial]))
         return format_html(f"<div style='text-align:left;'>{number:,}</div>")
     def z_f(self, obj):

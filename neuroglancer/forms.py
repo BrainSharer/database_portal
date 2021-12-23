@@ -10,7 +10,7 @@ from django.core.exceptions import ValidationError
 class AnimalChoiceField(forms.ModelChoiceField):
 
     def label_from_instance(self, obj):
-        return obj.prep_id
+        return obj.animal
 
 
 class LayerForm(forms.ModelForm):
@@ -39,7 +39,7 @@ class NeuroglancerModelForm(forms.ModelForm):
     animal = ModelChoiceField(label='Create main layer',
                             queryset=Animal.objects
                             .filter(active=True)
-                            .order_by('prep_id'),
+                            .order_by('animal'),
                             required=True,
                             widget=forms.Select(attrs={'class': 'form-control',
                                                        'style':'display:block;'}))
@@ -82,7 +82,7 @@ class NeuroglancerModelForm(forms.ModelForm):
             include_atlas = bool({'yes': True, 'no': False}[str(request.POST['include_atlas']).lower()])
             directories = request.POST.getlist('selected_states')
             layers, visible_layer = create_layers(directories, include_atlas)
-            scan_run = ScanRun.objects.get(prep__prep_id=animal)
+            scan_run = ScanRun.objects.get(pk=animal)
             state['dimensions'] = {'x':[scan_run.resolution, 'um'],
                                    'y':[scan_run.resolution, 'um'],
                                    'z':[scan_run.zresolution, 'um'] }

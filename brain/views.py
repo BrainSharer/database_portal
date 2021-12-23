@@ -1,30 +1,15 @@
-from django.shortcuts import render
-from brain.models import Animal, Section
-from brain.forms import AnimalForm
-from rest_framework import status
+from brain.models import Animal
 from django.http import Http404
 from rest_framework import views
 from rest_framework.response import Response
 from brain.serializers import AnimalSerializer
-
-# from url initial page
-def image_list(request):
-    prep_id = request.GET.get('prep_id')
-    form = AnimalForm()  # A form bound to the GET data
-    animals = Animal.objects.filter(prep_id=prep_id).order_by('prep_id')
-    sections = None
-    title = 'Select an animal from the dropdown menu.'
-    if prep_id:
-        title = 'Thumbnail images for: {}'.format(prep_id)
-        sections = Section.objects.filter(prep_id=prep_id).order_by('file_name')
-    return render(request, 'list.html',{'animals': animals,'sections': sections,'form': form,'prep_id': prep_id,'title': title})
 
 class AnimalList(views.APIView):
     """
     List all animals. No creation at this time.
     """
     def get(self, request, format=None):
-        animals = Animal.objects.filter(active=True).order_by('prep_id')
+        animals = Animal.objects.filter(active=True).order_by('animal')
         serializer = AnimalSerializer(animals, many=True)
         return Response(serializer.data)
 

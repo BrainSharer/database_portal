@@ -1,19 +1,13 @@
-import os
-
 from django.contrib import admin
-#from django.contrib.admin.models import  LogEntry
 from django.forms import TextInput, Textarea, DateInput, NumberInput, Select
 from django.db import models
 import csv
 from django.http import HttpResponse
 from django.contrib.admin.widgets import AdminDateWidget
-from django.utils.safestring import mark_safe
 from django.urls import path
 from django.template.response import TemplateResponse
 
-from brain.forms import save_slide_model, TifInlineFormset
-from brain.models import (Animal, Histology, Injection, Virus, InjectionVirus,
-                          ScanRun, Slide, ImageFile, Section)
+from brain.models import Animal, Injection, Virus, InjectionVirus, ScanRun
 
 
 class ExportCsvMixin:
@@ -71,9 +65,9 @@ class AtlasAdminModel(admin.ModelAdmin):
 
 @admin.register(Animal)
 class AnimalAdmin(AtlasAdminModel, ExportCsvMixin):
-    list_display = ('prep_id', 'comments', 'histogram', 'created')
-    search_fields = ('prep_id',)
-    ordering = ['prep_id']
+    list_display = ('animal', 'comments', 'histogram', 'created')
+    search_fields = ('animal',)
+    ordering = ['animal']
     exclude = ('created',)
 
     def view_pipeline(self, request):
@@ -90,20 +84,10 @@ class AnimalAdmin(AtlasAdminModel, ExportCsvMixin):
         ]
         return my_urls + urls
 
-
-
-@admin.register(Histology)
-class HistologyAdmin(AtlasAdminModel, ExportCsvMixin):
-    list_display = ('prep_id', 'performance_center')
-    search_fields = ('prep__prep_id',)
-    autocomplete_fields = ['prep_id']
-    ordering = ['prep_id']
-    exclude = ('created',)
-
 @admin.register(Injection)
 class InjectionAdmin(AtlasAdminModel, ExportCsvMixin):
-    list_display = ('prep_id', 'performance_center', 'anesthesia', 'comments', 'created')
-    search_fields = ('prep__prep_id',)
+    list_display = ('animal', 'performance_center', 'anesthesia', 'comments', 'created')
+    search_fields = ('animal__animal',)
     ordering = ['created']
 
 @admin.register(Virus)
@@ -114,14 +98,14 @@ class VirusAdmin(AtlasAdminModel, ExportCsvMixin):
 
 @admin.register(InjectionVirus)
 class InjectionVirusAdmin(AtlasAdminModel):
-    list_display = ('prep_id', 'injection_comments', 'virus_name', 'created')
+    list_display = ('animal', 'injection_comments', 'virus_name', 'created')
     fields = ['injection', 'virus']
-    search_fields = ('injection__prep__prep_id',)
+    search_fields = ('injection__animal__animal',)
     ordering = ['created']
 
-    def prep_id(self, instance):
-        return instance.injection.prep.prep_id
-
+    def animal(self, instance):
+        return instance.injection.animal.animal
+    
     def injection_comments(self, instance):
         return instance.injection.comments
 
@@ -130,204 +114,12 @@ class InjectionVirusAdmin(AtlasAdminModel):
 
 @admin.register(ScanRun)
 class ScanRunAdmin(AtlasAdminModel, ExportCsvMixin):
-    list_display = ('prep_id', 'performance_center', 'machine','comments', 'created')
-    search_fields = ('prep__prep_id',)
-    ordering = ['prep_id', 'performance_center', 'machine','comments', 'created']
-
-class TifInline(admin.TabularInline):
-    model = ImageFile
-    fields = ('file_name','scene_number', 'scene_index', 'channel', 'scene_image', 'section_image')
-    readonly_fields = ['file_name', 'scene_number', 'channel', 'scene_index', 'scene_image', 'section_image']
-    ordering = ['-active', 'scene_number', 'scene_index']
-    extra = 0
-    can_delete = False
-    formset = TifInlineFormset
-    template = 'tabular_tifs.html'
-
-    def scene_image(self, obj):
-        animal = obj.slide.scan_run.prep_id
-        tif_file = obj.file_name
-        png = tif_file.replace('tif', 'png')
-        # DK55_slide112_2020_09_21_9205_S1_C1.png
-        testfile = f"/net/birdstore/Active_Atlas_Data/data_root/pipeline_data/{animal}/www/scene/{png}"
-        if os.path.isfile(testfile):
-            thumbnail = f"https://activebrainatlas.ucsd.edu/data/{animal}/www/scene/{png}"
-            return mark_safe(
-                '<div class="profile-pic-wrapper"><img src="{}" /></div>'.format(thumbnail))
-        else:
-            return mark_safe('<div>Not available</div>')
-
-    scene_image.short_description = 'Pre Image'
-
-    def section_image(self, obj):
-        animal = obj.slide.scan_run.prep_id
-        tif_file = obj.file_name
-        png = tif_file.replace('tif', 'png')
-        # DK55_slide112_2020_09_21_9205_S1_C1.png
-        testfile = f"/net/birdstore/Active_Atlas_Data/data_root/pipeline_data/{animal}/www/{png}"
-        if os.path.isfile(testfile):
-            thumbnail = f"https://activebrainatlas.ucsd.edu/data/{animal}/www/{png}"
-            return mark_safe(
-                '<div class="profile-pic-wrapper"><img src="{}" /></div>'.format(thumbnail))
-        else:
-            return mark_safe('<div>Not available</div>')
-
-    section_image.short_description = 'Post Image'
-
-
-    def get_formset(self, request, obj=None, **kwargs):
-        formset = super(TifInline, self).get_formset(request, obj, **kwargs)
-        formset.request = request
-        return formset
-
-    def get_queryset(self, request):
-        qs = super(TifInline, self).get_queryset(request)
-        return qs.filter(active=1).filter(channel=1)
-        #return qs.filter(active=1)
-
-    def has_add_permission(self, request, obj=None):
-        return False
-
-    def has_change_permission(self, request, obj=None):
-        return True
-
-@admin.register(Slide)
-class SlideAdmin(AtlasAdminModel, ExportCsvMixin):
-    list_display = ('prep_id', 'file_name', 'slide_status', 'scene_qc_1', 'scene_qc_2', 'scene_qc_3', 'scene_qc_4', 'scene_count')
-    search_fields = ['scan_run__prep__prep_id', 'file_name']
-    ordering = ['file_name', 'created']
-    readonly_fields = ['file_name', 'slide_physical_id', 'scan_run', 'processed', 'file_size']
-
-
-    def get_fields(self, request, obj):
-        count = self.scene_count(obj)
-        fields = ['file_name', 'scan_run', 'slide_physical_id', 'slide_status', 'rescan_number',
-                  'insert_before_one', 'scene_qc_1',
-                  'insert_between_one_two', 'scene_qc_2']
-
-        scene_3_fields = ['insert_between_two_three', 'scene_qc_3']
-        scene_4_fields = ['insert_between_three_four', 'scene_qc_4']
-        scene_5_fields = ['insert_between_four_five', 'scene_qc_5']
-        scene_6_fields = ['insert_between_five_six', 'scene_qc_6']
-        if count > 2:
-            fields.extend(scene_3_fields)
-        if count > 3:
-            fields.extend(scene_4_fields)
-        if count > 4:
-            fields.extend(scene_5_fields)
-        if count > 5:
-            fields.extend(scene_6_fields)
-
-        last_fields = ['comments', 'processed']
-        fields.extend(last_fields)
-        return fields
-
-    inlines = [TifInline, ]
-
-    def scene_count(self, obj):
-        count = ImageFile.objects.filter(slide_id=obj.id).filter(channel=1).filter(active=True).count()
-        return count
-
-    scene_count.short_description = "Active Scenes"
-
-    def save_model(self, request, obj, form, change):
-        obj.user = request.user
-        save_slide_model(self, request, obj, form, change)
-        super().save_model(request, obj, form, change)
-
-
-    def has_delete_permission(self, request, obj=None):
-        return False
-
-    def has_add_permission(self, request, obj=None):
-        return False
-
-
-    def prep_id(self, instance):
-        return instance.scan_run.prep.prep_id
-
-@admin.register(ImageFile)
-class ImageFileAdmin(AtlasAdminModel, ExportCsvMixin):
-    list_display = ('file_name', 'scene_number', 'channel','file_size')
-    ordering = ['file_name', 'scene_number', 'channel', 'file_size']
-    exclude = ['processing_duration']
-    readonly_fields = ['file_name', 'scene_number','slide','scene_index', 'channel', 'file_size', 'width','height']
-    search_fields = ['file_name']
-
-
-    def has_delete_permission(self, request, obj=None):
-        return False
-
-    def has_add_permission(self, request, obj=None):
-        return False
-
-
-class ExportSections:
-    def export_sections(self, request, queryset):
-        meta = self.model._meta
-        headers = ['File name', 'Slide', 'Scene']
-        fields = ['file_name', 'slide', 'scene']
-
-        response = HttpResponse(content_type='text/csv')
-        response['Content-Disposition'] = 'attachment; filename={}.csv'.format(meta)
-        writer = csv.writer(response)
-
-        writer.writerow(headers)
-        for obj in queryset:
-            row = writer.writerow([getattr(obj, field) for field in fields])
-
-        return response
-
-    export_sections.short_description = "Export Selected"
-
-@admin.register(Section)
-class SectionAdmin(AtlasAdminModel, ExportCsvMixin):
-    #change_list_template = "admin/section/qc.html"
-    indexCounter = -1
-    list_display = ('tif','section_number', 'slide','scene', 'scene_index', 'histogram', 'image_tag')
-    ordering = ['prep_id', 'channel']
-    list_filter = []
-    list_display_links = None
-    search_fields = ['prep_id', 'file_name']
-    #actions = ["export_sections"]
-    list_per_page = 1000
-    class Media:
-        css = {
-            'all': ('admin/css/thumbnail.css',)
-        }
-
-    def section_number(self, instance):
-        self.indexCounter += 1
-        return self.indexCounter
-
-    section_number.short_description = 'Section'
-
-
-    def get_queryset(self, request, obj=None):
-        self.indexCounter = -1
-        sections = Section.objects.filter(prep_id='XXXX')
-        if request and request.GET:
-            prep_id = request.GET['q']
-            histology = Histology.objects.get(prep_id=prep_id)
-            orderby = histology.side_sectioned_first
-
-            if orderby == 'DESC':
-                sections =  Section.objects.filter(prep_id__exact=prep_id).filter(channel=1)\
-                    .order_by('-slide_physical_id', '-scene_number')
-            else:
-                sections = Section.objects.filter(prep_id__exact=prep_id).filter(channel=1)\
-                    .order_by('slide_physical_id', 'scene_number')
-
-        return sections
-
-    def has_change_permission(self, request, obj=None):
-        return False
-
-    def has_add_permission(self, request, obj=None):
-        return False
-
-    def has_delete_permission(self, request, obj=None):
-        return False
+    list_display = ('animal', 'comments', 'created')
+    search_fields = ('animal__animal',)
+    ordering = ['animal', 'comments', 'created']
+    
+    #def animal(self, instance):
+    #    return instance.animal.prep_id
 
 
 @admin.register(admin.models.LogEntry)

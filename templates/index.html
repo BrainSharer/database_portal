@@ -3,7 +3,7 @@
 
 <html lang="en-us" dir="ltr">
 <head>
-<title>Select social application to change | BrainSharer</title>
+<title>Select login method for BrainSharer</title>
 <link rel="stylesheet" type="text/css" href="/static/admin/css/base.css">
 <meta name="viewport"
 	content="user-scalable=no, width=device-width, initial-scale=1.0, maximum-scale=1.0">
@@ -18,7 +18,7 @@
 		<div id="header">
 			<div id="branding">
 				<h1 id="site-name">
-					<a href="/admin/">BrainSharer Login</a>
+					<a href="/brainsharer/admin/">BrainSharer Login</a>
 				</h1>
 			</div>
     <p>{{ user.username }}</p>			
@@ -27,10 +27,10 @@
         <div style="padding:100px">
 		{% if user.is_authenticated %}
 		<h2>Welcome, You are logged in as {{ user.username }}</h2>
-		<p><a href="/admin/">Proceed to the main admin page</a></p>
+		<p><a href="/brainsharer/admin/">Proceed to the main admin page</a></p>
 		{% else %} 
-        <p><a href="{% provider_login_url 'google' %}">Login with Google</a> </p>
-        <p><a href="/admin/">Login with Django user</a> </p>
+        <p><a href="{% provider_login_url 'google' %}?next=/brainsharer/admin/neuroglancer/neuroglancermodel/">Login with Google</a> </p>
+        <p><a href="/brainsharer/admin/">Login with Django user</a> </p>
 		{% endif %}
 		</div>
 	</div>

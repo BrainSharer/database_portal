@@ -96,7 +96,7 @@ class NeuroglancerModelForm(forms.ModelForm):
             state['layout'] = panel
             
         obj.neuroglancer_state = state
-        obj.person = request.user
+        obj.owner = request.user
         return
         
         

@@ -24,3 +24,4 @@ echo "from django.contrib.auth import get_user_model; User = get_user_model(); U
 
 # inserts
 mysql brainsharer < ./sql/brainsharer.inserts.sql
+mysql brainsharer < ./sql/secrets.sql

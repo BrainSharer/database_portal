@@ -72,7 +72,7 @@ class BiocycAdmin(AtlasAdminModel, ExportCsvMixin):
 
 @admin.register(Animal)
 class AnimalAdmin(AtlasAdminModel, ExportCsvMixin):
-    list_display = ('animal', 'comments', 'histogram', 'created')
+    list_display = ('animal', 'lab', 'comments', 'histogram', 'created')
     search_fields = ('animal',)
     ordering = ['animal']
     exclude = ('created',)

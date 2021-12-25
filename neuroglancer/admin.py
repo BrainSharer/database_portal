@@ -9,13 +9,10 @@ from pygments import highlight
 from pygments.formatters import HtmlFormatter
 from pygments.lexers import JsonLexer
 from django.utils.safestring import mark_safe
-from brain.admin import AtlasAdminModel, ExportCsvMixin
+from brain.admin import AtlasAdminModel
 from neuroglancer.models import InputType, AnnotationPoints, \
-    NeuroglancerModel,  Structure
+    NeuroglancerModel
 from neuroglancer.forms import NeuroglancerModelForm, NeuroglancerUpdateForm
-
-def datetime_format(dtime):
-    return dtime.strftime("%d %b %Y %H:%M")
 
 @admin.register(NeuroglancerModel)
 class NeuroglancerModelAdmin(admin.ModelAdmin):
@@ -120,23 +117,6 @@ class NeuroglancerModelAdmin(admin.ModelAdmin):
     open_multiuser.allow_tags = True
     lab.short_description = "Lab"
 
-@admin.register(Structure)
-class StructureAdmin(admin.ModelAdmin, ExportCsvMixin):
-    list_display = ('abbreviation', 'description','active','created_display')
-    ordering = ['abbreviation']
-    readonly_fields = ['created']
-    list_filter = ['created', 'active']
-    #list_filter = (VettedFilter,)
-    search_fields = ['abbreviation', 'description']
-
-    def created_display(self, obj):
-        return datetime_format(obj.created)
-    created_display.short_description = 'Created'    
-
-    def show_hexadecimal(self, obj):
-        return format_html('<div style="background:{}">{}</div>',obj.hexadecimal,obj.hexadecimal)
-
-    show_hexadecimal.short_description = 'Hexadecimal'
 
 def make_inactive(modeladmin, request, queryset):
     queryset.update(active=False)
@@ -157,7 +137,7 @@ class InputTypeAdmin(AtlasAdminModel):
 @admin.register(AnnotationPoints)
 class AnotationPointsAdmin(AtlasAdminModel):
     # change_list_template = 'layer_data_group.html'
-    list_display = ('animal', 'structure', 'layer', 'owner', 'x_f', 'y_f', 'z_f')
+    list_display = ('animal', 'brain_region', 'layer', 'owner', 'x_f', 'y_f', 'z_f')
     ordering = ['animal__animal', 'layer','structure__abbreviation', 'section']
     excluded_fields = ['created', 'updated']
     list_filter = ['input_type']
@@ -169,7 +149,7 @@ class AnotationPointsAdmin(AtlasAdminModel):
         rows = None
         if user.lab is not None:
             rows = AnnotationPoints.objects.filter(owner__lab=user.lab)\
-            .order_by('prep', 'layer','structure__abbreviation', 'section')
+            .order_by('prep', 'layer','brain_region__abbreviation', 'section')
         else:
             rows = AnnotationPoints.objects.order_by('prep', 'layer','structure__abbreviation', 'section')
             

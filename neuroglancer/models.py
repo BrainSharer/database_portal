@@ -4,7 +4,7 @@ from django.utils.html import escape
 import re
 from enum import Enum
 from django.template.defaultfilters import truncatechars
-from brain.models import AtlasModel, Animal
+from brain.models import Animal, BrainRegion
 
 
 class AnnotationChoice(str, Enum):
@@ -76,20 +76,6 @@ class NeuroglancerModel(models.Model):
 
 
 
-class Structure(AtlasModel):
-    id = models.BigAutoField(primary_key=True)
-    abbreviation = models.CharField(max_length=200)
-    description = models.TextField(max_length=2001, blank=False, null=False)
-
-    class Meta:
-        managed = True
-        db_table = 'structure'
-        verbose_name = 'Structure'
-        verbose_name_plural = 'Structures'
-
-    def __str__(self):
-        return f'{self.description} {self.abbreviation}'
-
 
 class InputType(models.Model):
     id = models.BigAutoField(primary_key=True)
@@ -112,7 +98,7 @@ class InputType(models.Model):
 class AnnotationAbstract(models.Model):
     id = models.BigAutoField(primary_key=True)
     animal = models.ForeignKey(Animal, models.CASCADE, null=True, db_column="FK_animal_id", verbose_name="Animal")
-    structure = models.ForeignKey(Structure, models.CASCADE, null=True, db_column="FK_structure_id",
+    brain_region = models.ForeignKey(BrainRegion, models.CASCADE, null=True, db_column="FK_structure_id",
                                verbose_name="Structure")
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, models.CASCADE, db_column="FK_owner_id",
                                verbose_name="Owner", blank=False, null=False)

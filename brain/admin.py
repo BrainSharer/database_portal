@@ -7,7 +7,8 @@ from django.contrib.admin.widgets import AdminDateWidget
 from django.urls import path
 from django.template.response import TemplateResponse
 
-from brain.models import Animal, Injection, Virus, InjectionVirus, ScanRun
+from brain.models import Animal, Biocyc, Injection, Virus, InjectionVirus, \
+    ScanRun, BrainRegion, BrainAtlas
 
 
 class ExportCsvMixin:
@@ -61,6 +62,12 @@ class AtlasAdminModel(admin.ModelAdmin):
         css = {
             'all': ('admin/css/thumbnail.css',)
         }
+
+@admin.register(Biocyc)
+class BiocycAdmin(AtlasAdminModel, ExportCsvMixin):
+    list_display = ('bio_name', 'created')
+    search_fields = ('bio_name',)
+    ordering = ['bio_name']
 
 
 @admin.register(Animal)
@@ -118,8 +125,21 @@ class ScanRunAdmin(AtlasAdminModel, ExportCsvMixin):
     search_fields = ('animal__animal',)
     ordering = ['animal', 'comments', 'created']
     
-    #def animal(self, instance):
-    #    return instance.animal.prep_id
+@admin.register(BrainRegion)
+class BrainRegionAdmin(admin.ModelAdmin, ExportCsvMixin):
+    list_display = ('abbreviation', 'description','active','created')
+    ordering = ['abbreviation']
+    readonly_fields = ['created']
+    list_filter = ['created', 'active']
+    search_fields = ['abbreviation', 'description']
+    
+@admin.register(BrainAtlas)
+class BrainAtlasAdmin(admin.ModelAdmin, ExportCsvMixin):
+    list_display = ('atlas_name', 'description','active','created')
+    ordering = ['atlas_name', 'active']
+    readonly_fields = ['created']
+    list_filter = ['created', 'active']
+    search_fields = ['abbreviation', 'description']
 
 
 @admin.register(admin.models.LogEntry)

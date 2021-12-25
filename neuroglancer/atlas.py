@@ -5,8 +5,8 @@ so we can resuse them througout the code.
 """
 from authentication.models import User
 import datetime
-from brain.models import Animal, ScanRun
-from neuroglancer.models import Structure, AnnotationPoints
+from brain.models import Animal, ScanRun, BrainRegion
+from neuroglancer.models import AnnotationPoints
 import logging
 logging.basicConfig()
 logger = logging.getLogger(__name__)
@@ -17,16 +17,16 @@ DETECTED = 2
 
 
 
-def get_centers_dict(animal, input_type_id=0, person_id=None):
+def get_centers_dict(animal, input_type_id=0, owner_id=None):
     rows = AnnotationPoints.objects.filter(animal__animal=animal)\
         .filter(active=True).filter(layer='COM')\
             .order_by('structure', 'updated')
     if input_type_id > 0:
         rows = rows.filter(input_type_id=input_type_id)
-    if person_id is not None:
-        rows = rows.filter(person_id=person_id)
+    if owner_id is not None:
+        rows = rows.filter(owner_id=owner_id)
     structure_dict = {}
-    structures = Structure.objects.filter(active=True).all()
+    structures = BrainRegion.objects.filter(active=True).all()
     for structure in structures:
         structure_dict[structure.id] = structure.abbreviation
     row_dict = {}
@@ -52,12 +52,12 @@ def get_existing_annotations(prep, loggedInUser, layer):
 
 
 def get_structure(annotation):
-    structure = Structure.objects.get(pk=1)
+    structure = BrainRegion.objects.get(pk=1)
     if 'description' in annotation:
         abbreviation = str(annotation['description']).replace('\n', '').strip()
         try:
-            structure = Structure.objects.get(abbreviation=abbreviation)
-        except Structure.DoesNotExist:
+            structure = BrainRegion.objects.get(abbreviation=abbreviation)
+        except BrainRegion.DoesNotExist:
             logger.error(f'Structure {abbreviation} does not exist')
     return structure
 

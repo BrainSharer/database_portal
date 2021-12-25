@@ -2,7 +2,8 @@ from rest_framework import serializers
 from rest_framework.exceptions import APIException
 import logging
 
-from neuroglancer.models import AnnotationPoints, Structure, NeuroglancerModel
+from brain.models import BrainRegion
+from neuroglancer.models import AnnotationPoints, NeuroglancerModel
 from neuroglancer.atlas import update_annotation_data
 from authentication.models import User
 
@@ -49,10 +50,10 @@ class AnnotationsSerializer(serializers.Serializer):
     input_type_id = serializers.IntegerField()
 
 
-class StructureSerializer(serializers.ModelSerializer):
+class BrainRegionSerializer(serializers.ModelSerializer):
 
     class Meta:
-        model = Structure
+        model = BrainRegion
         fields = '__all__'
 
 

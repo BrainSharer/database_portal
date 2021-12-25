@@ -11,7 +11,8 @@ import numpy as np
 from scipy.interpolate import splprep, splev
 from neuroglancer.serializers import AnnotationSerializer, \
     AnnotationsSerializer, NeuroglancerSerializer, IdSerializer
-from neuroglancer.models import InputType, NeuroglancerModel, AnnotationPoints, Structure
+from neuroglancer.models import InputType, NeuroglancerModel, AnnotationPoints
+from brain.models import BrainRegion
 from neuroglancer.atlas import get_scales
 
 import logging
@@ -153,7 +154,7 @@ class LandmarkList(views.APIView):
 
     def get(self, request, format=None):
 
-        list_of_landmarks = Structure.objects.all().filter(active = True).all()
+        list_of_landmarks = BrainRegion.objects.all().filter(active = True).all()
         list_of_landmarks = [i.abbreviation for i in list_of_landmarks]
         data = {}
         data['land_marks'] = list_of_landmarks

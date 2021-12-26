@@ -99,7 +99,7 @@
 	    django.jQuery('#id_animal').change(function() {
 	      console.log('Add animal change');
 	      var animal = $(this).val();
-	      var url = '/fetch_layers/'
+	      var url = '/brainsharer/fetch_layers/'
 	      $.ajax({
 	        dataType : 'html',
 	        url : url + animal,

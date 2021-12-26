@@ -107,7 +107,7 @@ class AnnotationAbstract(models.Model):
     layer = models.CharField(max_length=255)
     x = models.FloatField(verbose_name="X (um)")
     y = models.FloatField(verbose_name="Y (um)")
-    section = models.FloatField(verbose_name="Section (um)")
+    z = models.FloatField(verbose_name="Z (um)")
 
     class Meta:
         abstract = True

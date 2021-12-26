@@ -158,6 +158,8 @@ class BrainAtlas(AtlasModel):
     class Meta:
         managed = True
         db_table = 'brain_atlas'
+        verbose_name = 'Brain atlas'
+        verbose_name_plural = 'Brain atlases'
 
     def __str__(self):
         return self.atlas_name

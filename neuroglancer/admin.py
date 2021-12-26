@@ -11,7 +11,7 @@ from pygments.lexers import JsonLexer
 from django.utils.safestring import mark_safe
 from brain.admin import AtlasAdminModel
 from neuroglancer.models import InputType, AnnotationPoints, \
-    NeuroglancerModel
+    NeuroglancerModel, ArchiveSet, AnnotationPointArchive
 from neuroglancer.forms import NeuroglancerModelForm, NeuroglancerUpdateForm
 
 @admin.register(NeuroglancerModel)
@@ -134,14 +134,32 @@ class InputTypeAdmin(AtlasAdminModel):
     list_filter = ['created', 'active']
     search_fields = ['input_type', 'description']
 
+@admin.register(AnnotationPointArchive)
+class AnnotationPointArchiveAdmin(AtlasAdminModel):
+    list_display = ('animal', 'brain_region', 'layer', 'owner', 'x', 'y', 'z')
+    ordering = ['animal__animal', 'layer','brain_region__abbreviation', 'z']
+    excluded_fields = ['created', 'updated']
+    list_filter = ['input_type']
+    search_fields = ['animal__animal', 'brain_region__abbreviation', 'layer', 'owner__username']
+
+
+@admin.register(ArchiveSet)
+class ArchiveSetAdmin(AtlasAdminModel):
+    list_display = ('parent', 'created', 'updatedby')
+    ordering = ['parent', 'created', 'updatedby']
+    excluded_fields = ['parent', 'created', 'updatedby']
+    list_filter = ['created']
+    search_fields = []
+
+
 @admin.register(AnnotationPoints)
 class AnotationPointsAdmin(AtlasAdminModel):
     # change_list_template = 'layer_data_group.html'
     list_display = ('animal', 'brain_region', 'layer', 'owner', 'x_f', 'y_f', 'z_f')
-    ordering = ['animal__animal', 'layer','structure__abbreviation', 'section']
+    ordering = ['animal__animal', 'layer','brain_region__abbreviation', 'z']
     excluded_fields = ['created', 'updated']
     list_filter = ['input_type']
-    search_fields = ['animal__animal', 'structure__abbreviation', 'layer', 'owner__username']
+    search_fields = ['animal__animal', 'brain_region__abbreviation', 'layer', 'owner__username']
     scales = {'dk':0.325, 'md':0.452, 'at':10}
 
     def get_queryset(self, request, obj=None):
@@ -149,9 +167,9 @@ class AnotationPointsAdmin(AtlasAdminModel):
         rows = None
         if user.lab is not None:
             rows = AnnotationPoints.objects.filter(owner__lab=user.lab)\
-            .order_by('prep', 'layer','brain_region__abbreviation', 'section')
+            .order_by('animal', 'layer','brain_region__abbreviation', 'z')
         else:
-            rows = AnnotationPoints.objects.order_by('prep', 'layer','structure__abbreviation', 'section')
+            rows = AnnotationPoints.objects.order_by('animal', 'layer','brain_region__abbreviation', 'z')
             
         return rows
 
@@ -168,7 +186,7 @@ class AnotationPointsAdmin(AtlasAdminModel):
         number = int(round(obj.y / self.scales[initial]))
         return format_html(f"<div style='text-align:left;'>{number:,}</div>")
     def z_f(self, obj):
-        number = int(obj.section / 20)
+        number = int(obj.z / 20)
         return format_html(f"<div style='text-align:left;'>{number:,}</div>")
 
     x_f.short_description = "X"

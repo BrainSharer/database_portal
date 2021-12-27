@@ -88,7 +88,7 @@ class NeuroglancerModelAdmin(admin.ModelAdmin):
     pretty_url.short_description = 'Formatted URL'
 
     def open_neuroglancer(self, obj):
-        host = "https://activebrainatlas.ucsd.edu/ng"
+        host = "https://www.brainsharer.org/ng"
         if settings.DEBUG:
             host = "http://127.0.0.1:8080"
 

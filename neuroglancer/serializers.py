@@ -2,7 +2,8 @@ from rest_framework import serializers
 from rest_framework.exceptions import APIException
 import logging
 
-from neuroglancer.models import LayerData, Structure, NeuroglancerModel
+from brain.models import BrainRegion
+from neuroglancer.models import AnnotationPoints, NeuroglancerModel
 from neuroglancer.atlas import update_annotation_data
 from authentication.models import User
 
@@ -43,23 +44,23 @@ class AnnotationsSerializer(serializers.Serializer):
     """
     This one feeds the dropdown
     """
-    prep_id = serializers.CharField()
+    animal = serializers.CharField()
     layer = serializers.CharField()
     input_type = serializers.CharField()
     input_type_id = serializers.IntegerField()
 
 
-class StructureSerializer(serializers.ModelSerializer):
+class BrainRegionSerializer(serializers.ModelSerializer):
 
     class Meta:
-        model = Structure
+        model = BrainRegion
         fields = '__all__'
 
 
-class LayerDataSerializer(serializers.ModelSerializer):
+class AnnotationPointsSerializer(serializers.ModelSerializer):
 
     class Meta:
-        model = LayerData
+        model = AnnotationPoints
         fields = '__all__'
 
 
@@ -67,7 +68,7 @@ class NeuroglancerSerializer(serializers.ModelSerializer):
     """Override method of entering a neuroglancer_state into the DB.
     The neuroglancer_state can't be in the NeuroglancerModel when it is returned
     to neuroglancer as it crashes neuroglancer."""
-    person_id = serializers.IntegerField()
+    owner_id = serializers.IntegerField()
 
     class Meta:
         model = NeuroglancerModel
@@ -83,9 +84,9 @@ class NeuroglancerSerializer(serializers.ModelSerializer):
             user_date=validated_data['user_date'],
             comments=validated_data['comments'],
         )
-        if 'person_id' in validated_data:
+        if 'owner_id' in validated_data:
             try:
-                authUser = User.objects.get(pk=validated_data['person_id'])
+                authUser = User.objects.get(pk=validated_data['owner_id'])
                 neuroglancerModel.person = authUser
                 # neuroglancerModel.lab = authUser.lab
             except User.DoesNotExist:
@@ -107,12 +108,12 @@ class NeuroglancerSerializer(serializers.ModelSerializer):
         instance.user_date = validated_data.get(
             'user_date', instance.user_date)
         instance.comments = validated_data.get('comments', instance.comments)
-        if 'person_id' in validated_data:
+        if 'owner_id' in validated_data:
             try:
-                authUser = User.objects.get(pk=validated_data['person_id'])
+                authUser = User.objects.get(pk=validated_data['owner_id'])
                 instance.person = authUser
             except User.DoesNotExist:
-                logger.error('Person was not in validated data')
+                logger.error('Owner was not in validated data')
         try:
             instance.save()
         except APIException:

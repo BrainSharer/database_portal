@@ -4,15 +4,16 @@ import requests
 import os
 from brain.models import Animal
 
-def fetch_layers(request, animal):
-    obj = Animal.objects.get(pk=animal)
-    url = obj.lab.lab_url
+def fetch_layers(request, animal_id):
+    print('animal is ', animal_id)
+    animal = Animal.objects.get(pk=animal_id)
+    url = animal.lab.lab_url
     if 'ucsd' in url.lower():
-        url += f'/{animal}/neuroglancer_data/' 
+        url += f'/{animal.animal}/neuroglancer_data/' 
     else:
-        url += animal
+        url += animal.animal
     directories = read_url(url, ext="C")
-    datarows = create_layer_table(animal, directories)
+    datarows = create_layer_table(animal.animal, directories)
     return render(request, 'layer_table.html',{'datarows': datarows})
 
 def create_layer_table(animal, directories):
@@ -22,10 +23,10 @@ def create_layer_table(animal, directories):
         if layer_name == animal:
             continue
         layer = {}
-        layer["animal"] = animal
-        layer["name"] = layer_name
-        layer["source"] = f"{directory}"
-        layer["type"] = get_layer_type(directory)
+        layer['animal'] = animal
+        layer['name'] = layer_name
+        layer['source'] = f"{directory}"
+        layer['type'] = get_layer_type(directory)
         layers.append(layer)
     return layers
 

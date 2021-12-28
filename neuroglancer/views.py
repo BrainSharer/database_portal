@@ -11,7 +11,8 @@ import numpy as np
 from scipy.interpolate import splprep, splev
 from neuroglancer.serializers import AnnotationSerializer, \
     AnnotationsSerializer, NeuroglancerSerializer, IdSerializer
-from neuroglancer.models import InputType, NeuroglancerModel, LayerData, Structure
+from neuroglancer.models import InputType, NeuroglancerModel, AnnotationPoints
+from brain.models import BrainRegion
 from neuroglancer.atlas import get_scales
 
 import logging
@@ -42,7 +43,7 @@ class NeuroglancerDataView(views.APIView):
 
 class Annotation(views.APIView):
     """
-    Fetch LayerData model and return parsed annotation layer.
+    Fetch AnnotationPoints model and return parsed annotation layer.
     neuroglancer is of the the form
     https://activebrainatlas.ucsd.edu/activebrainatlas/annotation/DKXX/premotor/2
     Where:
@@ -50,17 +51,17 @@ class Annotation(views.APIView):
          premotor is the layer name,
          2 is the input type ID
     """
-    def get(self, request, prep_id, layer_name, input_type_id, format=None):
+    def get(self, request, animal, layer_name, input_type_id, format=None):
         data = []
         try:
-            rows = LayerData.objects.filter(prep_id=prep_id)\
+            rows = AnnotationPoints.objects.filter(animal=animal)\
                         .filter(layer=layer_name)\
                         .filter(input_type_id=input_type_id)\
                         .filter(active=True)\
                         .order_by('section', 'id').all()
-        except LayerData.DoesNotExist:
+        except AnnotationPoints.DoesNotExist:
             raise Http404
-        scale_xy, z_scale = get_scales(prep_id)
+        scale_xy, z_scale = get_scales(animal)
         for row in rows:
             point_dict = {}
             point_dict['type'] = 'point'
@@ -87,14 +88,13 @@ class Annotations(views.APIView):
         This will get the layer_data
         """
         data = []
-        layers = LayerData.objects.order_by('prep_id', 'layer', 'input_type_id')\
-            .filter(active=True)\
+        layers = AnnotationPoints.objects.order_by('animal', 'layer', 'input_type_id')\
             .filter(layer__isnull=False)\
-            .values('prep_id', 'layer','input_type__input_type','input_type_id')\
+            .values('animal', 'layer','input_type__input_type','input_type_id')\
             .distinct()
         for layer in layers:
             data.append({
-                "prep_id":layer['prep_id'],
+                "animal":layer['animal'],
                 "layer":layer['layer'],
                 "input_type":layer['input_type__input_type'],
                 "input_type_id":layer['input_type_id'],                
@@ -154,7 +154,7 @@ class LandmarkList(views.APIView):
 
     def get(self, request, format=None):
 
-        list_of_landmarks = Structure.objects.all().filter(active = True).all()
+        list_of_landmarks = BrainRegion.objects.all().filter(active = True).all()
         list_of_landmarks = [i.abbreviation for i in list_of_landmarks]
         data = {}
         data['land_marks'] = list_of_landmarks

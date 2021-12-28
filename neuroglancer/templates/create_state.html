@@ -78,6 +78,7 @@
 
 <div id="ajax-loader">
   <p>Loading ...</p>
+  <img src="https://activebrainatlas.ucsd.edu/images/loading.gif">
 </div>
 <div id="id_show_help">Select one or more layers.</div>
 <div id="id_layer_output"></div>
@@ -98,7 +99,7 @@
 	    django.jQuery('#id_animal').change(function() {
 	      console.log('Add animal change');
 	      var animal = $(this).val();
-	      var url = '/fetch_layers/'
+	      var url = '/brainsharer/fetch_layers/'
 	      $.ajax({
 	        dataType : 'html',
 	        url : url + animal,

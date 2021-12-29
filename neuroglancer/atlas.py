@@ -86,7 +86,7 @@ def add_annotation(animal, structure, coordinates, loggedInUser, layer='COM'):
 
 
 def delete_annotations(animal, loggedInUser, layer):
-    AnnotationPoints.objects.filter(animal=loggedInUser)\
+    AnnotationPoints.objects.filter(owner=loggedInUser)\
     .filter(input_type_id=MANUAL)\
     .filter(animal=animal)\
     .filter(layer=layer)\
@@ -106,7 +106,7 @@ def insert_annotations(animal, layer, loggedInUser, layer_name):
 
 def bulk_annotations(animal, layer, loggedInUser, layer_name):
     bulk_mgr = BulkCreateManager(chunk_size=100)
-    scale_xy, z_scale = get_scales(animal.animal)
+    scale_xy, z_scale = get_scales(animal.id)
     annotations = layer['annotations']
     for annotation in annotations:
         x1 = annotation['point'][0] * scale_xy
@@ -114,9 +114,9 @@ def bulk_annotations(animal, layer, loggedInUser, layer_name):
         z1 = annotation['point'][2] * z_scale
         structure = get_structure(annotation)
         if structure is not None and animal is not None and loggedInUser is not None:
-            bulk_mgr.add(AnnotationPoints(animal=animal, structure=structure,
+            bulk_mgr.add(AnnotationPoints(animal=animal, brain_region=structure,
             layer=layer_name, owner=loggedInUser, input_type_id=MANUAL,
-            x=x1, y=y1, section=z1))
+            x=x1, y=y1, z=z1))
     bulk_mgr.done()
 
 def update_annotation_data(neuroglancerModel):
@@ -141,17 +141,18 @@ def update_annotation_data(neuroglancerModel):
             if 'annotations' in layer:
                 layer_name = str(layer['name']).strip()
                 delete_annotations(prep, loggedInUser, layer_name)
+                # print(prep,prep.animal)
                 bulk_annotations(prep, layer, loggedInUser, layer_name)
     end = timer()
     print(f'Deleting and inserting data took {end - start} seconds')
 
-def get_scales(animal):
+def get_scales(animal_id):
     """
     A generic method to safely query and return resolutions
     param: animal varchar of the primary key of the animal
     """
     try:
-        query_set = ScanRun.objects.filter(animal=animal)
+        query_set = ScanRun.objects.filter(animal=animal_id)
     except ScanRun.DoesNotExist:
         scan_run = None
     if query_set is not None and len(query_set) > 0:

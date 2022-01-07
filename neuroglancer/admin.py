@@ -1,3 +1,8 @@
+'''
+This admin file registers the neuroglancer models
+for the admin page. This allows the users to
+perform CRUD operations on the models.
+'''
 from django.db import models
 import json
 from django.conf import settings
@@ -16,11 +21,13 @@ from neuroglancer.forms import NeuroglancerModelForm, NeuroglancerUpdateForm
 
 @admin.register(NeuroglancerModel)
 class NeuroglancerModelAdmin(admin.ModelAdmin):
+    '''
+    Set the override methods and parameters
+    '''
     formfield_overrides = {
         models.CharField: {'widget': TextInput(attrs={'size': '100'})},
     }
-    list_display = ('animal', 'open_neuroglancer', 'lab',
-                    'owner', 'updated')
+    list_display = ('animal', 'open_neuroglancer', 'owner', 'lab', 'updated')
     ordering = ['-updated']
     # exclude = ['neuroglancer_state']
     list_filter = ['updated', 'created']
@@ -40,17 +47,27 @@ class NeuroglancerModelAdmin(admin.ModelAdmin):
         return super(NeuroglancerModelAdmin, self).change_view(request, object_id)
     
     def save_model(self, request, obj, form, change):
+        '''
+        Have to override this method.
+        :param request: request from user
+        :param obj: the neuroglancer state model 
+        :param form: the create neuroglancer state
+        :param change: has the form been changed?
+        '''
         obj.user = request.user
         if not change:
-            print('save model not change')
             self.form.prepareModel(self, request, obj, form, change)
         super().save_model(request, obj, form, change)
     
     def get_form(self, request, obj=None, change=None, **kwargs):
-        """
+        '''
         Use special form only for adding. For viewing, create a pretty json
         format and only allow the title to be changed.
-        """
+        
+        :param request: request from user
+        :param obj: neuroglancer state model
+        :param change: has the form been changed?
+        '''
         if not obj:
             self.form = NeuroglancerModelForm
         else:
@@ -58,13 +75,23 @@ class NeuroglancerModelAdmin(admin.ModelAdmin):
         return self.form
 
     def get_queryset(self, request, obj=None):
+        '''
+        We have to override the initial query to list neuroglancer states
+        to take care of the lab variables. If the user is an admin, just
+        return all rows. Otherwise check to make sure they have a lab
+        assigned then filter on them.
+        
+        :param request: request from user
+        :param obj: the obj is None here
+        '''
         user = request.user
         rows = None
-        if user.labs is not None and not user.is_superuser:
+        if user.is_superuser:
+            return NeuroglancerModel.objects.order_by('-updated')
+            
+        if user.labs is not None:
             lab_ids = [p.id for p in user.labs.all()]
             rows = NeuroglancerModel.objects.filter(owner__lab__in=lab_ids).order_by('-updated')
-        else:
-            rows = NeuroglancerModel.objects.order_by('-updated')
             
         return rows
 
@@ -97,7 +124,7 @@ class NeuroglancerModelAdmin(admin.ModelAdmin):
         return format_html(links)
 
     def open_multiuser(self, obj):
-        host = "https://activebrainatlas.ucsd.edu/ng_multi"
+        host = "https://www.brainsharer.org/ng"
         if settings.DEBUG:
             host = "http://127.0.0.1:8080"
 
@@ -106,6 +133,10 @@ class NeuroglancerModelAdmin(admin.ModelAdmin):
         return format_html(links)
     
     def lab(self, obj):
+        '''
+        The primary lab of the user
+        :param obj: animal model
+        '''
         lab = "NA"
         if obj.owner is not None and obj.owner.lab is not None:
             lab = obj.owner.lab
@@ -115,16 +146,16 @@ class NeuroglancerModelAdmin(admin.ModelAdmin):
     open_neuroglancer.allow_tags = True
     open_multiuser.short_description = 'Multi-User'
     open_multiuser.allow_tags = True
-    lab.short_description = "Lab"
+    lab.short_description = "User Lab"
 
 
 def make_inactive(modeladmin, request, queryset):
     queryset.update(active=False)
-make_inactive.short_description = "Mark selected COMs as inactive"
+make_inactive.short_description = "Mark selected rows as inactive"
 
 def make_active(modeladmin, request, queryset):
     queryset.update(active=True)
-make_active.short_description = "Mark selected COMs as active"
+make_active.short_description = "Mark selected rows as active"
 
 @admin.register(InputType)
 class InputTypeAdmin(AtlasAdminModel):

@@ -88,7 +88,7 @@ class NeuroglancerModelAdmin(admin.ModelAdmin):
     pretty_url.short_description = 'Formatted URL'
 
     def open_neuroglancer(self, obj):
-        host = "https://www.brainsharer.org/ng"
+        host = settings.NEUROGLANCER_PROD_HOST
         if settings.DEBUG:
             host = "http://127.0.0.1:8080"
 
@@ -97,7 +97,8 @@ class NeuroglancerModelAdmin(admin.ModelAdmin):
         return format_html(links)
 
     def open_multiuser(self, obj):
-        host = "https://activebrainatlas.ucsd.edu/ng_multi"
+        # host = "https://activebrainatlas.ucsd.edu/ng_multi"
+        host = settings.NEUROGLANCER_PROD_HOST
         if settings.DEBUG:
             host = "http://127.0.0.1:8080"
 

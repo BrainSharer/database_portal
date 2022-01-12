@@ -126,7 +126,8 @@ def update_annotation_data(neuroglancerModel):
     start = timer()
     json_txt = neuroglancerModel.neuroglancer_state
     try:
-        loggedInUser = User.objects.get(pk=neuroglancerModel.owner.id)
+        # loggedInUser = User.objects.get(id=neuroglancerModel.owner.id)
+        loggedInUser = neuroglancerModel.owner
     except User.DoesNotExist:
         logger.error("User does not exist")
         return
@@ -152,7 +153,7 @@ def get_scales(animal_id):
     param: animal varchar of the primary key of the animal
     """
     try:
-        query_set = ScanRun.objects.filter(animal=animal_id)
+        query_set = ScanRun.objects.filter(animal__animal=animal_id)
     except ScanRun.DoesNotExist:
         scan_run = None
     if query_set is not None and len(query_set) > 0:

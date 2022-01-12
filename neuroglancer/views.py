@@ -3,14 +3,13 @@ from rest_framework import viewsets, views
 from rest_framework import permissions
 from django.http import JsonResponse, HttpResponse
 from rest_framework.response import Response
-from django.utils.html import escape
 from django.http import Http404
 import string
 import random
 import numpy as np
 from scipy.interpolate import splprep, splev
 from neuroglancer.serializers import AnnotationSerializer, \
-    AnnotationsSerializer, NeuroglancerSerializer, IdSerializer
+    AnnotationsSerializer, NeuroglancerSerializer
 from neuroglancer.models import InputType, NeuroglancerModel, AnnotationPoints
 from brain.models import BrainRegion
 from neuroglancer.atlas import get_scales
@@ -28,24 +27,11 @@ class NeuroglancerViewSet(viewsets.ModelViewSet):
     serializer_class = NeuroglancerSerializer
     permission_classes = [permissions.AllowAny]
 
-class NeuroglancerDataView(views.APIView):
-    """This will be run when a a ID is sent to:
-    https://site.com/activebrainatlas/urldata?id=999
-    Where 999 is the primary key of the url model"""
-
-    def get(self, request, *args, **kwargs):
-        # Validate the incoming input (provided through query parameters)
-        serializer = IdSerializer(data=request.query_params)
-        serializer.is_valid(raise_exception=True)
-        id = serializer.validated_data['id']
-        neuroglancerModel = NeuroglancerModel.objects.get(pk=id)
-        return HttpResponse(f"#!{escape(neuroglancerModel.neuroglancer_state)}")
-
 class Annotation(views.APIView):
     """
     Fetch AnnotationPoints model and return parsed annotation layer.
     neuroglancer is of the the form
-    https://activebrainatlas.ucsd.edu/activebrainatlas/annotation/DKXX/premotor/2
+    https://www.brainsharer.org/brainsharer/annotation/DKXX/premotor/2
     Where:
          DKXX is the animal,
          premotor is the layer name,
@@ -54,11 +40,10 @@ class Annotation(views.APIView):
     def get(self, request, animal, layer_name, input_type_id, format=None):
         data = []
         try:
-            rows = AnnotationPoints.objects.filter(animal=animal)\
+            rows = AnnotationPoints.objects.filter(animal__animal=animal)\
                         .filter(layer=layer_name)\
                         .filter(input_type_id=input_type_id)\
-                        .filter(active=True)\
-                        .order_by('section', 'id').all()
+                        .order_by('z', 'id').all()
         except AnnotationPoints.DoesNotExist:
             raise Http404
         scale_xy, z_scale = get_scales(animal)
@@ -67,7 +52,7 @@ class Annotation(views.APIView):
             point_dict['type'] = 'point'
             point_dict['id'] = random_string()
             point_dict['point'] = \
-                [int(round(row.x/scale_xy)), int(round(row.y/scale_xy)), int(round(row.section/z_scale))]
+                [int(round(row.x/scale_xy)), int(round(row.y/scale_xy)), int(round(row.z/z_scale))]
             point_dict['description'] = ""
             data.append(point_dict)
         serializer = AnnotationSerializer(data, many=True)
@@ -80,7 +65,7 @@ class Annotations(views.APIView):
     table and the other is the COMs that have been set as transformations.
     {'id': 213, 'description': 'DK39 COM Test', 'layer_name': 'COM'}
     url is of the the form:
-    https://activebrainatlas.ucsd.edu/activebrainatlas/annotations
+    https://www.brainsharer.org/brainsharer/annotations
     """
 
     def get(self, request, format=None):

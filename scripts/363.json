@@ -1,0 +1,1112 @@
+{
+  "crossSectionOrientation": [
+    -0.001224054954946041,
+    -0.0005097619141452014,
+    6.239771437321906e-07,
+    0.9999991059303284
+  ],
+  "crossSectionScale": 23.47512145310932,
+  "dimensions": {
+    "x": [
+      3.25e-07,
+      "m"
+    ],
+    "y": [
+      3.25e-07,
+      "m"
+    ],
+    "z": [
+      2e-05,
+      "m"
+    ]
+  },
+  "layers": [
+    {
+      "name": "DK62",
+      "shaderControls": {
+        "normalized": {
+          "range": [
+            43704,
+            0
+          ]
+        }
+      },
+      "source": "precomputed://https://activebrainatlas.ucsd.edu/data/DK62/neuroglancer_data/C1",
+      "type": "image"
+    },
+    {
+      "annotations": [],
+      "name": "Manual",
+      "source": {
+        "transform": {
+          "outputDimensions": {
+            "x": [
+              3.25e-07,
+              "m"
+            ],
+            "y": [
+              3.25e-07,
+              "m"
+            ],
+            "z": [
+              2e-05,
+              "m"
+            ]
+          }
+        },
+        "url": "local://annotations"
+      },
+      "type": "annotation",
+      "visible": false
+    },
+    {
+      "annotationColor": "#00eeff",
+      "annotations": [
+        {
+          "description": "VCA_L",
+          "id": "70kl50w785xiw8vidm41jexerjzn2rk962kt934b",
+          "point": [
+            42430,
+            20297,
+            93
+          ],
+          "type": "point"
+        },
+        {
+          "description": "VCP_L",
+          "id": "po6belu1um1x07d45poqt33n9q6mp7wjm64byzbv",
+          "point": [
+            45076,
+            20840,
+            107
+          ],
+          "type": "point"
+        },
+        {
+          "description": "SNR_L",
+          "id": "1ghcwenpnzokveeco6ev8nzleqcjnagcv8m3xy8a",
+          "point": [
+            32160,
+            19561,
+            109
+          ],
+          "type": "point"
+        },
+        {
+          "description": "SNC_L",
+          "id": "br80arz1gwupibgzb8wkpt5r8b7tl8wpi7yl8a4o",
+          "point": [
+            30382,
+            19608,
+            112
+          ],
+          "type": "point"
+        },
+        {
+          "description": "PBG_L",
+          "id": "n8flzfvm3r6tm25s6y88ffv6onuwi6k5ggzukesg",
+          "point": [
+            38095,
+            17508,
+            115
+          ],
+          "type": "point"
+        },
+        {
+          "description": "VLL_L",
+          "id": "v2fp9hykjtoci6fz8shtylwg176lbxkam8njhh3g",
+          "point": [
+            35664,
+            20536,
+            115
+          ],
+          "type": "point"
+        },
+        {
+          "description": "DC_L",
+          "id": "rl7z2cfqpsx4jmydgzevw8yhtnd50a08wq9twk4x",
+          "point": [
+            46826,
+            19691,
+            126
+          ],
+          "type": "point"
+        },
+        {
+          "description": "Sp5O_L",
+          "id": "nm7th5eeym9at7uz171uxvjt61w4rezlhq011tym",
+          "point": [
+            46754,
+            21743,
+            134
+          ],
+          "type": "point"
+        },
+        {
+          "description": "5N_L",
+          "id": "xm7okxnz2anecmutu1q0ro9rqumrdzdqupjiyklk",
+          "point": [
+            39801,
+            20448,
+            138
+          ],
+          "type": "point"
+        },
+        {
+          "description": "Pn_L",
+          "id": "9nw7v4oes3fx95i8wdaewx03mmsi06ykla08sp18",
+          "point": [
+            32209,
+            22168,
+            145
+          ],
+          "type": "point"
+        },
+        {
+          "description": "Sp5I_L",
+          "id": "qzzeaxuoi27txw40pn4d45rx5k7nv6db27hg21om",
+          "point": [
+            50724,
+            21942,
+            146
+          ],
+          "type": "point"
+        },
+        {
+          "description": "7N_L",
+          "id": "fgk6ke3lprln61e09rnp3q8kqihmq4x7duau76z5",
+          "point": [
+            42334,
+            23030,
+            150
+          ],
+          "type": "point"
+        },
+        {
+          "description": "7n_L",
+          "id": "gijjnh495l4s77m4hpgovjr28cy6rcspiqi0rcy5",
+          "point": [
+            41313,
+            21380,
+            155
+          ],
+          "type": "point"
+        },
+        {
+          "description": "Amb_L",
+          "id": "81123cuh29m2ifu5lj9icpro4adldxafwkxgi0og",
+          "point": [
+            46675,
+            22990,
+            162
+          ],
+          "type": "point"
+        },
+        {
+          "description": "Tz_L",
+          "id": "5izqvqpx85494nxkpkfalh99g47vikt16u6kd4du",
+          "point": [
+            36966,
+            22980,
+            162
+          ],
+          "type": "point"
+        },
+        {
+          "description": "LRt_L",
+          "id": "g0l13tlxado2ff6f2mnzk0u13s0w80xcte2q77k0",
+          "point": [
+            50081,
+            24094,
+            177
+          ],
+          "type": "point"
+        },
+        {
+          "description": "LC_L",
+          "id": "4yfmdr2039sckjo0aob7hc2uf6xfji4l0zqsrgue",
+          "point": [
+            42346,
+            19334,
+            178
+          ],
+          "type": "point"
+        },
+        {
+          "description": "RtTg",
+          "id": "yp4rv91akj3vcztqlfck1q40p7kxpskss7x0fftf",
+          "point": [
+            35010,
+            21682,
+            184
+          ],
+          "type": "point"
+        },
+        {
+          "description": "Sp5C_L",
+          "id": "l1m7nw6h78ugh9vszuz75une3w90r6w6a7vqghdb",
+          "point": [
+            54246,
+            22852,
+            186
+          ],
+          "type": "point"
+        },
+        {
+          "description": "3N_L",
+          "id": "jga4ox459snp2c9y7gkabebofkmehw0wneag620q",
+          "point": [
+            36066,
+            18008,
+            194
+          ],
+          "type": "point"
+        },
+        {
+          "description": "4N_L",
+          "id": "2mzagc92smkrr93gkuraqc1glcfkkifir5r9i5n0",
+          "point": [
+            37812,
+            18176,
+            195
+          ],
+          "type": "point"
+        },
+        {
+          "description": "6N_L",
+          "id": "xu61ja4del70fmtejqcu4olwkdcclynkhu7pwh0b",
+          "point": [
+            42634,
+            20916,
+            199
+          ],
+          "type": "point"
+        },
+        {
+          "description": "Pn_R",
+          "id": "m5aytebzhxondntgc3r7uwv89nmrc9wvahik5e7m",
+          "point": [
+            32059,
+            22282,
+            201
+          ],
+          "type": "point"
+        },
+        {
+          "description": "3N_R",
+          "id": "8peinifpqvnevtvtcao2gae5qck3kfndnehqwa3y",
+          "point": [
+            36027,
+            18037,
+            209
+          ],
+          "type": "point"
+        },
+        {
+          "description": "Tz_R",
+          "id": "572qp4phhslpfxjus96cgjx2m7deeuc0vn4ww9mm",
+          "point": [
+            36827,
+            23087,
+            214
+          ],
+          "type": "point"
+        },
+        {
+          "description": "SC",
+          "id": "jvz2o0qnriq4vg9fsrb8g2mz77knuz5r86i2lozu",
+          "point": [
+            37780,
+            15222,
+            219
+          ],
+          "type": "point"
+        },
+        {
+          "description": "4N_R",
+          "id": "n3xbxzjhgd539cn1cp4dtaef6y9oddl0h99bskqo",
+          "point": [
+            37744,
+            18228,
+            220
+          ],
+          "type": "point"
+        },
+        {
+          "description": "10N_L",
+          "id": "zi27bybgfbyakwrtrlowaobswa10e00jfwvg42fw",
+          "point": [
+            51754,
+            22112,
+            233
+          ],
+          "type": "point"
+        },
+        {
+          "description": "6N_R",
+          "id": "j55yxp2i5pmvjs0dkidcgxersu1x5mzgxdnxzo7h",
+          "point": [
+            42538,
+            20989,
+            235
+          ],
+          "type": "point"
+        },
+        {
+          "description": "SNC_R",
+          "id": "u34t18enpjwictbibqs1filenleh1p6jjl19yzzw",
+          "point": [
+            30052,
+            19861,
+            235
+          ],
+          "type": "point"
+        },
+        {
+          "description": "IC",
+          "id": "6zj0p5l0zmrva37l9mz0we8cm4kirbbwcsfd2jdi",
+          "point": [
+            44218,
+            15358,
+            241
+          ],
+          "type": "point"
+        },
+        {
+          "description": "12N",
+          "id": "jbjnaya917cf729coone4f6cqao2jdp7y1ie3keq",
+          "point": [
+            51209,
+            22534,
+            243
+          ],
+          "type": "point"
+        },
+        {
+          "description": "AP",
+          "id": "yqiocglzlbza6gpz33n6tnkznwdu8gzvcqif0a5m",
+          "point": [
+            51887,
+            21668,
+            251
+          ],
+          "type": "point"
+        },
+        {
+          "description": "SNR_R",
+          "id": "g52zg3aq4e1cao1ngypt7bo9tgx9oivhbvh5qa9z",
+          "point": [
+            31775,
+            19855,
+            252
+          ],
+          "type": "point"
+        },
+        {
+          "description": "10N_R",
+          "id": "xnl2t2ratdblfo921wi9wwa6u6fnlxyfyio2xoxg",
+          "point": [
+            51674,
+            22172,
+            262
+          ],
+          "type": "point"
+        },
+        {
+          "description": "LC_R",
+          "id": "9d1cfrsifffc47jo9utc7gep2jeurg1vzyxxxjhl",
+          "point": [
+            42117,
+            19509,
+            263
+          ],
+          "type": "point"
+        },
+        {
+          "description": "7n_R",
+          "id": "0bgs9s1e9prvmx0661dqn0uf5k3efnacyn3i4vig",
+          "point": [
+            41018,
+            21605,
+            264
+          ],
+          "type": "point"
+        },
+        {
+          "description": "VLL_R",
+          "id": "lgyzb9v7szqd0ez6254qyumn8aq7v4noyfelpchz",
+          "point": [
+            35260,
+            20845,
+            266
+          ],
+          "type": "point"
+        },
+        {
+          "description": "7N_R",
+          "id": "imv782xq9mtggj9m38y6w2ucn9ra0shfavryezyf",
+          "point": [
+            42020,
+            23270,
+            266
+          ],
+          "type": "point"
+        },
+        {
+          "description": "5N_R",
+          "id": "nt4v16rvxbswefbv5gkm87lyzaqrddbmndo5i3rz",
+          "point": [
+            39430,
+            20732,
+            276
+          ],
+          "type": "point"
+        },
+        {
+          "description": "Amb_R",
+          "id": "soi9sbo3g328ae9sefj36b1ewlzjdkxy8888w4as",
+          "point": [
+            46339,
+            23247,
+            287
+          ],
+          "type": "point"
+        },
+        {
+          "description": "LRt_R",
+          "id": "e0j2e14nu5tf3owpl8wsy4819olk3ug482kz2iyn",
+          "point": [
+            49775,
+            24328,
+            291
+          ],
+          "type": "point"
+        },
+        {
+          "description": "PBG_R",
+          "id": "p7ot7j4f3kllhn55gszp8xapqbqe5o8megm81cgr",
+          "point": [
+            37587,
+            17896,
+            304
+          ],
+          "type": "point"
+        },
+        {
+          "description": "Sp5C_R",
+          "id": "otzzx1o9jwm2cxteo4aiowf6i5s9ogk7y7a87c68",
+          "point": [
+            53881,
+            23131,
+            322
+          ],
+          "type": "point"
+        },
+        {
+          "description": "Sp5O_R",
+          "id": "rn45ei8mkiiuhhb9yjz6cfjch4ebta9q1s36imsx",
+          "point": [
+            46246,
+            22131,
+            323
+          ],
+          "type": "point"
+        },
+        {
+          "description": "VCA_R",
+          "id": "b7a3ynvk7zfmo5o4dkw0uzyciufe21g5v52kd5yt",
+          "point": [
+            41767,
+            20804,
+            340
+          ],
+          "type": "point"
+        },
+        {
+          "description": "Sp5I_R",
+          "id": "ra2pnsbcnel5duize8xiwufhdpq2zzck00kjecaa",
+          "point": [
+            50203,
+            22340,
+            340
+          ],
+          "type": "point"
+        },
+        {
+          "description": "VCP_R",
+          "id": "3qvusovxowu6kugudtvm8qx1ekpjutj4tewlrrip",
+          "point": [
+            44446,
+            21322,
+            342
+          ],
+          "type": "point"
+        },
+        {
+          "description": "DC_R",
+          "id": "gdtbb1ywcadiagi7dvb9sdyn22qvxqynrltsx6fo",
+          "point": [
+            46236,
+            20142,
+            345
+          ],
+          "type": "point"
+        }
+      ],
+      "name": "Affine Transformed Atlas Com",
+      "shaderControls": {
+        "size": 10
+      },
+      "source": {
+        "transform": {
+          "outputDimensions": {
+            "x": [
+              3.25e-07,
+              "m"
+            ],
+            "y": [
+              3.25e-07,
+              "m"
+            ],
+            "z": [
+              2e-05,
+              "m"
+            ]
+          }
+        },
+        "url": "local://annotations"
+      },
+      "type": "annotation"
+    },
+    {
+      "annotationColor": "#6600ff",
+      "annotations": [
+        {
+          "description": "7N_L\n",
+          "id": "810893bdd7ce4636e9686732e56a40cf62f1e57f",
+          "point": [
+            43226.03515625,
+            24333.85546875,
+            159.49998474121094
+          ],
+          "type": "point"
+        },
+        {
+          "description": "5N_R\n\n",
+          "id": "56e31cd23c1cad9f74d18ce42c84d4e6b8c6d36e",
+          "point": [
+            40757.83203125,
+            20575.93359375,
+            281.4999694824219
+          ],
+          "type": "point"
+        },
+        {
+          "description": "5N_L\n",
+          "id": "a5de22f4382216cc61bae39acd29acf635eecb0f",
+          "point": [
+            40472.51171875,
+            20408.796875,
+            155.49998474121094
+          ],
+          "type": "point"
+        },
+        {
+          "description": "7N_R\n",
+          "id": "96f49ae09b5a05d0bc0736c0008c5cdcd7ac97d6",
+          "point": [
+            43426.8203125,
+            24198.12890625,
+            279.5
+          ],
+          "type": "point"
+        },
+        {
+          "description": "SNR_L\n\n",
+          "id": "22435ad220e7acd221ddd3761f67370b723cb937",
+          "point": [
+            35769.40234375,
+            22019.82421875,
+            156.5
+          ],
+          "type": "point"
+        },
+        {
+          "description": "SNR_R\n",
+          "id": "74eea96c9318aaea456ddba30b90a2b23ada1d46",
+          "point": [
+            35936.28125,
+            21800.072265625,
+            301.5
+          ],
+          "type": "point"
+        },
+        {
+          "description": "SNC_R\n \n\n",
+          "id": "dd8d084962d5f0e69e8882067c1672fbf11c0c1a",
+          "point": [
+            35105.3984375,
+            21746.26171875,
+            293.4999694824219
+          ],
+          "type": "point"
+        },
+        {
+          "description": "SNC_L\n",
+          "id": "8b5b8a028a8acd1738cace9ece0855f52e952cd0",
+          "point": [
+            34798.19140625,
+            21620.291015625,
+            161.5
+          ],
+          "type": "point"
+        },
+        {
+          "description": "7n_L\n",
+          "id": "fc1594d4fcf02a89d37774429723dddba25d7c59",
+          "point": [
+            42178.41015625,
+            21106.7578125,
+            171.5
+          ],
+          "type": "point"
+        },
+        {
+          "description": "7n_R\n",
+          "id": "a1797d71e15f408f3467d2d8be2bfd565ed3af19",
+          "point": [
+            42193.359375,
+            21489.359375,
+            270.5
+          ],
+          "type": "point"
+        },
+        {
+          "description": "LC_R\n",
+          "id": "67697f6fd790a505a9823c238839e6fe958c889e",
+          "point": [
+            41850.2734375,
+            17625.435546875,
+            258.5
+          ],
+          "type": "point"
+        },
+        {
+          "description": "LC_L\n",
+          "id": "59f86262812213eae7d9988b7a981d0c367aa9ef",
+          "point": [
+            41736.546875,
+            17683.89453125,
+            178.49998474121094
+          ],
+          "type": "point"
+        },
+        {
+          "description": "Tz_L\n",
+          "id": "45610c15e8ff45246e988ce37c9ffa4ed4b8c7ba",
+          "point": [
+            40788.4140625,
+            25552.646484375,
+            195.5
+          ],
+          "type": "point"
+        },
+        {
+          "description": "Tz_R\n",
+          "id": "24bf81d500a8fc933f3f84350a6b2690bb064705",
+          "point": [
+            40669.19140625,
+            25564.74609375,
+            245.50001525878906
+          ],
+          "type": "point"
+        },
+        {
+          "description": "Pn_R\n",
+          "id": "1c14d57c4dc219191bbeb25d4ef3f3d1bf4fe933",
+          "point": [
+            37115.8671875,
+            24784.685546875,
+            245.50001525878906
+          ],
+          "type": "point"
+        },
+        {
+          "description": "Pn_L\n",
+          "id": "6c49a000707e3e18c1138cdb0ae8a3986571cf8f",
+          "point": [
+            37148.33984375,
+            24906.0546875,
+            191.5
+          ],
+          "type": "point"
+        },
+        {
+          "description": "6N_L\n",
+          "id": "576c941c4415687688891205bf19fa5f4e1c071a",
+          "point": [
+            42512.45703125,
+            20580.92578125,
+            201.5
+          ],
+          "type": "point"
+        },
+        {
+          "description": "10N_R\n\n\n",
+          "id": "9561d917c62877ccf3c9b7054a0abd0388f79bf5",
+          "point": [
+            47357.734375,
+            19386.41796875,
+            229.5
+          ],
+          "type": "point"
+        },
+        {
+          "description": "10N_L\n",
+          "id": "3e217c21707f458544309324d335bc2e4cd715b3",
+          "point": [
+            47721.95703125,
+            19500.390625,
+            199.49998474121094
+          ],
+          "type": "point"
+        },
+        {
+          "description": "12N\n",
+          "id": "b565cede68ae0e22a628191828be588faf2b9179",
+          "point": [
+            47973.984375,
+            20635.115234375,
+            214.49998474121094
+          ],
+          "type": "point"
+        },
+        {
+          "description": "6N_R\n",
+          "id": "abe7bbf7c41c227377120c1670eb333e1e83712e",
+          "point": [
+            42399.89453125,
+            20607.58984375,
+            233.5
+          ],
+          "type": "point"
+        },
+        {
+          "description": "Amb_R\n",
+          "id": "443a40fed9481c4ef87815488cf05f20ee811ebe",
+          "point": [
+            45866.15625,
+            22980.916015625,
+            284.4999694824219
+          ],
+          "type": "point"
+        },
+        {
+          "description": "Amb_L\n",
+          "id": "7633390366fba11a0711bd881151e6197db84789",
+          "point": [
+            45542.41015625,
+            23250.8828125,
+            152.50001525878906
+          ],
+          "type": "point"
+        },
+        {
+          "description": "LRt_L\n",
+          "id": "705694fc8c57c5a5d856e34688f4110b19e0fe6b",
+          "point": [
+            46973.73046875,
+            24648.68359375,
+            205.5
+          ],
+          "type": "point"
+        },
+        {
+          "description": "LRt_R\n",
+          "id": "905f199539ad9222b9d32ad6e07762320bdc0f88",
+          "point": [
+            46866.48046875,
+            24733.62890625,
+            243.5
+          ],
+          "type": "point"
+        },
+        {
+          "description": "VLL_L\n\n\n",
+          "id": "55bf8c3cf829671a122bebb1c8920b9be25cd288",
+          "point": [
+            37818.4765625,
+            21825.037109375,
+            146.50001525878906
+          ],
+          "type": "point"
+        },
+        {
+          "description": "VLL_R\n",
+          "id": "6f579750f1dbe972cb18a51a9e5a01b4b79c5470",
+          "point": [
+            38091.96875,
+            22025.962890625,
+            297.5000305175781
+          ],
+          "type": "point"
+        },
+        {
+          "description": "PBG_R\n",
+          "id": "b7cf95196043d260550ede7ef7467a538120e2f1",
+          "point": [
+            37756.234375,
+            17196.98828125,
+            314.5000305175781
+          ],
+          "type": "point"
+        },
+        {
+          "description": "PBG_L\n",
+          "id": "34797818e8f6d017451d6f53d0fdf71f6e247067",
+          "point": [
+            37396.37109375,
+            17111.02734375,
+            129.5
+          ],
+          "type": "point"
+        },
+        {
+          "description": "Sp5O_L\n\n\n",
+          "id": "be8ffb9f06248e32a56ee8ee7ecbfeb101f24c37",
+          "point": [
+            44563.93359375,
+            21518.931640625,
+            130.5
+          ],
+          "type": "point"
+        },
+        {
+          "description": "VCA_L\n",
+          "id": "5c5294a8d21993cf51d052a84ce5e9057f8bef87",
+          "point": [
+            40820.43359375,
+            20735.3984375,
+            95.5
+          ],
+          "type": "point"
+        },
+        {
+          "description": "VCA_R\n",
+          "id": "cc62432202e50ac983a9cd3b9ea7acf4d80eabdf",
+          "point": [
+            40832.07421875,
+            20414.068359375,
+            338.5000305175781
+          ],
+          "type": "point"
+        },
+        {
+          "description": "VCP_L\n\n\n",
+          "id": "3e615211be2b925f6901be8365d4abf130b73822",
+          "point": [
+            43880.859375,
+            20284.744140625,
+            107.5
+          ],
+          "type": "point"
+        },
+        {
+          "description": "VCP_R\n",
+          "id": "b026dfb89524dfb5fc78aa387892111de64bd65e",
+          "point": [
+            43506.23046875,
+            20635.197265625,
+            330.5
+          ],
+          "type": "point"
+        },
+        {
+          "description": "DC_L\n\n\n",
+          "id": "ad7f56da90010b846428c7432cddaa21431ca184",
+          "point": [
+            43434.6171875,
+            18593.609375,
+            114.5
+          ],
+          "type": "point"
+        },
+        {
+          "description": "DC_R\n",
+          "id": "d874174befd08d9abf1efdbb2e4a5a6a5de089d3",
+          "point": [
+            43811.62109375,
+            18393.9765625,
+            319.5
+          ],
+          "type": "point"
+        },
+        {
+          "description": "RtTg",
+          "id": "568f07928d7c5bc05225286b4432b9f7fc8fc3f5",
+          "point": [
+            38673.16015625,
+            23543.47265625,
+            222.2386474609375
+          ],
+          "type": "point"
+        },
+        {
+          "description": "4N_L\n",
+          "id": "2f5e15db4b88c050996d32508e834489b1618049",
+          "point": [
+            38158,
+            17366.341796875,
+            207.50001525878906
+          ],
+          "type": "point"
+        },
+        {
+          "description": "4N_R\n",
+          "id": "2867ff4dd75d824ac711ad47ee1cd3d6097100af",
+          "point": [
+            38134.12890625,
+            17271.037109375,
+            233.5
+          ],
+          "type": "point"
+        },
+        {
+          "description": "AP\n\n\n",
+          "id": "a7a86c5c895c6aaaba0ce20b505fc103ebc6cc53",
+          "point": [
+            47827.9375,
+            18639.720703125,
+            212.49998474121094
+          ],
+          "type": "point"
+        },
+        {
+          "description": "IC\n",
+          "id": "103b3de07cdf161fae81392a4cfbc0f9688952e0",
+          "point": [
+            39533.8203125,
+            10997.6064453125,
+            221.7229461669922
+          ],
+          "type": "point"
+        },
+        {
+          "description": "SC\n\n",
+          "id": "61073df980f4b86b4b395c5ae1dcd9d5a28a213b",
+          "point": [
+            35817.99609375,
+            10290.8076171875,
+            225.70030212402344
+          ],
+          "type": "point"
+        },
+        {
+          "description": "3N_R",
+          "id": "22783e08d015e7339a865e559d968b554f65465f",
+          "point": [
+            36848.921875,
+            17466.28515625,
+            229.50140380859375
+          ],
+          "type": "point"
+        },
+        {
+          "description": "3N_L\n",
+          "id": "bbc749612d2c77e23c5ad667319fd80a5e229d78",
+          "point": [
+            37157.296875,
+            17479.8046875,
+            216.50335693359375
+          ],
+          "type": "point"
+        },
+        {
+          "description": "Sp5I_L\n\n\n\n",
+          "id": "bfb7cb7ec353843e3c1acbf6c8181f2b428fd5ac",
+          "point": [
+            50484.28125,
+            21269.2421875,
+            167.50584411621094
+          ],
+          "type": "point"
+        },
+        {
+          "description": "SP5I_R\n",
+          "id": "8e7f0d232efd57c1158285c06a2170e426256353",
+          "point": [
+            46897.671875,
+            20902.708984375,
+            310.4814758300781
+          ],
+          "type": "point"
+        },
+        {
+          "description": "SP5O_R\n",
+          "id": "910001a0479f1785a3a85cb5a4499043f076b957",
+          "point": [
+            41796.6796875,
+            23047.97265625,
+            307.4561462402344
+          ],
+          "type": "point"
+        },
+        {
+          "description": "SP5O_L",
+          "id": "76dfba75b235e2b4db2c4ac05a5e6622863df930",
+          "point": [
+            41084.5234375,
+            22268.416015625,
+            128.48989868164062
+          ],
+          "type": "point"
+        }
+      ],
+      "name": "additional manual annotations",
+      "shaderControls": {
+        "size": 6.5
+      },
+      "source": {
+        "transform": {
+          "outputDimensions": {
+            "x": [
+              3.25e-07,
+              "m"
+            ],
+            "y": [
+              3.25e-07,
+              "m"
+            ],
+            "z": [
+              2e-05,
+              "m"
+            ]
+          }
+        },
+        "url": "local://annotations"
+      },
+      "tool": "annotatePoint",
+      "type": "annotation"
+    }
+  ],
+  "layout": "4panel",
+  "position": [
+    41049.30859375,
+    22271.349609375,
+    128.48919677734375
+  ],
+  "projectionScale": 131072,
+  "selectedLayer": {
+    "layer": "additional manual annotations",
+    "visible": true
+  },
+  "selection": {
+    "layers": {
+      "additional manual annotations": {
+        "annotationId": "76dfba75b235e2b4db2c4ac05a5e6622863df930",
+        "annotationSource": 0,
+        "annotationSubsource": "default"
+      }
+    }
+  }
+}

@@ -8,7 +8,7 @@ from neuroglancer.atlas import update_annotation_data
 from authentication.models import User
 
 logging.basicConfig()
-logger = logging.getLogger(__name__)
+logger = logging.getLogger('django')
 
 
 class AnimalInputSerializer(serializers.Serializer):
@@ -79,6 +79,8 @@ class NeuroglancerSerializer(serializers.ModelSerializer):
         """
         This gets called when a user clicks New in Neuroglancer
         """
+        logger.debug("validated_data:")
+        logger.debug(validated_data)
         neuroglancerModel = NeuroglancerModel(
             neuroglancer_state=validated_data['neuroglancer_state'],
             user_date=validated_data['user_date'],
@@ -87,7 +89,9 @@ class NeuroglancerSerializer(serializers.ModelSerializer):
         if 'owner_id' in validated_data:
             try:
                 authUser = User.objects.get(pk=validated_data['owner_id'])
-                neuroglancerModel.person = authUser
+                logger.debug("auth user:")
+                logger.debug(authUser)
+                neuroglancerModel.owner = authUser
                 # neuroglancerModel.lab = authUser.lab
             except User.DoesNotExist:
                 logger.error('Person was not in validated data')
@@ -111,7 +115,7 @@ class NeuroglancerSerializer(serializers.ModelSerializer):
         if 'owner_id' in validated_data:
             try:
                 authUser = User.objects.get(pk=validated_data['owner_id'])
-                instance.person = authUser
+                instance.owner = authUser
             except User.DoesNotExist:
                 logger.error('Owner was not in validated data')
         try:

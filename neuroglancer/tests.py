@@ -64,7 +64,7 @@ class TestNeuroglancerModel(TransactionTestCase):
         response = self.client.get("/neuroglancer/" + str(self.state_id))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         
-    def test_create_post_get__update_get_state(self):
+    def test_create_post_get_update_get_state(self):
         """
         Ensure we can create, post, get, update and get again a 
         neuroglancer_state object.
@@ -105,4 +105,4 @@ class TestNeuroglancerModel(TransactionTestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(NeuroglancerModel.objects.count(), 1)
         self.assertEqual(NeuroglancerModel.objects.get().comments, new_comment_name)
-        self.state_id = NeuroglancerModel.objects.get().id
+        self.assertEqual(NeuroglancerModel.objects.get().id, self.state_id)

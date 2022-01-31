@@ -139,7 +139,7 @@ class AnnotationPoints(AnnotationAbstract):
 
 class AnnotationPointArchive(AnnotationAbstract):
     archive = models.ForeignKey(ArchiveSet, models.CASCADE, 
-                               verbose_name="Archive Set", blank=False, null=False, 
+                               verbose_name="Archive Set", blank=True, null=True, 
                                db_column='FK_archive_set_id')
 
     class Meta:

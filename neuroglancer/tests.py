@@ -29,7 +29,7 @@ class TestNeuroglancerModel(TransactionTestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         
     def test_annotation_url(self):
-        response = self.client.get("/annotation/DK39/premotor/1")
+        response = self.client.get("/annotation/1/premotor/1")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         
         

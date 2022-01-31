@@ -44,7 +44,8 @@ class AnnotationsSerializer(serializers.Serializer):
     """
     This one feeds the dropdown
     """
-    animal = serializers.CharField()
+    animal_id = serializers.IntegerField()
+    animal_name = serializers.CharField()
     layer = serializers.CharField()
     input_type = serializers.CharField()
     input_type_id = serializers.IntegerField()

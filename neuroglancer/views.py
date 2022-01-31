@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from rest_framework import viewsets, views
 from rest_framework import permissions
-from django.http import JsonResponse, HttpResponse
+from django.http import JsonResponse
 from rest_framework.response import Response
 from django.http import Http404
 import string
@@ -22,6 +22,8 @@ logger = logging.getLogger(__name__)
 class NeuroglancerViewSet(viewsets.ModelViewSet):
     """
     API endpoint that allows the neuroglancer states to be viewed or edited.
+    Note, the update, and insert methods are over riden in the serializer.
+    It was more convienent to do them there than here.
     """
     queryset = NeuroglancerModel.objects.all()
     serializer_class = NeuroglancerSerializer
@@ -31,22 +33,22 @@ class Annotation(views.APIView):
     """
     Fetch AnnotationPoints model and return parsed annotation layer.
     neuroglancer is of the the form
-    https://www.brainsharer.org/brainsharer/annotation/DKXX/premotor/2
+    https://www.brainsharer.org/brainsharer/annotation/X/premotor/2
     Where:
-         DKXX is the animal,
+         X is the PK integer of the animal (id),
          premotor is the layer name,
          2 is the input type ID
     """
-    def get(self, request, animal, layer_name, input_type_id, format=None):
+    def get(self, request, animal_id, layer_name, input_type_id, format=None):
         data = []
         try:
-            rows = AnnotationPoints.objects.filter(animal__animal=animal)\
+            rows = AnnotationPoints.objects.filter(animal=animal_id)\
                         .filter(layer=layer_name)\
                         .filter(input_type_id=input_type_id)\
                         .order_by('z', 'id').all()
         except AnnotationPoints.DoesNotExist:
             raise Http404
-        scale_xy, z_scale = get_scales(animal)
+        scale_xy, z_scale = get_scales(animal_id)
         for row in rows:
             point_dict = {}
             point_dict['type'] = 'point'
@@ -75,11 +77,12 @@ class Annotations(views.APIView):
         data = []
         layers = AnnotationPoints.objects.order_by('animal', 'layer', 'input_type_id')\
             .filter(layer__isnull=False)\
-            .values('animal', 'layer','input_type__input_type','input_type_id')\
+            .values('animal', 'animal__animal', 'layer','input_type__input_type','input_type_id')\
             .distinct()
         for layer in layers:
             data.append({
-                "animal":layer['animal'],
+                "animal_id":layer['animal'],
+                "animal_name":layer['animal__animal'],
                 "layer":layer['layer'],
                 "input_type":layer['input_type__input_type'],
                 "input_type_id":layer['input_type_id'],                

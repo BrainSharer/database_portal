@@ -1,0 +1,160 @@
+{
+  "crossSectionScale": 90,
+  "dimensions": {
+    "x": [
+      3.25e-07,
+      "m"
+    ],
+    "y": [
+      3.25e-07,
+      "m"
+    ],
+    "z": [
+      2e-05,
+      "m"
+    ]
+  },
+  "gpuMemoryLimit": 4000000000,
+  "layers": [
+    {
+      "name": "C1",
+      "shader": "#uicontrol invlerp normalized\n#uicontrol float gamma slider(min=0.05, max=2.5, default=1.0, step=0.05)\n\nvoid main() {\n    float pix =  normalized();\n    pix = pow(pix,gamma);\n  \t  emitGrayscale(pix) ;\n}",
+      "source": "precomputed://https://activebrainatlas.ucsd.edu/data/DK52/neuroglancer_data/C1/",
+      "tab": "source",
+      "type": "image"
+    },
+    {
+      "name": "C2",
+      "shader": "#uicontrol invlerp normalized  (range=[0,45000])\n#uicontrol float gamma slider(min=0.05, max=2.5, default=1.0, step=0.05)\n#uicontrol bool colour checkbox(default=true)\n\n\n  void main() {\n    float pix =  normalized();\n    pix = pow(pix,gamma);\n\n    if (colour) {\n  \t   emitRGB(vec3(pix,0,0));\n  \t} else {\n  \t  emitGrayscale(pix) ;\n  \t}\n\n}\n",
+      "source": "precomputed://https://activebrainatlas.ucsd.edu/data/DK52/neuroglancer_data/C2/",
+      "tab": "source",
+      "type": "image",
+      "visible": false
+    },
+    {
+      "annotations": [
+        {
+          "id": "08387gnngi5t4bv7xlq4kfwjvdnhmw9m3qqax90n",
+          "point": [
+            44085,
+            10255,
+            225
+          ],
+          "type": "point"
+        },
+        {
+          "id": "f3fpla1ddx4fcui8x8tt9pio4s1qdzwcg4yrs6vq",
+          "point": [
+            43185,
+            9445,
+            225
+          ],
+          "type": "point"
+        },
+        {
+          "id": "wpwrt57amq4lulx7bdwcluccju4cz84vhqxc0l56",
+          "point": [
+            41475,
+            9355,
+            225
+          ],
+          "type": "point"
+        },
+        {
+          "id": "b6qmhm0raiv4zc0f5a42ow4nv9ob0zyycppnquo4",
+          "point": [
+            40485,
+            9895,
+            225
+          ],
+          "type": "point"
+        },
+        {
+          "id": "m5l0xj2il0k15m3u74p4z56l2ewvf7dnn4gcddrx",
+          "point": [
+            40485,
+            11515,
+            225
+          ],
+          "type": "point"
+        },
+        {
+          "id": "74hwz7qtkkmu9lhh214ma8r7uin12dsgiv66ksc8",
+          "point": [
+            42555,
+            14665,
+            225
+          ],
+          "type": "point"
+        },
+        {
+          "id": "lk0qfm4m4adq9ubvh1irsv7ef3sv1xqotkr24flj",
+          "point": [
+            42645,
+            14755,
+            225
+          ],
+          "type": "point"
+        },
+        {
+          "id": "aj6wlip1jy99xtunvaxb2maxhq3qc65ipkbi2v4z",
+          "point": [
+            44355,
+            14755,
+            225
+          ],
+          "type": "point"
+        },
+        {
+          "id": "1qlqsaqu5nr752zgw42c6d0r774xedhrpmt9iot8",
+          "point": [
+            45075,
+            14215,
+            225
+          ],
+          "type": "point"
+        },
+        {
+          "id": "zia57u2qysg1hxand1bzsr1szjwcg0lgtz12jru9",
+          "point": [
+            44625,
+            12685,
+            225
+          ],
+          "type": "point"
+        }
+      ],
+      "name": "cerebellum",
+      "source": {
+        "transform": {
+          "outputDimensions": {
+            "x": [
+              3.25e-07,
+              "m"
+            ],
+            "y": [
+              3.25e-07,
+              "m"
+            ],
+            "z": [
+              2e-05,
+              "m"
+            ]
+          }
+        },
+        "url": "local://annotations"
+      },
+      "tab": "annotations",
+      "type": "annotation"
+    }
+  ],
+  "layout": "4panel",
+  "position": [
+    38955,
+    13315,
+    225
+  ],
+  "projectionScale": 60000,
+  "selection": {},
+  "systemMemoryLimit": 8000000000
+}

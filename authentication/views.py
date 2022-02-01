@@ -5,7 +5,6 @@ from django.contrib.auth.decorators import login_required
 from authentication.models import User
 from django.conf import settings
 
-
 class SessionVarView(TemplateView):
     '''
     This gets the session var from Neuroglancer to check
@@ -14,7 +13,7 @@ class SessionVarView(TemplateView):
     run on different ports locally, it is a pain to translate
     between the two. To test Neuroglancer locally:
         for login, comment out the if statement,
-        when you do this, the user will ALWAYS appear to not logged in! This
+        when you do this, the user will ALWAYS appear to be not logged in! This
         is because of the different ports!!!!!!!!!!!!!!!!!!!!!!!!!!!
     '''
 
@@ -23,8 +22,8 @@ class SessionVarView(TemplateView):
         if request.user.is_authenticated:
             data = {'user_id':request.user.id, 'username': request.user.username}
         
-        if settings.DEBUG:
-            userid = 1
+        if settings.DEBUG and request.user.is_authenticated:
+            userid = request.user.id
             browser = str(request.META['HTTP_USER_AGENT']).lower()
             if 'firefox' in browser:
                 userid = 2

@@ -46,9 +46,9 @@ class AnnotationsSerializer(serializers.Serializer):
     """
     animal_id = serializers.IntegerField()
     animal_name = serializers.CharField()
-    layer = serializers.CharField()
+    label = serializers.CharField()
     input_type = serializers.CharField()
-    input_type_id = serializers.IntegerField()
+    FK_input_id = serializers.IntegerField()
 
 
 class BrainRegionSerializer(serializers.ModelSerializer):

@@ -4,9 +4,8 @@ There are constants defined in the models.py script and imported here
 so we can resuse them througout the code.
 """
 from authentication.models import User
-import datetime
 from brain.models import Animal, ScanRun, BrainRegion
-from neuroglancer.models import AnnotationPoints, AnnotationPointArchive
+from neuroglancer.models import ArchiveSet, AnnotationPoints, AnnotationPointArchive, InputType
 import logging
 logging.basicConfig()
 logger = logging.getLogger(__name__)
@@ -17,17 +16,17 @@ DETECTED = 2
 
 
 
-def get_centers_dict(animal_id, input_type_id=0, owner_id=None):
+def get_centers_dict(animal_id, FK_input_id=0, owner_id=None):
     '''
     This method is used to get data for the rigid transformation.
     :param animal_id:
-    :param input_type_id:
+    :param FK_input_id:
     :param owner_id:
     '''
     rows = AnnotationPoints.objects.filter(animal=animal_id)\
-        .filter(active=True).filter(layer='COM')
-    if input_type_id > 0:
-        rows = rows.filter(input_type_id=input_type_id)
+        .filter(active=True).filter(label='COM')
+    if FK_input_id > 0:
+        rows = rows.filter(FK_input_id=FK_input_id)
     if owner_id is not None:
         rows = rows.filter(owner_id=owner_id)
     structure_dict = {}
@@ -60,7 +59,7 @@ def get_brain_region(annotation):
             logger.error(f'Structure {abbreviation} does not exist')
     return brain_region
 
-def move_annotations(animal, layer):
+def move_annotations(animal, label):
     '''
     Move existing annotations into the archive. First we get the existing
     rows and then we insert those into the archive table. This is rather
@@ -69,17 +68,18 @@ def move_annotations(animal, layer):
         2. bulk inserts of those rows
         3. deleting those rows from the primary table
     :param animal: animal object
-    :param layer: char of layer name
-    TODO, we need to get the FK from the archive table
-    '''
-    rows = AnnotationPoints.objects.filter(input_type_id=MANUAL)\
+    :param label: char of label name
+    TODO, we need to get the FK from the archive table, insert
+    an appropriate parent in archive_set
+    '''    
+    rows = AnnotationPoints.objects.filter(input_type__id=MANUAL)\
         .filter(animal=animal)\
-        .filter(layer=layer)
+        .filter(label=label)
         
     bulk_mgr = BulkCreateManager(chunk_size=100)
     for row in rows:
         bulk_mgr.add(AnnotationPointArchive(animal=row.animal, brain_region=row.brain_region,
-            layer=row.layer, owner=row.owner, input_type=row.input_type,
+            label=row.label, owner=row.owner, input_type=row.input_type,
             x=row.x, y=row.y, z=row.z))
     bulk_mgr.done()
     # now delete them as they are no longer useful in the original table.
@@ -87,7 +87,7 @@ def move_annotations(animal, layer):
 
         
 
-def bulk_annotations(animal, layer, loggedInUser, layer_name):
+def bulk_annotations(animal, layer, loggedInUser, label):
     '''
     This method takes in a json layer from neuroglancer, loops through
     it to find all the annotations and then for each layer, it loops
@@ -95,8 +95,9 @@ def bulk_annotations(animal, layer, loggedInUser, layer_name):
     :param animal: object of the animal
     :param layer: json object of layer data
     :param loggedInUser: int of owner
-    :param layer_name: str of the layer name
+    :param label: str of the layer name
     '''
+    manual_input = InputType.objects.get(pk=MANUAL)
     bulk_mgr = BulkCreateManager(chunk_size=100)
     scale_xy, z_scale = get_scales(animal.id)
     annotations = layer['annotations']
@@ -107,7 +108,7 @@ def bulk_annotations(animal, layer, loggedInUser, layer_name):
         brain_region = get_brain_region(annotation)
         if brain_region is not None and animal is not None and loggedInUser is not None:
             bulk_mgr.add(AnnotationPoints(animal=animal, brain_region=brain_region,
-            layer=layer_name, owner=loggedInUser, input_type_id=MANUAL,
+            label=label, owner=loggedInUser, input_type=manual_input,
             x=x1, y=y1, z=z1))
     bulk_mgr.done()
 
@@ -133,13 +134,13 @@ def update_annotation_data(neuroglancerModel):
         logger.error("Animal does not exist")
         return
     if 'layers' in json_txt:
-        layers = json_txt['layers']
-        for layer in layers:
-            if 'annotations' in layer:
-                layer_name = str(layer['name']).strip()
-                if layer_name != 'annotation':
-                    move_annotations(animal, layer_name)
-                    bulk_annotations(animal, layer, loggedInUser, layer_name)
+        state_layers = json_txt['layers']
+        for state_layer in state_layers:
+            if 'annotations' in state_layer:
+                label = str(state_layer['name']).strip()
+                if label != 'annotation':
+                    move_annotations(animal, label)
+                    bulk_annotations(animal, state_layer, loggedInUser, label)
     end = timer()
     print(f'Deleting and inserting data took {end - start} seconds')
 
@@ -160,5 +161,4 @@ def get_scales(animal_id):
     else:
         scale_xy = 1
         z_scale = 1
-    print(scale_xy, z_scale)
     return scale_xy, z_scale

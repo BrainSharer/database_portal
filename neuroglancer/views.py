@@ -36,15 +36,15 @@ class Annotation(views.APIView):
     https://www.brainsharer.org/brainsharer/annotation/X/premotor/2
     Where:
          X is the PK integer of the animal (id),
-         premotor is the layer name,
+         premotor is the label name,
          2 is the input type ID
     """
-    def get(self, request, animal_id, layer_name, input_type_id, format=None):
+    def get(self, request, animal_id, label, FK_input_id, format=None):
         data = []
         try:
             rows = AnnotationPoints.objects.filter(animal=animal_id)\
-                        .filter(layer=layer_name)\
-                        .filter(input_type_id=input_type_id)\
+                        .filter(label=label)\
+                        .filter(input_type__id=FK_input_id)\
                         .order_by('z', 'id').all()
         except AnnotationPoints.DoesNotExist:
             raise Http404
@@ -65,7 +65,7 @@ class Annotations(views.APIView):
     Fetch NeuroglancerModel and return a set of two dictionaries. 
     One is from the layer_data
     table and the other is the COMs that have been set as transformations.
-    {'id': 213, 'description': 'DK39 COM Test', 'layer_name': 'COM'}
+    {'id': 213, 'description': 'DK39 COM Test', 'label': 'COM'}
     url is of the the form:
     https://www.brainsharer.org/brainsharer/annotations
     """
@@ -75,17 +75,17 @@ class Annotations(views.APIView):
         This will get the layer_data
         """
         data = []
-        layers = AnnotationPoints.objects.order_by('animal', 'layer', 'input_type_id')\
-            .filter(layer__isnull=False)\
-            .values('animal', 'animal__animal', 'layer','input_type__input_type','input_type_id')\
+        layers = AnnotationPoints.objects.order_by('animal', 'label', 'input_type__input_type')\
+            .filter(label__isnull=False)\
+            .values('animal', 'animal__animal', 'label','input_type__input_type','input_type__id')\
             .distinct()
         for layer in layers:
             data.append({
                 "animal_id":layer['animal'],
                 "animal_name":layer['animal__animal'],
-                "layer":layer['layer'],
+                "label":layer['label'],
                 "input_type":layer['input_type__input_type'],
-                "input_type_id":layer['input_type_id'],                
+                "FK_input_id":layer['input_type__id'],                
                 })
 
         serializer = AnnotationsSerializer(data, many=True)
@@ -105,20 +105,10 @@ def interpolate(points, new_len):
     arr_2d = np.concatenate([x_array[:, None], y_array[:, None]], axis=1)
     return list(map(tuple, arr_2d))
 
-def get_input_type_id(input_type):
-    input_type_id = 0
-    try:
-        input_types = InputType.objects.filter(input_type=input_type).filter(active=True).all()
-    except InputType.DoesNotExist:
-        raise Http404
-
-    if len(input_types) > 0:
-        input_type = input_types[0]
-        input_type_id = input_type.id
-
-    return input_type_id
-
 def random_string():
+    '''
+    This mimics the ID that neuroglancer creates as the ID for each annotation
+    '''
     return ''.join(random.choices(string.ascii_lowercase + string.digits, k=40))
         
 def load_layers(request):

@@ -167,11 +167,11 @@ class InputTypeAdmin(AtlasAdminModel):
 
 @admin.register(AnnotationPointArchive)
 class AnnotationPointArchiveAdmin(AtlasAdminModel):
-    list_display = ('animal', 'brain_region', 'layer', 'owner', 'x', 'y', 'z')
-    ordering = ['animal__animal', 'layer','brain_region__abbreviation', 'z']
+    list_display = ('animal', 'brain_region', 'label', 'owner', 'x', 'y', 'z')
+    ordering = ['animal__animal', 'label','brain_region__abbreviation', 'z']
     excluded_fields = ['created', 'updated']
     list_filter = ['input_type']
-    search_fields = ['animal__animal', 'brain_region__abbreviation', 'layer', 'owner__username']
+    search_fields = ['animal__animal', 'brain_region__abbreviation', 'label', 'owner__username']
 
 
 @admin.register(ArchiveSet)
@@ -185,12 +185,12 @@ class ArchiveSetAdmin(AtlasAdminModel):
 
 @admin.register(AnnotationPoints)
 class AnotationPointsAdmin(AtlasAdminModel):
-    # change_list_template = 'layer_data_group.html'
-    list_display = ('animal', 'brain_region', 'layer', 'owner', 'x_f', 'y_f', 'z_f')
-    ordering = ['animal__animal', 'layer','brain_region__abbreviation', 'z']
+    # change_list_template = 'label_data_group.html'
+    list_display = ('animal', 'brain_region', 'label', 'owner', 'x_f', 'y_f', 'z_f')
+    ordering = ['animal__animal', 'label','brain_region__abbreviation', 'z']
     excluded_fields = ['created', 'updated']
     list_filter = ['input_type']
-    search_fields = ['animal__animal', 'brain_region__abbreviation', 'layer', 'owner__username']
+    search_fields = ['animal__animal', 'brain_region__abbreviation', 'label', 'owner__username']
     scales = {'dk':0.325, 'md':0.452, 'at':10}
 
     def get_queryset(self, request, obj=None):
@@ -198,9 +198,9 @@ class AnotationPointsAdmin(AtlasAdminModel):
         rows = None
         if user.lab is not None:
             rows = AnnotationPoints.objects.filter(owner__lab=user.lab)\
-            .order_by('animal', 'layer','brain_region__abbreviation', 'z')
+            .order_by('animal', 'label','brain_region__abbreviation', 'z')
         else:
-            rows = AnnotationPoints.objects.order_by('animal', 'layer','brain_region__abbreviation', 'z')
+            rows = AnnotationPoints.objects.order_by('animal', 'label','brain_region__abbreviation', 'z')
             
         return rows
 

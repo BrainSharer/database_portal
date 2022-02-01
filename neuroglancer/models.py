@@ -59,8 +59,8 @@ class NeuroglancerModel(models.Model):
             layers = json_txt['layers']
             for layer in layers:
                 if 'annotations' in layer:
-                    layer_name = layer['name']
-                    layer_list.append(layer_name)
+                    label = layer['name']
+                    layer_list.append(label)
 
         return layer_list
 
@@ -102,9 +102,9 @@ class AnnotationAbstract(models.Model):
                                verbose_name="Structure")
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, models.CASCADE, db_column="FK_owner_id",
                                verbose_name="Owner", blank=False, null=False)
-    input_type = models.ForeignKey(InputType, models.CASCADE, db_column="input_type_id",
+    input_type = models.ForeignKey(InputType, models.CASCADE, db_column="FK_input_id",
                                verbose_name="Input", blank=False, null=False)
-    layer = models.CharField(max_length=255)
+    label = models.CharField(max_length=255)
     x = models.FloatField(verbose_name="X (um)")
     y = models.FloatField(verbose_name="Y (um)")
     z = models.FloatField(verbose_name="Z (um)")
@@ -134,7 +134,7 @@ class AnnotationPoints(AnnotationAbstract):
         verbose_name_plural = 'Annotation Points'
 
     def __str__(self):
-        return u'{} {}'.format(self.animal, self.layer)
+        return u'{} {}'.format(self.animal, self.label)
 
 
 class AnnotationPointArchive(AnnotationAbstract):

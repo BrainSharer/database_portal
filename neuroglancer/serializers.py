@@ -1,15 +1,14 @@
-from datetime import datetime
 from rest_framework import serializers
 from rest_framework.exceptions import APIException
 import logging
 
-from brain.models import Animal
-from neuroglancer.models import LayerData, Structure, NeuroglancerModel
+from brain.models import BrainRegion
+from neuroglancer.models import AnnotationPoints, NeuroglancerModel
 from neuroglancer.atlas import update_annotation_data
 from authentication.models import User
 
 logging.basicConfig()
-logger = logging.getLogger(__name__)
+logger = logging.getLogger('django')
 
 
 class AnimalInputSerializer(serializers.Serializer):
@@ -45,67 +44,32 @@ class AnnotationsSerializer(serializers.Serializer):
     """
     This one feeds the dropdown
     """
-    prep_id = serializers.CharField()
-    layer = serializers.CharField()
+    animal_id = serializers.IntegerField()
+    animal_name = serializers.CharField()
+    label = serializers.CharField()
     input_type = serializers.CharField()
-    input_type_id = serializers.IntegerField()
+    FK_input_id = serializers.IntegerField()
 
 
-class StructureSerializer(serializers.ModelSerializer):
+class BrainRegionSerializer(serializers.ModelSerializer):
 
     class Meta:
-        model = Structure
+        model = BrainRegion
         fields = '__all__'
 
 
-class LayerDataSerializer(serializers.ModelSerializer):
+class AnnotationPointsSerializer(serializers.ModelSerializer):
 
     class Meta:
-        model = LayerData
+        model = AnnotationPoints
         fields = '__all__'
 
-
-class CenterOfMassSerializer(serializers.ModelSerializer):
-    """Takes care of entering a set of points"""
-    structure_id = serializers.CharField()
-
-    class Meta:
-        model = LayerData
-        fields = '__all__'
-
-    def create(self, validated_data):
-        logger.debug('Creating COM')
-        com = LayerData(
-            x=validated_data['x'],
-            y=validated_data['y'],
-            section=validated_data['section'],
-            active=True,
-            created=datetime.now()
-        )
-        try:
-            structure = Structure.objects.get(
-                abbreviation__exact=validated_data['structure_id'])
-            com.structure = structure
-        except APIException as e:
-            logger.error(f'Error with structure {e}')
-
-        try:
-            prep = Animal.objects.get(prep_id=validated_data['prep'])
-            com.prep = prep
-        except Animal.DoesNotExist:
-            logger.error('Error with animal')
-        try:
-            com.save()
-        except APIException as e:
-            logger.error(f'Could not save center of mass: {e}')
-
-        return com
 
 class NeuroglancerSerializer(serializers.ModelSerializer):
     """Override method of entering a neuroglancer_state into the DB.
     The neuroglancer_state can't be in the NeuroglancerModel when it is returned
     to neuroglancer as it crashes neuroglancer."""
-    person_id = serializers.IntegerField()
+    owner_id = serializers.IntegerField()
 
     class Meta:
         model = NeuroglancerModel
@@ -116,16 +80,19 @@ class NeuroglancerSerializer(serializers.ModelSerializer):
         """
         This gets called when a user clicks New in Neuroglancer
         """
+        logger.debug("validated_data:")
+        logger.debug(validated_data)
         neuroglancerModel = NeuroglancerModel(
             neuroglancer_state=validated_data['neuroglancer_state'],
             user_date=validated_data['user_date'],
             comments=validated_data['comments'],
-            vetted=False,
         )
-        if 'person_id' in validated_data:
+        if 'owner_id' in validated_data:
             try:
-                authUser = User.objects.get(pk=validated_data['person_id'])
-                neuroglancerModel.person = authUser
+                authUser = User.objects.get(pk=validated_data['owner_id'])
+                logger.debug("auth user:")
+                logger.debug(authUser)
+                neuroglancerModel.owner = authUser
                 # neuroglancerModel.lab = authUser.lab
             except User.DoesNotExist:
                 logger.error('Person was not in validated data')
@@ -146,12 +113,12 @@ class NeuroglancerSerializer(serializers.ModelSerializer):
         instance.user_date = validated_data.get(
             'user_date', instance.user_date)
         instance.comments = validated_data.get('comments', instance.comments)
-        if 'person_id' in validated_data:
+        if 'owner_id' in validated_data:
             try:
-                authUser = User.objects.get(pk=validated_data['person_id'])
-                instance.person = authUser
+                authUser = User.objects.get(pk=validated_data['owner_id'])
+                instance.owner = authUser
             except User.DoesNotExist:
-                logger.error('Person was not in validated data')
+                logger.error('Owner was not in validated data')
         try:
             instance.save()
         except APIException:
@@ -159,7 +126,7 @@ class NeuroglancerSerializer(serializers.ModelSerializer):
         update_annotation_data(instance)
         instance.neuroglancer_state = None
         return instance
-
+    
 class NeuronSerializer(serializers.Serializer):
     """
     Serializes a list of brain atlas segment Ids

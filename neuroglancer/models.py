@@ -4,7 +4,7 @@ from django.utils.html import escape
 import re
 from enum import Enum
 from django.template.defaultfilters import truncatechars
-from brain.models import AtlasModel, Animal
+from brain.models import Animal, BrainRegion
 
 
 class AnnotationChoice(str, Enum):
@@ -22,10 +22,8 @@ class AnnotationChoice(str, Enum):
 class NeuroglancerModel(models.Model):
     id = models.BigAutoField(primary_key=True)
     neuroglancer_state = models.JSONField()
-    person = models.ForeignKey(settings.AUTH_USER_MODEL, models.CASCADE, null=True, db_column="person_id",
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL, models.CASCADE, null=True, db_column="owner_id",
                                verbose_name="User")
-    # lab = models.ForeignKey(Lab, models.CASCADE, null=True, db_column="lab_id", verbose_name="Lab")
-    vetted = models.BooleanField(default=False)
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True, editable=False, null=False, blank=False)
     user_date = models.CharField(max_length=25)
@@ -61,8 +59,8 @@ class NeuroglancerModel(models.Model):
             layers = json_txt['layers']
             for layer in layers:
                 if 'annotations' in layer:
-                    layer_name = layer['name']
-                    layer_list.append(layer_name)
+                    label = layer['name']
+                    layer_list.append(label)
 
         return layer_list
 
@@ -77,19 +75,6 @@ class NeuroglancerModel(models.Model):
         return u'{}'.format(self.comments)
 
 
-class Structure(AtlasModel):
-    id = models.BigAutoField(primary_key=True)
-    abbreviation = models.CharField(max_length=200)
-    description = models.TextField(max_length=2001, blank=False, null=False)
-
-    class Meta:
-        managed = True
-        db_table = 'structure'
-        verbose_name = 'Structure'
-        verbose_name_plural = 'Structures'
-
-    def __str__(self):
-        return f'{self.description} {self.abbreviation}'
 
 
 class InputType(models.Model):
@@ -110,41 +95,59 @@ class InputType(models.Model):
         return u'{}'.format(self.input_type)
 
 
-class Layers(models.Model):
+class AnnotationAbstract(models.Model):
     id = models.BigAutoField(primary_key=True)
-    prep = models.ForeignKey(Animal, models.CASCADE, null=True, db_column="prep_id", verbose_name="Animal")
-    
-    structure = models.ForeignKey(Structure, models.CASCADE, null=True, db_column="structure_id",
+    animal = models.ForeignKey(Animal, models.CASCADE, null=True, db_column="FK_animal_id", verbose_name="Animal")
+    brain_region = models.ForeignKey(BrainRegion, models.CASCADE, null=True, db_column="FK_structure_id",
                                verbose_name="Structure")
-    person = models.ForeignKey(settings.AUTH_USER_MODEL, models.CASCADE, db_column="person_id",
-                               verbose_name="Creator", blank=False, null=False, related_name="creator")
-    updatedby = models.ForeignKey(settings.AUTH_USER_MODEL, models.CASCADE, db_column="updated_by",
-                               verbose_name="Updater", blank=True, null=True, related_name="updater")
-    input_type = models.ForeignKey(InputType, models.CASCADE, db_column="input_type_id",
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL, models.CASCADE, db_column="FK_owner_id",
+                               verbose_name="Owner", blank=False, null=False)
+    input_type = models.ForeignKey(InputType, models.CASCADE, db_column="FK_input_id",
                                verbose_name="Input", blank=False, null=False)
-    layer = models.CharField(max_length=255)
+    label = models.CharField(max_length=255)
     x = models.FloatField(verbose_name="X (um)")
     y = models.FloatField(verbose_name="Y (um)")
-    section = models.FloatField(verbose_name="Section (um)")
-    active = models.BooleanField(default=True, db_column='active')
-    created = models.DateTimeField(auto_now_add=False)
-    updated = models.DateTimeField(auto_now=True, editable=False, null=False, blank=False)
+    z = models.FloatField(verbose_name="Z (um)")
 
     class Meta:
         abstract = True
 
+class ArchiveSet(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    created = models.DateTimeField(auto_now_add=True)
+    parent =  models.IntegerField(db_column='FK_parent')
+    updatedby = models.ForeignKey(settings.AUTH_USER_MODEL, models.CASCADE, 
+                               verbose_name="Updated by", blank=False, null=False, 
+                               db_column='FK_update_user_id')
+    class Meta:
+        managed = True
+        db_table = 'archive_set'
+        verbose_name = 'Archive set'
+        verbose_name_plural = 'Archive sets'
 
-class LayerData(Layers):
+class AnnotationPoints(AnnotationAbstract):
 
     class Meta:
         managed = True
-        db_table = 'layer_data'
-        verbose_name = 'Annotation Data'
-        verbose_name_plural = 'Annotation Data'
+        db_table = 'annotations_points'
+        verbose_name = 'Annotation Point'
+        verbose_name_plural = 'Annotation Points'
 
     def __str__(self):
-        return u'{} {}'.format(self.prep, self.layer)
+        return u'{} {}'.format(self.animal, self.label)
 
+
+class AnnotationPointArchive(AnnotationAbstract):
+    archive = models.ForeignKey(ArchiveSet, models.CASCADE, 
+                               verbose_name="Archive Set", blank=True, null=True, 
+                               db_column='FK_archive_set_id')
+
+    class Meta:
+        managed = True
+        db_table = 'annotations_point_archive'
+        verbose_name = 'Annotation Point Archive'
+        verbose_name_plural = 'Annotation Points Archive'
+        
 class MouselightNeuron(models.Model):
     id = models.BigAutoField(primary_key=True)
     idstring = models.CharField(max_length=64,null=False)
@@ -177,3 +180,5 @@ class MouselightNeuron(models.Model):
 
     def __str__(self):
         return u'{}'.format(self.idstring)
+
+

@@ -16,7 +16,7 @@ from pygments.lexers import JsonLexer
 from django.utils.safestring import mark_safe
 from brain.admin import AtlasAdminModel
 from neuroglancer.models import InputType, AnnotationPoints, \
-    NeuroglancerModel, ArchiveSet, AnnotationPointArchive
+    NeuroglancerModel, ArchiveSet, AnnotationPointArchive, MouselightNeuron
 from neuroglancer.forms import NeuroglancerModelForm, NeuroglancerUpdateForm
 
 @admin.register(NeuroglancerModel)
@@ -209,11 +209,11 @@ class AnotationPointsAdmin(AtlasAdminModel):
         super().save_model(request, obj, form, change)
 
     def x_f(self, obj):
-        initial = str(obj.animal[0:2]).lower()
+        initial = str(obj.animal.animal[0:2]).lower()
         number = int(round(obj.x / self.scales[initial]))
         return format_html(f"<div style='text-align:left;'>{number:,}</div>")
     def y_f(self, obj):
-        initial = str(obj.animal[0:2]).lower()
+        initial = str(obj.animal.animal[0:2]).lower()
         number = int(round(obj.y / self.scales[initial]))
         return format_html(f"<div style='text-align:left;'>{number:,}</div>")
     def z_f(self, obj):
@@ -223,3 +223,7 @@ class AnotationPointsAdmin(AtlasAdminModel):
     x_f.short_description = "X"
     y_f.short_description = "Y"
     z_f.short_description = "Z"
+
+@admin.register(MouselightNeuron)
+class MouselightNeuronAdmin(admin.ModelAdmin):
+    list_display = ('id', 'idstring', 'sample_date')

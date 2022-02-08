@@ -10,6 +10,7 @@ class Lab(models.Model):
     
     class Meta:
         managed = True
+        db_table = 'auth_lab'
         verbose_name = 'Laboratory'
         verbose_name_plural = 'Labs'
         
@@ -19,6 +20,12 @@ class Lab(models.Model):
 class User(AbstractUser):
     lab = models.ForeignKey(Lab, models.CASCADE, null=True, blank=True, db_column="lab_id", verbose_name="Primary lab")
     labs = models.ManyToManyField(Lab, related_name="labs", verbose_name="Viewable labs")
+
+    class Meta:
+        managed = True
+        db_table = 'auth_user'
+        verbose_name = 'User'
+        verbose_name_plural = 'Users'
 
     
     

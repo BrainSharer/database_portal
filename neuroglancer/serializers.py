@@ -126,3 +126,15 @@ class NeuroglancerSerializer(serializers.ModelSerializer):
         update_annotation_data(instance)
         instance.neuroglancer_state = None
         return instance
+    
+class NeuronSerializer(serializers.Serializer):
+    """
+    Serializes a list of brain atlas segment Ids
+    """
+    segmentId = serializers.ListField()
+
+class AnatomicalRegionSerializer(serializers.Serializer):
+    """
+    Serializes a list of brain atlas region names
+    """
+    segment_names = serializers.ListField()

@@ -3,13 +3,17 @@ These are methods taken from notebooks, mostly Bili's
 There are constants defined in the models.py script and imported here
 so we can resuse them througout the code.
 """
+import os
+import json
+from brain_atlas_toolkit import graph_tools
+from timeit import default_timer as timer
+from django.conf import settings
 from authentication.models import User
 from brain.models import Animal, ScanRun, BrainRegion
 from neuroglancer.models import ArchiveSet, AnnotationPoints, AnnotationPointArchive, InputType
 import logging
 logging.basicConfig()
 logger = logging.getLogger(__name__)
-from timeit import default_timer as timer
 from neuroglancer.bulk_insert import BulkCreateManager
 MANUAL = 1
 DETECTED = 2
@@ -162,3 +166,24 @@ def get_scales(animal_id):
         scale_xy = 1
         z_scale = 1
     return scale_xy, z_scale
+
+def make_ontology_graph_CCFv3():
+    """
+    Load the allen CCFv3 ontology into a graph object
+    """
+    allen_ontology_file = os.path.join(settings.STATIC_ROOT,'neuroglancer/allen.json')
+    with open(allen_ontology_file,'r') as infile:
+        ontology_dict = json.load(infile)
+    graph = graph_tools.Graph(ontology_dict)
+    return graph
+
+def make_ontology_graph_pma():
+    """
+    Load the Princeton Mouse Atlas ontology into a graph object
+    """
+    pma_ontology_file = os.path.join(settings.STATIC_ROOT,'neuroglancer/pma.json')
+    with open(pma_ontology_file,'r') as infile:
+        ontology_dict = json.load(infile)
+    graph = graph_tools.Graph(ontology_dict)
+    return graph
+

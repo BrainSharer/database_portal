@@ -4,15 +4,17 @@ from rest_framework import permissions
 from django.http import JsonResponse
 from rest_framework.response import Response
 from django.http import Http404
+from django.db.models import Q
 import string
 import random
 import numpy as np
 from scipy.interpolate import splprep, splev
 from neuroglancer.serializers import AnnotationSerializer, \
-    AnnotationsSerializer, NeuroglancerSerializer
-from neuroglancer.models import InputType, NeuroglancerModel, AnnotationPoints
+    AnnotationsSerializer, NeuroglancerSerializer, NeuronSerializer, AnatomicalRegionSerializer
+from neuroglancer.models import NeuroglancerModel, AnnotationPoints, MouselightNeuron
+from neuroglancer.atlas import get_scales, make_ontology_graph_CCFv3, make_ontology_graph_pma
+    
 from brain.models import BrainRegion
-from neuroglancer.atlas import get_scales
 
 import logging
 logging.basicConfig()
@@ -90,6 +92,97 @@ class Annotations(views.APIView):
 
         serializer = AnnotationsSerializer(data, many=True)
         return Response(serializer.data)
+
+class MouseLightNeuron(views.APIView):
+    """
+    Fetch MouseLight neurons meeting filter criteria 
+    url is of the the form
+    mlneurons/<str:atlas_name>/<str:brain_region1>/<str:filter_type1>/<str:operator_type1>/<int:thresh1>/<str:filter_type2>/<str:operator_type2>/<int:thresh2>
+    Where:
+        atlas_name     <str> : required, either "ccfv3_25um" or "pma_20um"
+        brain_region1  <str> : required, e.g. "Cerebellum"
+        filter_type1   <str> : optional, e.g. "soma", "axon_endpoints", ...
+        operator_type1 <str> : optional, e.g. "gte" -> "greater than or equal to"
+        thresh1        <int> : optional, e.g. 2 
+        brain_region2  <str> : optional, e.g. "Thalamus"
+        filter_type2   <str> : optional, e.g. "dendritic_branchpoints"
+        operator_type2 <str> : optional, e.g. "eq" -> "exactly equal to"
+        thresh2        <int> : optional, e.g. 5
+    """
+
+    def get(self, request, atlas_name, brain_region1, 
+        filter_type1='soma', operator_type1=None, thresh1=None,
+        brain_region2=None, filter_type2=None, operator_type2=None, thresh2=None):
+        
+        print(atlas_name,brain_region1,filter_type1,
+            operator_type1,thresh1,brain_region2,
+            filter_type2,operator_type2,thresh2)
+        
+        if atlas_name == 'ccfv3_25um':
+            ontology_graph = make_ontology_graph_CCFv3()
+        elif atlas_name == 'pma_20um':
+            ontology_graph = make_ontology_graph_pma()
+        
+        # filter to only get neurons in this atlas
+        rows = MouselightNeuron.objects.filter(annotation_space__exact=atlas_name)
+        all_ids_thisatlas = [x for x in rows.values_list('id',flat=True)]
+        # Filter #1, required
+        brain_region_id1 = ontology_graph.get_id(brain_region1)
+        if filter_type1 == 'soma':
+            # Figure out all progeny of this region since neuron could be in this shell or any child
+            progeny = ontology_graph.get_progeny(brain_region1)
+            progeny_ids = [ontology_graph.get_id(prog) for prog in progeny]
+            ids_tosearch = [brain_region_id1] + progeny_ids
+            rows = rows.filter(soma_atlas_id__in=ids_tosearch)
+        else:
+            filter_name1 = f'{filter_type1}_dict__count_{brain_region_id1}__{operator_type1}'
+            filter1 = Q(**{filter_name1:thresh1})
+            if operator_type1 in ['gte','lte','exact'] and thresh1 == 0:
+                filter_name1_nullcheck = f'{filter_type1}_dict__count_{brain_region_id1}__isnull'
+                filter1_nullcheck = Q(**{filter_name1_nullcheck:True})
+                rows = rows.filter(filter1 | filter1_nullcheck)
+            else:
+                rows = rows.filter(filter1)
+        # Filter #2, optional
+        if filter_type2:
+            brain_region_id2 = ontology_graph.get_id(brain_region2)
+            if filter_type2 == 'soma':
+                # Figure out all progeny of this region since neuron could be in this shell or any child
+                progeny = ontology_graph.get_progeny(brain_region1)
+                progeny_ids = [ontology_graph.get_id(prog) for prog in progeny]
+                ids_tosearch = [brain_region_id2] + progeny_ids
+                rows = rows.filter(soma_atlas_id__in=ids_tosearch)
+            else:
+                filter_name2 = f'{filter_type2}_dict__count_{brain_region_id2}__{operator_type2}'
+                filter2 = Q(**{filter_name2:thresh2})
+                if operator_type2 in ['gte','lte','exact'] and thresh2 == 0:
+                    filter_name2_nullcheck = f'{filter_type2}_dict__count_{brain_region_id2}__isnull'
+                    filter2_nullcheck = Q(**{filter_name2_nullcheck:True})
+                    rows = rows.filter(filter2 | filter2_nullcheck)
+                else:
+                    rows = rows.filter(filter2)
+
+        neuron_indices = [all_ids_thisatlas.index(ID) for ID in rows.values_list('id',flat=True)]
+        skeleton_segment_ids = [ix*3+x for ix in neuron_indices for x in [0,1,2]]
+        serializer = NeuronSerializer({'segmentId':skeleton_segment_ids})
+        return Response(serializer.data)
+
+class AnatomicalRegions(views.APIView):
+    """
+    Fetch the complete list of anatomical brain regions
+    url is of the the form
+    /anatomicalregions/atlasName
+    """
+
+    def get(self, request, atlas_name):
+        if atlas_name == 'ccfv3_25um':
+            ontology_graph = make_ontology_graph_CCFv3()
+        elif atlas_name == 'pma_20um':
+            ontology_graph = make_ontology_graph_pma()
+        segment_names = list(ontology_graph.graph.keys())
+        serializer = AnatomicalRegionSerializer({'segment_names':segment_names})
+        return Response(serializer.data)
+
 
 def interpolate(points, new_len):
     points = np.array(points)

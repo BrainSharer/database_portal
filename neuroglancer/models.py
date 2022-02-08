@@ -147,5 +147,38 @@ class AnnotationPointArchive(AnnotationAbstract):
         db_table = 'annotations_point_archive'
         verbose_name = 'Annotation Point Archive'
         verbose_name_plural = 'Annotation Points Archive'
+        
+class MouselightNeuron(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    idstring = models.CharField(max_length=64,null=False)
+    sample_date = models.DateTimeField(null=True)
+    sample_strain = models.CharField(max_length=255,null=True)
+    virus_label = models.CharField(max_length=255,null=True) 
+    fluorophore_label = models.CharField(max_length=255,null=True)
+    annotation_space = models.CharField(
+        max_length=20,
+        choices=[
+            ("ccfv3_25um","Allen Mouse Common Coordinate Framework v3, 25 micron isotropic"),
+            ("ccfv3_hierarch_25um","Hierarchical region labeling for Allen Mouse Common Coordinate Framework v3, 25 micron isotropic"),
+            ("pma_20um","Princeton Mouse Brain Atlas, 20 micron isotropic"),
+            ("pma_hierarch_20um","Hierarchical region labeling for Princeton Mouse Brain Atlas, 20 micron isotropic")
+        ],
+        default="ccfv3_25um",
+    )
+    soma_atlas_id = models.PositiveIntegerField(null=True)
+    axon_endpoints_dict = models.JSONField(default=dict)
+    axon_branches_dict = models.JSONField(default=dict)
+    dendrite_endpoints_dict = models.JSONField(default=dict)
+    dendrite_branches_dict = models.JSONField(default=dict)
+
+
+    class Meta:
+        managed = True
+        verbose_name = "MouseLight Neuron"
+        verbose_name_plural = "MouseLight Neurons"
+        db_table = 'mouselight_neuron'
+
+    def __str__(self):
+        return u'{}'.format(self.idstring)
 
 

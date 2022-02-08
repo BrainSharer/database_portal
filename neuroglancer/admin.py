@@ -222,4 +222,4 @@ class AnotationPointsAdmin(AtlasAdminModel):
 
     x_f.short_description = "X"
     y_f.short_description = "Y"
-    z_f.short_description = "Section"
+    z_f.short_description = "Z"

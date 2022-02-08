@@ -168,4 +168,4 @@ class LogEntryAdmin(admin.ModelAdmin):
 admin.site.site_header = 'BrainSharer Admin'
 admin.site.site_title = "BrainSharer"
 admin.site.index_title = "Welcome to Brainsharer Portal"
-admin.site.site_url = "https://github.com/BrainSharer"
+admin.site.site_url = "https://www.brainsharer.org"

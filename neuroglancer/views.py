@@ -25,7 +25,7 @@ class NeuroglancerViewSet(viewsets.ModelViewSet):
     """
     API endpoint that allows the neuroglancer states to be viewed or edited.
     Note, the update, and insert methods are over riden in the serializer.
-    It was more convienent to do them there than here.
+    It was more convenient to do them there than here.
     """
     queryset = NeuroglancerModel.objects.all()
     serializer_class = NeuroglancerSerializer

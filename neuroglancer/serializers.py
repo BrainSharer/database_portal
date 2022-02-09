@@ -70,6 +70,7 @@ class NeuroglancerSerializer(serializers.ModelSerializer):
     The neuroglancer_state can't be in the NeuroglancerModel when it is returned
     to neuroglancer as it crashes neuroglancer."""
     owner_id = serializers.IntegerField()
+    lab = serializers.CharField()
 
     class Meta:
         model = NeuroglancerModel

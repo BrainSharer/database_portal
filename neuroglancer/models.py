@@ -49,6 +49,14 @@ class NeuroglancerModel(models.Model):
         if match is not None and match.group(1) is not None:
             animal = match.group(1)
         return animal
+    
+    @property
+    def lab(self):
+        lab = "NA"
+        if self.owner is not None and self.owner.lab is not None:
+            lab = self.owner.lab
+        return lab
+
 
 
     @property

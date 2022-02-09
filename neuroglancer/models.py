@@ -49,14 +49,6 @@ class NeuroglancerModel(models.Model):
         if match is not None and match.group(1) is not None:
             animal = match.group(1)
         return animal
-    
-    @property
-    def lab(self):
-        lab = "NA"
-        if self.owner is not None and self.owner.lab is not None:
-            lab = self.owner.lab
-        return lab
-
 
 
     @property
@@ -189,4 +181,27 @@ class MouselightNeuron(models.Model):
     def __str__(self):
         return u'{}'.format(self.idstring)
 
+
+class ViralTracingLayer(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    brain_name = models.CharField(max_length=128,null=False)
+    virus = models.CharField(max_length=32,null=False)
+    timepoint = models.CharField(max_length=32,null=False)
+    primary_inj_site = models.CharField(max_length=32,null=True)
+    frac_inj_lob_i_v = models.FloatField(null=True) # fraction of injection in Lobules I-V
+    frac_inj_lob_vi_vii = models.FloatField(null=True) # fraction of injection in Lobules VI and VII 
+    frac_inj_lob_viii_x = models.FloatField(null=True) # fraction of injection in Lobules VIII-X
+    frac_inj_simplex = models.FloatField(null=True) # fraction of injection in Simplex
+    frac_inj_crusi = models.FloatField(null=True) # fraction of injection in Crus I
+    frac_inj_crusii = models.FloatField(null=True) # fraction of injection in Crus II
+    frac_inj_pm_cp = models.FloatField(null=True) # fraction of injection in Paramedian lobule and Copula Pyramidis
+
+    class Meta:
+        managed = True
+        verbose_name = "Tom Pisano Viral Tracing Experiment Brain"
+        verbose_name_plural = "Viral Tracing Brain"
+        db_table = 'viral_tracing_layer'
+
+    def __str__(self):
+        return u'{}'.format(self.brain_name)
 

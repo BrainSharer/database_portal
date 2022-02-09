@@ -70,7 +70,6 @@ class NeuroglancerSerializer(serializers.ModelSerializer):
     The neuroglancer_state can't be in the NeuroglancerModel when it is returned
     to neuroglancer as it crashes neuroglancer."""
     owner_id = serializers.IntegerField()
-    lab = serializers.CharField()
 
     class Meta:
         model = NeuroglancerModel
@@ -139,3 +138,12 @@ class AnatomicalRegionSerializer(serializers.Serializer):
     Serializes a list of brain atlas region names
     """
     segment_names = serializers.ListField()
+
+class ViralTracingSerializer(serializers.Serializer):
+    """
+    Serializes a list of tracing brain urls
+    """
+    brain_names = serializers.ListField()
+    frac_injections = serializers.ListField()
+    primary_inj_sites = serializers.ListField()
+    brain_urls = serializers.ListField()

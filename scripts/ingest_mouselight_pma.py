@@ -5,7 +5,7 @@ from functools import lru_cache
 
 
 HOME = os.path.expanduser("~")
-PATH = os.path.join(HOME, 'Git/brainsharer/database_portal')
+PATH = os.path.join(HOME, 'brainsharer')
 sys.path.append(PATH)
 # os.environ["DJANGO_ALLOW_ASYNC_UNSAFE"] = "true"
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "brainsharer.settings")
@@ -141,7 +141,7 @@ def make_insert(neuron,ontology_graph,debug=False):
 
 if __name__ == '__main__':
     ontology_graph = make_ontology_graph_pma()
-    neuron_dir = '/home/ahoag/progs/mouselight/public/jsonPMA'
+    neuron_dir = '/home/ubuntu/mouselight_resources/jsonPMA'
     json_files = sorted(glob.glob(neuron_dir + '/*json'))
     insert_list = []
     for neuron_json_file in json_files:

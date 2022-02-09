@@ -10,8 +10,10 @@ import random
 import numpy as np
 from scipy.interpolate import splprep, splev
 from neuroglancer.serializers import AnnotationSerializer, \
-    AnnotationsSerializer, NeuroglancerSerializer, NeuronSerializer, AnatomicalRegionSerializer
-from neuroglancer.models import NeuroglancerModel, AnnotationPoints, MouselightNeuron
+    AnnotationsSerializer, NeuroglancerSerializer, NeuronSerializer, AnatomicalRegionSerializer, \
+    ViralTracingSerializer
+from neuroglancer.models import NeuroglancerModel, AnnotationPoints, MouselightNeuron, \
+    ViralTracingLayer
 from neuroglancer.atlas import get_scales, make_ontology_graph_CCFv3, make_ontology_graph_pma
     
 from brain.models import BrainRegion
@@ -25,7 +27,7 @@ class NeuroglancerViewSet(viewsets.ModelViewSet):
     """
     API endpoint that allows the neuroglancer states to be viewed or edited.
     Note, the update, and insert methods are over riden in the serializer.
-    It was more convenient to do them there than here.
+    It was more convienent to do them there than here.
     """
     queryset = NeuroglancerModel.objects.all()
     serializer_class = NeuroglancerSerializer
@@ -110,7 +112,24 @@ class MouseLightNeuron(views.APIView):
         thresh2        <int> : optional, e.g. 5
     """
 
-    def get(self, request, atlas_name, brain_region1, 
+    """
+    Fetch MouseLight neurons meeting filter criteria 
+    url is of the the form
+    mlneurons/<str:atlas_name>/<str:neuron_parts_boolstr>/<str:brain_region1>/<str:filter_type1>/<str:operator_type1>/<int:thresh1>/<str:filter_type2>/<str:operator_type2>/<int:thresh2>
+    Where:
+        atlas_name               <str> : required, either "ccfv3_25um" or "pma_20um"
+        neuron_parts_boolstr     <str> : required, e.g. "true-true-false" denotes whether to fetch somata, axons and dendrites, respectively
+        brain_region1            <str> : required, e.g. "Cerebellum"
+        filter_type1             <str> : optional, e.g. "soma", "axon_endpoints", ...
+        operator_type1           <str> : optional, e.g. "gte" -> "greater than or equal to"
+        thresh1                  <int> : optional, e.g. 2 
+        brain_region2            <str> : optional, e.g. "Thalamus"
+        filter_type2             <str> : optional, e.g. "dendritic_branchpoints"
+        operator_type2           <str> : optional, e.g. "eq" -> "exactly equal to"
+        thresh2                  <int> : optional, e.g. 5
+    """
+
+    def get(self, request, atlas_name, neuron_parts_boolstr, brain_region1, 
         filter_type1='soma', operator_type1=None, thresh1=None,
         brain_region2=None, filter_type2=None, operator_type2=None, thresh2=None):
         
@@ -163,7 +182,24 @@ class MouseLightNeuron(views.APIView):
                     rows = rows.filter(filter2)
 
         neuron_indices = [all_ids_thisatlas.index(ID) for ID in rows.values_list('id',flat=True)]
-        skeleton_segment_ids = [ix*3+x for ix in neuron_indices for x in [0,1,2]]
+        # Only add neuron parts we want
+        # The "id" in the database describes the neuron id
+        # Each neuron has a different skeleton for its soma, axon and dendrite
+        # and we can choose which of them to fetch and display in neuroglancer
+        # id itself corresponds to the soma  
+        # id + 1 corresponds to the axon 
+        # id + 2 corresponds to the dendrite
+        somata_boolstr, axons_boolstr, dendrites_boolstr = neuron_parts_boolstr.split('-')
+        neuron_parts_indices = []
+        if somata_boolstr == 'true':
+            neuron_parts_indices.append(0) 
+        if axons_boolstr == 'true':
+            neuron_parts_indices.append(1)
+        if dendrites_boolstr == 'true':
+            neuron_parts_indices.append(2)
+        # make the list of skeleton ids to get based on our database ids as well as 
+        # which parts of the neurons we were asked to get
+        skeleton_segment_ids = [ix*3+x for ix in neuron_indices for x in neuron_parts_indices]
         serializer = NeuronSerializer({'segmentId':skeleton_segment_ids})
         return Response(serializer.data)
 
@@ -173,7 +209,7 @@ class AnatomicalRegions(views.APIView):
     url is of the the form
     /anatomicalregions/atlasName
     """
-
+    print("In anatomical regions")
     def get(self, request, atlas_name):
         if atlas_name == 'ccfv3_25um':
             ontology_graph = make_ontology_graph_CCFv3()
@@ -183,6 +219,68 @@ class AnatomicalRegions(views.APIView):
         serializer = AnatomicalRegionSerializer({'segment_names':segment_names})
         return Response(serializer.data)
 
+class TracingAnnotation(views.APIView):
+    """
+    Fetch Viral tracing datasets meeting filter criteria 
+    url is of the the form
+    tracing_annotations/<str:virus_timepoint>/<str:primary_inj_site>
+    Where:
+        virus_timepoint   <str> : required, "HSV-H129_Disynaptic", "HSV-H129_Trisynaptic" or "PRV_Disynaptic"
+        primary_inj_site  <str> : required, e.g. "Lob. I-V" 
+    """
+    def get(self, request, virus_timepoint, primary_inj_site):
+
+        virus,timepoint = virus_timepoint.split("_")
+
+        if primary_inj_site == 'All sites':
+            rows = ViralTracingLayer.objects.filter(
+                virus=virus,
+                timepoint=timepoint)
+        else:
+            rows = ViralTracingLayer.objects.filter(
+                virus=virus,
+                timepoint=timepoint,
+                primary_inj_site=primary_inj_site)
+
+        brain_names = rows.values_list('brain_name',flat=True)
+        brain_urls = [f'https://lightsheetatlas.pni.princeton.edu/public/tracing/{virus_timepoint}/{brain_name}_eroded_cells_no_cerebellum' \
+            for brain_name in brain_names]
+        
+        # Make a dict to map inputs we receive to what the db fields expect
+        primary_inj_site_dict = {
+            "Lob. I-V":"lob_i_v",
+            "Lob. VI, VII":"lob_vi_vii",
+            "Lob. VIII-X":"lob_viii_x",
+            "Simplex":"simplex",
+            "Crus I":"crusi",
+            "Crus II":"crusii",
+            "PM, CP":"pm_cp",
+            "All sites":"all"}
+        
+        primary_inj_site_fieldname = primary_inj_site_dict[primary_inj_site]
+
+        # get fraction injected in primary site
+        if primary_inj_site_fieldname == 'all': # then sites could be different for each brain 
+            print("all injection sites")
+            frac_injections = []
+            primary_injection_sites = rows.values_list('primary_inj_site',flat=True)
+            for ii,row in enumerate(rows):
+                primary_injection_site = primary_injection_sites[ii]
+                primary_inj_site_fieldname = primary_inj_site_dict[primary_injection_site]
+                frac_injection = getattr(row,f'frac_inj_{primary_inj_site_fieldname}')
+                # frac_injection =
+                frac_injections.append(frac_injection)
+        else:
+            frac_injections = rows.values_list(f'frac_inj_{primary_inj_site_fieldname}')
+            primary_injection_sites = [primary_inj_site for _ in frac_injections]
+
+        serializer = ViralTracingSerializer({
+            'brain_names':brain_names,
+            'primary_inj_sites':primary_injection_sites,
+            'frac_injections':frac_injections,
+            'brain_urls':brain_urls})
+
+        return Response(serializer.data)
 
 def interpolate(points, new_len):
     points = np.array(points)

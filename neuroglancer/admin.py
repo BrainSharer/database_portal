@@ -132,22 +132,11 @@ class NeuroglancerModelAdmin(admin.ModelAdmin):
         links = f'<a target="_blank" href="{host}?id={obj.id}&amp;multi=1">{comments}</a>'
         return format_html(links)
     
-    def lab(self, obj):
-        '''
-        The primary lab of the user
-        :param obj: animal model
-        '''
-        lab = "NA"
-        if obj.owner is not None and obj.owner.lab is not None:
-            lab = obj.owner.lab
-        return lab
-
     open_neuroglancer.short_description = 'Neuroglancer'
     open_neuroglancer.allow_tags = True
     open_multiuser.short_description = 'Multi-User'
     open_multiuser.allow_tags = True
-    lab.short_description = "User Lab"
-
+    
 
 def make_inactive(modeladmin, request, queryset):
     queryset.update(active=False)

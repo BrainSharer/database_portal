@@ -63,6 +63,18 @@ class NeuroglancerModel(models.Model):
                     layer_list.append(label)
 
         return layer_list
+    
+    @property
+    def lab(self):
+        '''
+        The primary lab of the user
+        :param obj: animal model
+        '''
+        lab = "NA"
+        if self.owner is not None and self.owner.lab is not None:
+            lab = self.owner.lab
+        return lab
+
 
     class Meta:
         managed = True

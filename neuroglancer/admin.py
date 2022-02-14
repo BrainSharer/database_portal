@@ -16,7 +16,8 @@ from pygments.lexers import JsonLexer
 from django.utils.safestring import mark_safe
 from brain.admin import AtlasAdminModel
 from neuroglancer.models import InputType, AnnotationPoints, \
-    NeuroglancerModel, ArchiveSet, AnnotationPointArchive, MouselightNeuron
+    NeuroglancerModel, ArchiveSet, AnnotationPointArchive, MouselightNeuron, \
+    ViralTracingLayer
 from neuroglancer.forms import NeuroglancerModelForm, NeuroglancerUpdateForm
 
 @admin.register(NeuroglancerModel)
@@ -27,7 +28,7 @@ class NeuroglancerModelAdmin(admin.ModelAdmin):
     formfield_overrides = {
         models.CharField: {'widget': TextInput(attrs={'size': '100'})},
     }
-    list_display = ('animal', 'open_neuroglancer', 'owner', 'lab', 'updated')
+    list_display = ('animal', 'open_neuroglancer', 'owner', 'lab', 'readonly', 'updated')
     ordering = ['-updated']
     # exclude = ['neuroglancer_state']
     list_filter = ['updated', 'created']
@@ -35,13 +36,13 @@ class NeuroglancerModelAdmin(admin.ModelAdmin):
 
     def add_view(self, request, extra_content=None):
         """Add a new state object with just the title and drop down of animals"""
-        self.exclude = ('animal','states', 'pretty_url', 'created', 'user_date', 'updated')
+        self.exclude = ('animal','states', 'pretty_url', 'created', 'user_date', 'readonly',  'updated')
         self.readonly_fields = []
         self.change_form_template = "create_state.html"    
         return super(NeuroglancerModelAdmin, self).add_view(request)
 
     def change_view(self, request, object_id, extra_content=None):
-        """View existing state with most of the fields excluded or readonly"""
+        """View existing state with most of the fields excluded or read only"""
         self.exclude = ('neuroglancer_state', 'user_date', 'panels', 'animal')
         self.readonly_fields = ['pretty_url', 'created', 'updated']
         return super(NeuroglancerModelAdmin, self).change_view(request, object_id)
@@ -216,3 +217,8 @@ class AnotationPointsAdmin(AtlasAdminModel):
 @admin.register(MouselightNeuron)
 class MouselightNeuronAdmin(admin.ModelAdmin):
     list_display = ('id', 'idstring', 'sample_date')
+
+@admin.register(ViralTracingLayer)
+class ViralTracingLayerAdmin(admin.ModelAdmin):
+    list_display = ('brain_name', 'virus', 'timepoint', 'primary_inj_site')
+    search_fields = ('brain_name', 'virus', 'timepoint', 'primary_inj_site')

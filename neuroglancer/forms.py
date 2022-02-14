@@ -32,7 +32,7 @@ class LayerForm(forms.ModelForm):
 class NeuroglancerUpdateForm(forms.ModelForm):
     class Meta:
         model = NeuroglancerModel
-        fields = ['comments']
+        fields = ['comments', 'readonly']
     
     
 class NeuroglancerModelForm(forms.ModelForm):

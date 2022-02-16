@@ -55,8 +55,11 @@ class TestNeuroglancerModel(TransactionTestCase):
         data['owner_id'] = self.super_user.id
         data['created'] = datetime.now()
         data['updated'] =  datetime.now()
+        data['lab'] = "NA"
         
         response = self.client.post('/neuroglancer', data, format='json')
+        if response.status_code != status.HTTP_201_CREATED:
+            print('ERROR', response.data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(NeuroglancerModel.objects.count(), 1)
         self.assertEqual(NeuroglancerModel.objects.get().comments, self.layer_name)
@@ -87,6 +90,7 @@ class TestNeuroglancerModel(TransactionTestCase):
         data['owner_id'] = self.super_user.id
         data['created'] = datetime.now()
         data['updated'] =  datetime.now()
+        data['lab'] = "NA"
         
         #post
         response = self.client.post('/neuroglancer', data, format='json')
@@ -140,6 +144,7 @@ class TestNeuroglancerModel(TransactionTestCase):
         data['owner_id'] = self.super_user.id
         data['created'] = datetime.now()
         data['updated'] =  datetime.now()
+        data['lab'] = "NA"
         
         #post
         response = self.client.post('/neuroglancer', data)

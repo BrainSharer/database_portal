@@ -76,58 +76,55 @@ class NeuroglancerSerializer(serializers.ModelSerializer):
         model = NeuroglancerModel
         fields = '__all__'
         ordering = ['-created']
+        
 
     def create(self, validated_data):
         """
         This gets called when a user clicks New in Neuroglancer
         """
-        logger.debug("validated_data:")
-        logger.debug(validated_data)
-        neuroglancerModel = NeuroglancerModel(
+        obj = NeuroglancerModel(
             neuroglancer_state=validated_data['neuroglancer_state'],
             user_date=validated_data['user_date'],
             comments=validated_data['comments'],
         )
         if 'owner_id' in validated_data:
-            try:
-                authUser = User.objects.get(pk=validated_data['owner_id'])
-                logger.debug("auth user:")
-                logger.debug(authUser)
-                neuroglancerModel.owner = authUser
-                # neuroglancerModel.lab = authUser.lab
-            except User.DoesNotExist:
-                logger.error('Person was not in validated data')
-                return
-        try:
-            neuroglancerModel.save()
-        except APIException:
-            logger.error('Could not save neuroglancer model')
-        update_annotation_data(neuroglancerModel)
-        neuroglancerModel.neuroglancer_state = None
-        return neuroglancerModel
+            owner_id = validated_data['owner_id']
+            obj = self.take_care_of_owner(obj, owner_id)
+        return obj
 
-    def update(self, instance, validated_data):
+    def update(self, obj, validated_data):
         """
         This gets called when a user clicks Save in Neuroglancer
         """
-        instance.neuroglancer_state = validated_data.get('neuroglancer_state', instance.neuroglancer_state)
-        instance.user_date = validated_data.get(
-            'user_date', instance.user_date)
-        instance.comments = validated_data.get('comments', instance.comments)
+        obj.neuroglancer_state = validated_data.get('neuroglancer_state', obj.neuroglancer_state)
+        obj.user_date = validated_data.get('user_date', obj.user_date)
+        obj.comments = validated_data.get('comments', obj.comments)
         if 'owner_id' in validated_data:
-            try:
-                authUser = User.objects.get(pk=validated_data['owner_id'])
-                instance.owner = authUser
-            except User.DoesNotExist:
-                logger.error('Owner was not in validated data')
+            owner_id = validated_data['owner_id']
+            obj = self.take_care_of_owner(obj, owner_id)
+        return obj
+
+    def take_care_of_owner(self, obj, owner_id):
+        '''
+        Takes care of tasks that are in both create and update
+        :param obj: the neuroglancerModel object
+        :param owner_id: the owner_id from the validated_data
+        '''
         try:
-            instance.save()
+            authUser = User.objects.get(pk=owner_id)
+            obj.owner = authUser
+            obj.owner.lab = authUser.lab
+        except User.DoesNotExist:
+            logger.error('Owner was not in validated data')
+        try:
+            obj.save()
         except APIException:
             logger.error('Could not save Neuroglancer model')
-        update_annotation_data(instance)
-        instance.neuroglancer_state = None
-        return instance
-    
+        update_annotation_data(obj)
+        obj.neuroglancer_state = None
+        return obj
+
+ 
 class NeuronSerializer(serializers.Serializer):
     """
     Serializes a list of brain atlas segment Ids

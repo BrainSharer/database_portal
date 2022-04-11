@@ -52,7 +52,7 @@ class TestNeuroglancerModel(TransactionTestCase):
         data['neuroglancer_state'] = json.dumps(state)
         data['user_date'] = '999999'
         data['comments'] = self.layer_name
-        data['owner_id'] = self.super_user.id
+        data['owner'] = self.super_user.id
         data['created'] = datetime.now()
         data['updated'] =  datetime.now()
         data['lab'] = "NA"
@@ -87,7 +87,7 @@ class TestNeuroglancerModel(TransactionTestCase):
         data['neuroglancer_state'] = json.dumps(state)
         data['user_date'] = '999999'
         data['comments'] = self.layer_name
-        data['owner_id'] = self.super_user.id
+        data['owner'] = self.super_user.id
         data['created'] = datetime.now()
         data['updated'] =  datetime.now()
         data['lab'] = "NA"
@@ -141,7 +141,7 @@ class TestNeuroglancerModel(TransactionTestCase):
         data['neuroglancer_state'] = json.dumps(state)
         data['user_date'] = '999999'
         data['comments'] = self.layer_name
-        data['owner_id'] = self.super_user.id
+        data['owner'] = self.super_user.id
         data['created'] = datetime.now()
         data['updated'] =  datetime.now()
         data['lab'] = "NA"

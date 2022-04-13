@@ -158,9 +158,9 @@ class InputTypeAdmin(AtlasAdminModel):
 @admin.register(AnnotationPointArchive)
 class AnnotationPointArchiveAdmin(admin.ModelAdmin):
     list_display = ('animal', 'brain_region', 'label', 'owner', 'x', 'y', 'z')
-    ordering = ['animal__animal', 'label','brain_region__abbreviation', 'z']
+    ordering = ['animal', 'label', 'brain_region__abbreviation', 'z']
     excluded_fields = ['updated']
-    search_fields = ['animal__animal', 'brain_region__abbreviation', 'label', 'owner__username']
+    search_fields = ['animal__animal_name', 'brain_region__abbreviation', 'label', 'owner__username']
 
 
 @admin.register(ArchiveSet)
@@ -175,9 +175,9 @@ class ArchiveSetAdmin(AtlasAdminModel):
 class AnnotationPointsAdmin(admin.ModelAdmin):
     # change_list_template = 'label_data_group.html'
     list_display = ('animal', 'brain_region', 'label', 'owner', 'x_f', 'y_f', 'z_f')
-    ordering = ['animal__animal', 'label','brain_region__abbreviation', 'z']
+    ordering = ['animal', 'label','brain_region__abbreviation', 'z']
     excluded_fields = ['updated']
-    search_fields = ['animal__animal', 'brain_region__abbreviation', 'label', 'owner__username']
+    search_fields = ['animal__animal_name', 'brain_region__abbreviation', 'label', 'owner__username']
     scales = {'dk':0.325, 'md':0.452, 'at':10}
 
     def get_queryset(self, request, obj=None):
@@ -185,9 +185,9 @@ class AnnotationPointsAdmin(admin.ModelAdmin):
         rows = None
         if user.lab is not None:
             rows = AnnotationPoints.objects.filter(owner__lab=user.lab)\
-            .order_by('animal', 'label','brain_region__abbreviation', 'z')
+            .order_by('animal__animal_name', 'label','brain_region__abbreviation', 'z')
         else:
-            rows = AnnotationPoints.objects.order_by('animal', 'label','brain_region__abbreviation', 'z')
+            rows = AnnotationPoints.objects.order_by('animal__animal_name', 'label','brain_region__abbreviation', 'z')
             
         return rows
 
@@ -196,11 +196,11 @@ class AnnotationPointsAdmin(admin.ModelAdmin):
         super().save_model(request, obj, form, change)
 
     def x_f(self, obj):
-        initial = str(obj.animal.animal[0:2]).lower()
+        initial = str(obj.animal.animal_name[0:2]).lower()
         number = int(round(obj.x / self.scales[initial]))
         return format_html(f"<div style='text-align:left;'>{number:,}</div>")
     def y_f(self, obj):
-        initial = str(obj.animal.animal[0:2]).lower()
+        initial = str(obj.animal.animal_name[0:2]).lower()
         number = int(round(obj.y / self.scales[initial]))
         return format_html(f"<div style='text-align:left;'>{number:,}</div>")
     def z_f(self, obj):

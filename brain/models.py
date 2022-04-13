@@ -47,19 +47,6 @@ class Animal(AtlasModel):
     def __str__(self):
         return u'{}'.format(self.animal_name)
 
-    def histogram(self):
-        links = []
-        png = f'{self.animal}.png'
-        for channel in [1,2,3]:
-            testfile = f'/net/birdstore/Active_Atlas_Data/data_root/pipeline_data/{self.animal}/histogram/CH{channel}/{png}'
-            if os.path.isfile(testfile):
-                histogram = f'/data/{self.animal}/histogram/CH{channel}/{png}'
-                link = f'<div class="hover_img"><a href="#">CH{channel}<span><img src="https://activebrainatlas.ucsd.edu/{histogram}" /></span></a></div>' 
-                links.append(link)
-
-        return mark_safe(' '.join(links))
-
-    histogram.short_description = 'Histogram'
 
 class Injection(AtlasModel):
     animal = models.ForeignKey(Animal, models.CASCADE, db_column='FK_biosource_id')

@@ -33,7 +33,7 @@ class Biocyc(AtlasModel):
         return u'{}'.format(self.bio_name)
 
 class Animal(AtlasModel):
-    animal = models.CharField(max_length=20, verbose_name="Animal name")
+    animal_name = models.CharField(max_length=20, verbose_name="Animal name")
     lab = models.ForeignKey(Lab, models.CASCADE, blank=False, null=False)
     biocyc = models.ForeignKey(Biocyc, models.CASCADE, blank=False, null=False, db_column='FK_ORGID')
     comments = models.TextField(max_length=2001, blank=True, null=True)
@@ -45,7 +45,7 @@ class Animal(AtlasModel):
         verbose_name_plural = 'Biosource (animals)'
 
     def __str__(self):
-        return u'{}'.format(self.animal)
+        return u'{}'.format(self.animal_name)
 
     def histogram(self):
         links = []

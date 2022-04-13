@@ -47,8 +47,6 @@ class AnnotationsSerializer(serializers.Serializer):
     animal_id = serializers.IntegerField()
     animal_name = serializers.CharField()
     label = serializers.CharField()
-    input_type = serializers.CharField()
-    FK_input_id = serializers.IntegerField()
 
 
 class BrainRegionSerializer(serializers.ModelSerializer):
@@ -69,7 +67,7 @@ class NeuroglancerSerializer(serializers.ModelSerializer):
     """Override method of entering a neuroglancer_state into the DB.
     The neuroglancer_state can't be in the NeuroglancerModel when it is returned
     to neuroglancer as it crashes neuroglancer."""
-    owner_id = serializers.IntegerField()
+    # owner_id = serializers.IntegerField()
     lab = serializers.CharField()
 
     class Meta:
@@ -87,35 +85,33 @@ class NeuroglancerSerializer(serializers.ModelSerializer):
             user_date=validated_data['user_date'],
             comments=validated_data['comments'],
         )
-        if 'owner_id' in validated_data:
-            owner_id = validated_data['owner_id']
-            obj = self.take_care_of_owner(obj, owner_id)
+        if 'owner' in validated_data:
+            owner = validated_data['owner']
+            obj = self.take_care_of_owner(obj, owner)
         return obj
 
     def update(self, obj, validated_data):
         """
         This gets called when a user clicks Save in Neuroglancer
         """
+        print(validated_data)
+        print('ID', obj.id)
         obj.neuroglancer_state = validated_data.get('neuroglancer_state', obj.neuroglancer_state)
         obj.user_date = validated_data.get('user_date', obj.user_date)
         obj.comments = validated_data.get('comments', obj.comments)
-        if 'owner_id' in validated_data:
-            owner_id = validated_data['owner_id']
-            obj = self.take_care_of_owner(obj, owner_id)
+        if 'owner' in validated_data:
+            owner = validated_data['owner']
+            obj = self.take_care_of_owner(obj, owner)
         return obj
 
-    def take_care_of_owner(self, obj, owner_id):
+    def take_care_of_owner(self, obj, owner):
         '''
         Takes care of tasks that are in both create and update
         :param obj: the neuroglancerModel object
-        :param owner_id: the owner_id from the validated_data
+        :param owner: the owner from the validated_data
         '''
-        try:
-            authUser = User.objects.get(pk=owner_id)
-            obj.owner = authUser
-            obj.owner.lab = authUser.lab
-        except User.DoesNotExist:
-            logger.error('Owner was not in validated data')
+        obj.owner = owner
+        obj.owner.lab = owner.lab
         try:
             obj.save()
         except APIException:

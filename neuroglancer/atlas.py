@@ -12,6 +12,7 @@ from authentication.models import User
 from brain.models import Animal, ScanRun, BrainRegion
 from neuroglancer.models import ArchiveSet, AnnotationPoints, AnnotationPointArchive, InputType
 import logging
+import neuroglancer
 logging.basicConfig()
 logger = logging.getLogger(__name__)
 from neuroglancer.bulk_insert import BulkCreateManager
@@ -132,11 +133,13 @@ def update_annotation_data(neuroglancerModel):
     except User.DoesNotExist:
         logger.error("User does not exist")
         return
+    # animal
     try:
-        animal = Animal.objects.get(animal=neuroglancerModel.animal)
+        query_set = Animal.objects.filter(animal_name=neuroglancerModel.animal)
     except Animal.DoesNotExist:
-        logger.error("Animal does not exist")
         return
+    if query_set is not None and len(query_set) > 0:
+        animal = query_set[0]
     if 'layers' in json_txt:
         state_layers = json_txt['layers']
         for state_layer in state_layers:

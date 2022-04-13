@@ -22,7 +22,7 @@ class AnnotationChoice(str, Enum):
 class NeuroglancerModel(models.Model):
     id = models.BigAutoField(primary_key=True)
     neuroglancer_state = models.JSONField()
-    owner = models.ForeignKey(settings.AUTH_USER_MODEL, models.CASCADE, null=True, db_column="owner_id",
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL, models.CASCADE, null=True, db_column="FK_owner_id",
                                verbose_name="User")
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True, editable=False, null=False, blank=False)
@@ -87,9 +87,6 @@ class NeuroglancerModel(models.Model):
     def __str__(self):
         return u'{}'.format(self.comments)
 
-
-
-
 class InputType(models.Model):
     id = models.BigAutoField(primary_key=True)
     input_type = models.CharField(max_length=50, blank=False, null=False, verbose_name='Annotation Type')
@@ -107,7 +104,6 @@ class InputType(models.Model):
     def __str__(self):
         return u'{}'.format(self.input_type)
 
-
 class AnnotationAbstract(models.Model):
     id = models.BigAutoField(primary_key=True)
     animal = models.ForeignKey(Animal, models.CASCADE, null=True, db_column="FK_animal_id", verbose_name="Animal")
@@ -115,8 +111,6 @@ class AnnotationAbstract(models.Model):
                                verbose_name="Structure")
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, models.CASCADE, db_column="FK_owner_id",
                                verbose_name="Owner", blank=False, null=False)
-    input_type = models.ForeignKey(InputType, models.CASCADE, db_column="FK_input_id",
-                               verbose_name="Input", blank=False, null=False)
     label = models.CharField(max_length=255)
     x = models.FloatField(verbose_name="X (um)")
     y = models.FloatField(verbose_name="Y (um)")
@@ -148,7 +142,6 @@ class AnnotationPoints(AnnotationAbstract):
 
     def __str__(self):
         return u'{} {}'.format(self.animal, self.label)
-
 
 class AnnotationPointArchive(AnnotationAbstract):
     archive = models.ForeignKey(ArchiveSet, models.CASCADE, 
@@ -184,7 +177,6 @@ class MouselightNeuron(models.Model):
     dendrite_endpoints_dict = models.JSONField(default=dict)
     dendrite_branches_dict = models.JSONField(default=dict)
 
-
     class Meta:
         managed = True
         verbose_name = "MouseLight Neuron"
@@ -193,7 +185,6 @@ class MouselightNeuron(models.Model):
 
     def __str__(self):
         return u'{}'.format(self.idstring)
-
 
 class ViralTracingLayer(models.Model):
     id = models.BigAutoField(primary_key=True)

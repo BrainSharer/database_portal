@@ -43,12 +43,11 @@ class Annotation(views.APIView):
          premotor is the label name,
          2 is the input type ID
     """
-    def get(self, request, animal_id, label, FK_input_id, format=None):
+    def get(self, request, animal_id, label, format=None):
         data = []
         try:
             rows = AnnotationPoints.objects.filter(animal=animal_id)\
                         .filter(label=label)\
-                        .filter(input_type__id=FK_input_id)\
                         .order_by('z', 'id').all()
         except AnnotationPoints.DoesNotExist:
             raise Http404
@@ -79,17 +78,15 @@ class Annotations(views.APIView):
         This will get the layer_data
         """
         data = []
-        layers = AnnotationPoints.objects.order_by('animal', 'label', 'input_type__input_type')\
+        layers = AnnotationPoints.objects.order_by('animal__animal_name', 'label')\
             .filter(label__isnull=False)\
-            .values('animal', 'animal__animal', 'label','input_type__input_type','input_type__id')\
+            .values('animal__id', 'animal__animal_name', 'label')\
             .distinct()
         for layer in layers:
             data.append({
-                "animal_id":layer['animal'],
-                "animal_name":layer['animal__animal'],
+                "animal_id":layer['animal__id'],
+                "animal_name":layer['animal__animal_name'],
                 "label":layer['label'],
-                "input_type":layer['input_type__input_type'],
-                "FK_input_id":layer['input_type__id'],                
                 })
 
         serializer = AnnotationsSerializer(data, many=True)

@@ -1,169 +1,199 @@
-import os
-from datetime import datetime
 import json
-
 from rest_framework import status
 from django.test import Client, TransactionTestCase
-from authentication.models import User
 # Create your tests here.
-from brain.models import Animal, Biocyc, BrainAtlas, BrainRegion, Lab
-from neuroglancer.models import InputType, NeuroglancerModel, AnnotationPoints
+from authentication.models import User, Lab
+from brain.models import Animal, Biocyc, BrainAtlas
+from neuroglancer.models import NeuroglancerModel, AnnotationPoints, BrainRegion
+from random import uniform
+import os
+from datetime import datetime
+
 
 class TestNeuroglancerModel(TransactionTestCase):
     client = Client()
-    
 
     def setUp(self):
-        '''
-        This method gets run every test below.
-        '''
-        self.layer_name = "TEST999"
-        self.state_id = 0        
-    
+        self.comments = 'XXX'
+        self.username = 'edward'
+        self.animal_name = 'DK39'
+        self.lab_name = 'UCSD'
+        self.lab_url = 'https://activebrainatlas.ucsd.edu'
+        self.bio_name = 'mouse'
+        #biocyc
+        try:
+            query_set = Biocyc.objects.filter(bio_name=self.bio_name)
+        except Biocyc.DoesNotExist:
+            self.biocyc = None
+        if query_set is not None and len(query_set) > 0:
+            self.biocyc = query_set[0]
+        else:
+            self.biocyc = Biocyc.objects.create(bio_name=self.bio_name)
+        #lab
+        try:
+            query_set = Lab.objects.filter(lab_name=self.lab_name)
+        except Lab.DoesNotExist:
+            self.lab = None
+        if query_set is not None and len(query_set) > 0:
+            self.lab = query_set[0]
+        else:
+            self.lab = Lab.objects.create(
+                lab_name=self.lab_name, lab_url=self.lab_url)
+        #user
+        try:
+            query_set = User.objects.filter(username=self.username)
+        except User.DoesNotExist:
+            self.owner = None
+        if query_set is not None and len(query_set) > 0:
+            self.owner = query_set[0]
+        else:
+            self.owner = User.objects.create(username=self.username,
+                                             email='super@email.org',
+                                             password='pass',
+                                             lab=self.lab)
+        # animal
+        try:
+            query_set = Animal.objects.filter(animal_name=self.animal_name)
+        except Animal.DoesNotExist:
+            self.animal = None
+        if query_set is not None and len(query_set) > 0:
+            self.animal = query_set[0]
+        else:
+            self.animal = Animal.objects.create(animal_name=self.animal_name,
+                                                lab=self.lab, biocyc=self.biocyc)
+        # brain_atlas
+        self.atlas = 'Allen'
+        try:
+            query_set = BrainAtlas.objects.filter(atlas_name=self.atlas)
+        except BrainAtlas.DoesNotExist:
+            self.brain_region = None
+        if query_set is not None and len(query_set) > 0:
+            self.brain_atlas = query_set[0]
+        else:
+            self.brain_atlas = BrainAtlas.objects.create(atlas_name=self.atlas)
+        # brain_region
+        try:
+            query_set = BrainRegion.objects.filter(abbreviation='point')
+        except BrainRegion.DoesNotExist:
+            self.brain_region = None
+        if query_set is not None and len(query_set) > 0:
+            self.brain_region = query_set[0]
+        else:
+            self.brain_region = BrainRegion.objects.create(
+                abbreviation='point', brain_atlas=self.brain_atlas)
+
     def test_neuroglancer_url(self):
         response = self.client.get("/neuroglancer")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-
     def test_annotations_url(self):
+        label = 'XXX'
+        x1 = uniform(0, 65000)
+        y1 = uniform(0, 35000)
+        z1 = uniform(0, 450)
+        try:
+            p = AnnotationPoints.objects.create(animal=self.animal,
+                                                brain_region=self.brain_region,
+                                                label=label, owner=self.owner,
+                                                x=x1, y=y1, z=z1)
+        except Exception as e:
+            print('could not create', e)
+        try:
+            p.save()
+        except Exception as e:
+            print('could not save', e)
+
         response = self.client.get("/annotations")
+        self.assertGreater(
+            len(response.data), 0, msg="The number of annotations should be greater than 0.")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        
+
+    def test_create_annotation(self):
+        """
+        Description of test_create_annotation
+
+        Args:
+            self (undefined):
+
+        """
+        n = 10
+        for _ in range(n):
+            x = uniform(0, 65000)
+            y = uniform(0, 35000)
+            z = uniform(0, 450)
+            p = AnnotationPoints.objects.create(animal=self.animal, brain_region=self.brain_region,
+                                                label='COM', owner=self.owner, x=x, y=y, z=z)
+            p.save()
+
+        c = AnnotationPoints.objects.count()
+        self.assertGreaterEqual(
+            c, n, msg=f'Error: Annotation point table has less than {n} entries.')
+
     def test_annotation_url(self):
-        response = self.client.get("/annotation/1/premotor/1")
+        """
+        Description of test_annotation_url
+
+        Args:
+            self (undefined):
+
+        """
+        label = 'premotor'
+        n = 10
+        for _ in range(n):
+            x = uniform(0, 65000)
+            y = uniform(0, 35000)
+            z = uniform(0, 450)
+            p = AnnotationPoints.objects.create(animal=self.animal, brain_region=self.brain_region,
+                                                label=label, owner=self.owner, x=x, y=y, z=z)
+            p.save()
+        c = AnnotationPoints.objects\
+            .filter(animal=self.animal)\
+            .filter(label=label)\
+            .count()
+        url = f'/annotation/{self.animal.id}/{label}'
+        response = self.client.get(url)
+        self.assertGreaterEqual(len(
+            response.data), c, msg="The number of annotations entered and returned do not match.")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        
-        
+
     def test_create_post_get_state(self):
-        """
+        '''
         Ensure we can create a new neuroglancer_state object.
-        """
-        
-        self.super_user = User.objects.create_superuser(username='super',
-                                                   email='super@email.org',
-                                                   password='pass')
-        
+        neuroglancer_state is the new, url is the old
+        owner is the new, person_id is the old
+        '''
+        # clear object from DB just in case
+        NeuroglancerModel.objects.filter(comments=self.comments).delete()
         parent_path = os.getcwd()
         jfile = f'{parent_path}/scripts/363.json'
         state = json.load(open(jfile))
-        
-        
+        fields = ['url', 'owner', 'comments', 'id', 'created']
+
         data = {}
         data['neuroglancer_state'] = json.dumps(state)
         data['user_date'] = '999999'
-        data['comments'] = self.layer_name
-        data['owner'] = self.super_user.id
+        data['comments'] = self.comments
+        data['FK_owner_id'] = self.owner.id
         data['created'] = datetime.now()
-        data['updated'] =  datetime.now()
-        data['lab'] = "NA"
-        
+        data['updated'] = datetime.now()
+        data['lab'] = self.lab
+
         response = self.client.post('/neuroglancer', data, format='json')
         if response.status_code != status.HTTP_201_CREATED:
             print('ERROR', response.data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(NeuroglancerModel.objects.count(), 1)
-        self.assertEqual(NeuroglancerModel.objects.get().comments, self.layer_name)
-        self.state_id = NeuroglancerModel.objects.get().id
-        
-        response = self.client.get("/neuroglancer/" + str(self.state_id))
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        
-    def test_create_post_get_update_get_state(self):
-        """
-        Ensure we can create, post, get, update and get again a 
-        neuroglancer_state object.
-        """
-        
-        self.super_user = User.objects.create_superuser(username='super',
-                                                   email='super@email.org',
-                                                   password='pass')
-        
-        parent_path = os.getcwd()
-        jfile = f'{parent_path}/scripts/363.json'
-        state = json.load(open(jfile))
-        
-        
-        data = {}
-        data['neuroglancer_state'] = json.dumps(state)
-        data['user_date'] = '999999'
-        data['comments'] = self.layer_name
-        data['owner'] = self.super_user.id
-        data['created'] = datetime.now()
-        data['updated'] =  datetime.now()
-        data['lab'] = "NA"
-        
-        #post
-        response = self.client.post('/neuroglancer', data, format='json')
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(NeuroglancerModel.objects.count(), 1)
-        self.assertEqual(NeuroglancerModel.objects.get().comments, self.layer_name)
-        self.state_id = NeuroglancerModel.objects.get().id
-        
-        #get
-        response = self.client.get("/neuroglancer/" + str(self.state_id))
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        new_comment_name = 'New comment name'
-        data['comments'] = new_comment_name
-        #update
-        response = self.client.put('/neuroglancer/' + str(self.state_id), data, 
-                                   content_type='application/json')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(NeuroglancerModel.objects.count(), 1)
-        self.assertEqual(NeuroglancerModel.objects.get().comments, new_comment_name)
-        self.assertEqual(NeuroglancerModel.objects.get().id, self.state_id)
 
-### test cerebellum annotation points
-        
-    def test_create_post_get_update_get_cerebellum(self):
         """
-        Ensure we can create, post, get, update and get again a 
-        neuroglancer_state object. This one has 10 annotation
-        points in the cerebellum
+        neuroglancerModel = NeuroglancerModel.objects.filter(comments=self.comments)
+        n = NeuroglancerModel.objects.filter(comments=self.comments).count()
+        self.assertEqual(n, 1)
+        self.assertEqual(neuroglancerModel[0].comments, self.comments)
+        self.state_id = neuroglancerModel[0].id
+        url = "/neuroglancer/" + str(self.state_id)
+        response = self.client.get(url)
+        for field in fields:
+            if field not in response.data:
+                print(f'{field} is not in response.data')
+        self.assertGreater(len(response.data), 1, msg="Get neuroglancer did not return valid data.")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
         """
-        self.animal_name = "DK52"
-        self.layer_name = self.animal_name + ' Cerebellum test'
-        lab = Lab.objects.create(lab_name='UCSD', lab_url='https://activebrainatlas.ucsd.edu')
-        biocyc = Biocyc.objects.create(bio_name='mouse')
-        animal = Animal.objects.create(animal=self.animal_name,lab=lab, biocyc=biocyc)
-        input_type = InputType.objects.create(input_type='manual')
-        brain_atlas = BrainAtlas.objects.create(atlas_name='BA')
-        BrainRegion.objects.create(abbreviation='BR', brain_atlas=brain_atlas)
-        
-        self.super_user = User.objects.create_superuser(username='super',
-                                                   email='super@email.org',
-                                                   password='pass')
-        
-        parent_path = os.getcwd()
-        jfile = f'{parent_path}/scripts/cerebellum.json'
-        state = json.load(open(jfile))        
-        
-        data = {}
-        data['neuroglancer_state'] = json.dumps(state)
-        data['user_date'] = '999999'
-        data['comments'] = self.layer_name
-        data['owner'] = self.super_user.id
-        data['created'] = datetime.now()
-        data['updated'] =  datetime.now()
-        data['lab'] = "NA"
-        
-        #post
-        response = self.client.post('/neuroglancer', data)
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(NeuroglancerModel.objects.count(), 1)
-        self.assertEqual(NeuroglancerModel.objects.get().comments, self.layer_name)
-        self.state_id = NeuroglancerModel.objects.get().id
-        
-        #get
-        response = self.client.get("/neuroglancer/" + str(self.state_id))
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        
-                
-        ## test the annotation data
-        points = AnnotationPoints.objects.all()
-        
-        response = self.client.get("/annotations" )
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        
-        response = self.client.get(f"/annotation/{animal.id}/cerebellum/{input_type.id}" )
-        self.assertEqual(len(points), len(response.data))
-        self.assertEqual(response.status_code, status.HTTP_200_OK)

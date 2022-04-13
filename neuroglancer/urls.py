@@ -15,7 +15,7 @@ router.register(r'neuroglancer', views.NeuroglancerViewSet, basename='neuroglanc
 urlpatterns = [
     path('', include(router.urls)),
     path(r'public', views.public_list, name='public'),
-    path('annotation/<int:animal_id>/<str:label>/<int:FK_input_id>', views.Annotation.as_view()),
+    path('annotation/<int:animal_id>/<str:label>', views.Annotation.as_view()),
     path('annotations', views.Annotations.as_view()),
     path('landmark_list',views.LandmarkList.as_view()),
     path('fetch_layers/<int:animal_id>', fetch_layers, name='fetch_layers'),

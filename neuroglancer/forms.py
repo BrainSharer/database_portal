@@ -39,7 +39,7 @@ class NeuroglancerModelForm(forms.ModelForm):
     animal = ModelChoiceField(label='Create main layer',
                             queryset=Animal.objects
                             .filter(active=True)
-                            .order_by('animal'),
+                            .order_by('animal_name'),
                             required=True,
                             widget=forms.Select(attrs={'class': 'form-control',
                                                        'style':'display:block;'}))

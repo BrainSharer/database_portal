@@ -156,30 +156,27 @@ class InputTypeAdmin(AtlasAdminModel):
     search_fields = ['input_type', 'description']
 
 @admin.register(AnnotationPointArchive)
-class AnnotationPointArchiveAdmin(AtlasAdminModel):
+class AnnotationPointArchiveAdmin(admin.ModelAdmin):
     list_display = ('animal', 'brain_region', 'label', 'owner', 'x', 'y', 'z')
     ordering = ['animal__animal', 'label','brain_region__abbreviation', 'z']
-    excluded_fields = ['created', 'updated']
-    list_filter = ['input_type']
+    excluded_fields = ['updated']
     search_fields = ['animal__animal', 'brain_region__abbreviation', 'label', 'owner__username']
 
 
 @admin.register(ArchiveSet)
 class ArchiveSetAdmin(AtlasAdminModel):
     list_display = ('parent', 'created', 'updatedby')
-    ordering = ['parent', 'created', 'updatedby']
-    excluded_fields = ['parent', 'created', 'updatedby']
-    list_filter = ['created']
+    ordering = ['parent', 'updatedby']
+    excluded_fields = ['parent', 'updatedby']
     search_fields = []
 
 
 @admin.register(AnnotationPoints)
-class AnotationPointsAdmin(AtlasAdminModel):
+class AnnotationPointsAdmin(admin.ModelAdmin):
     # change_list_template = 'label_data_group.html'
     list_display = ('animal', 'brain_region', 'label', 'owner', 'x_f', 'y_f', 'z_f')
     ordering = ['animal__animal', 'label','brain_region__abbreviation', 'z']
-    excluded_fields = ['created', 'updated']
-    list_filter = ['input_type']
+    excluded_fields = ['updated']
     search_fields = ['animal__animal', 'brain_region__abbreviation', 'label', 'owner__username']
     scales = {'dk':0.325, 'md':0.452, 'at':10}
 

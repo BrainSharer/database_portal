@@ -22,7 +22,7 @@ class SessionVarView(TemplateView):
         if request.user.is_authenticated:
             data = {'user_id':request.user.id, 'username': request.user.username}
         
-        if settings.DEBUG and False:
+        if settings.DEBUG:
             userid = 1
             browser = str(request.META['HTTP_USER_AGENT']).lower()
             if 'firefox' in browser:

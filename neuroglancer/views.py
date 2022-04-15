@@ -11,9 +11,9 @@ import numpy as np
 from scipy.interpolate import splprep, splev
 from neuroglancer.serializers import AnnotationSerializer, \
     AnnotationsSerializer, NeuroglancerSerializer, NeuronSerializer, AnatomicalRegionSerializer, \
-    ViralTracingSerializer
+    ViralTracingSerializer, NeuroglancerViewSerializer
 from neuroglancer.models import NeuroglancerModel, AnnotationPoints, MouselightNeuron, \
-    ViralTracingLayer
+    ViralTracingLayer, NeuroglancerView
 from neuroglancer.atlas import get_scales, make_ontology_graph_CCFv3, make_ontology_graph_pma
     
 from brain.models import BrainRegion
@@ -278,6 +278,22 @@ class TracingAnnotation(views.APIView):
             'brain_urls':brain_urls})
 
         return Response(serializer.data)
+
+
+class States(views.APIView):
+    """
+    https://www.brainsharer.org/brainsharer/states
+    """
+
+    def get(self, request, format=None):
+        """
+        This will get the layer_data
+        """
+        data = NeuroglancerView.objects.filter(active=True).all()
+        serializer = NeuroglancerViewSerializer(data, many=True)
+        return Response(serializer.data)
+
+
 
 def interpolate(points, new_len):
     points = np.array(points)

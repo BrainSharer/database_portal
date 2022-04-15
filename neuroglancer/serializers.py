@@ -3,7 +3,7 @@ from rest_framework.exceptions import APIException
 import logging
 
 from brain.models import BrainRegion
-from neuroglancer.models import AnnotationPoints, NeuroglancerModel
+from neuroglancer.models import AnnotationPoints, NeuroglancerModel, NeuroglancerView
 from neuroglancer.atlas import update_annotation_data
 from authentication.models import User
 
@@ -61,6 +61,13 @@ class AnnotationPointsSerializer(serializers.ModelSerializer):
     class Meta:
         model = AnnotationPoints
         fields = '__all__'
+
+class NeuroglancerViewSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = NeuroglancerView
+        fields = '__all__'
+        ordering = ['-created']
 
 
 class NeuroglancerSerializer(serializers.ModelSerializer):

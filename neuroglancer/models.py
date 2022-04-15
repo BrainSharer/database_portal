@@ -104,6 +104,24 @@ class InputType(models.Model):
     def __str__(self):
         return u'{}'.format(self.input_type)
 
+class NeuroglancerView(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    prep_id = models.CharField(max_length=50, blank=False, null=False, verbose_name='Animal')
+    description = models.TextField(max_length=2001, blank=False, null=False)
+    url = models.TextField(max_length=2001, blank=False, null=False)
+    active = models.BooleanField(default=True, db_column='active')
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True, editable=False, null=False, blank=False)
+
+    class Meta:
+        managed = False
+        db_table = 'available_neuroglancer_data'
+        verbose_name = 'Neuroglancer data'
+        verbose_name_plural = 'Neuroglancer data'
+
+    def __str__(self):
+        return u'{} {}'.format(self.prep_id, self.description)
+
 class AnnotationAbstract(models.Model):
     id = models.BigAutoField(primary_key=True)
     animal = models.ForeignKey(Animal, models.CASCADE, null=True, db_column="FK_animal_id", verbose_name="Animal")

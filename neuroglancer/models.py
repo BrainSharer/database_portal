@@ -107,6 +107,7 @@ class InputType(models.Model):
 class NeuroglancerView(models.Model):
     id = models.BigAutoField(primary_key=True)
     prep_id = models.CharField(max_length=50, blank=False, null=False, verbose_name='Animal')
+    lab = models.CharField(max_length=100, blank=False, null=False)
     description = models.TextField(max_length=2001, blank=False, null=False)
     url = models.TextField(max_length=2001, blank=False, null=False)
     active = models.BooleanField(default=True, db_column='active')
@@ -118,6 +119,8 @@ class NeuroglancerView(models.Model):
         db_table = 'available_neuroglancer_data'
         verbose_name = 'Neuroglancer data'
         verbose_name_plural = 'Neuroglancer data'
+        ordering = ['lab', 'prep_id', 'description']
+
 
     def __str__(self):
         return u'{} {}'.format(self.prep_id, self.description)

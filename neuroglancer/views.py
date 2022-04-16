@@ -1,6 +1,5 @@
 from django.shortcuts import render
-from rest_framework import viewsets, views
-from rest_framework import permissions
+from rest_framework import permissions, viewsets, views
 from django.http import JsonResponse
 from rest_framework.response import Response
 from django.http import Http404
@@ -15,8 +14,11 @@ from neuroglancer.serializers import AnnotationSerializer, \
 from neuroglancer.models import NeuroglancerModel, AnnotationPoints, MouselightNeuron, \
     ViralTracingLayer, NeuroglancerView
 from neuroglancer.atlas import get_scales, make_ontology_graph_CCFv3, make_ontology_graph_pma
-    
+from neuroglancer.create_state_views import create_layer, prepare_top_attributes, \
+    prepare_bottom_attributes, create_neuroglancer_model    
 from brain.models import BrainRegion
+from django.views.decorators.csrf import csrf_exempt
+from rest_framework.decorators import api_view
 
 import logging
 logging.basicConfig()
@@ -26,12 +28,43 @@ logger = logging.getLogger(__name__)
 class NeuroglancerViewSet(viewsets.ModelViewSet):
     """
     API endpoint that allows the neuroglancer states to be viewed or edited.
-    Note, the update, and insert methods are over riden in the serializer.
+    Note, the update, and insert methods are over ridden in the serializer.
     It was more convienent to do them there than here.
     """
     queryset = NeuroglancerModel.objects.all()
     serializer_class = NeuroglancerSerializer
     permission_classes = [permissions.AllowAny]
+
+class NeuroglancerAvailableData(viewsets.ModelViewSet):
+    """
+    API endpoint that allows the available neuroglancer data on the server
+    to be viewed or added.
+    Note, the create method is over ridden in the serializer.
+    There is no update or delete from the REST
+    It was more convienent to do them there than here.
+    """
+    queryset = NeuroglancerView.objects.all()
+    serializer_class = NeuroglancerViewSerializer
+    permission_classes = [permissions.AllowAny]
+
+@api_view(['POST'])
+def create_state(request):
+    if request.method == "POST":
+        data = request.data
+        layers = []
+        data = [i for i in data if not (i['id'] == 0)]
+        state = prepare_top_attributes(data[0])
+        for d in data:
+            id = int(d['id'])
+            if id > 0:
+                layer = create_layer(d)
+                layers.append(layer)
+        state['layers'] = layers
+        bottom = prepare_bottom_attributes()
+        state.update(bottom)
+        print(state)
+        state_id = create_neuroglancer_model(state)
+        return JsonResponse(state_id, safe=False)
 
 class Annotation(views.APIView):
     """
@@ -278,22 +311,6 @@ class TracingAnnotation(views.APIView):
             'brain_urls':brain_urls})
 
         return Response(serializer.data)
-
-
-class States(views.APIView):
-    """
-    https://www.brainsharer.org/brainsharer/states
-    """
-
-    def get(self, request, format=None):
-        """
-        This will get the layer_data
-        """
-        data = NeuroglancerView.objects.filter(active=True).all()
-        serializer = NeuroglancerViewSerializer(data, many=True)
-        return Response(serializer.data)
-
-
 
 def interpolate(points, new_len):
     points = np.array(points)

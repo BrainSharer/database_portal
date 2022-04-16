@@ -1,4 +1,8 @@
 from rest_framework import serializers
+from rest_framework.response import Response
+from rest_framework import serializers
+from rest_framework import status
+
 from rest_framework.exceptions import APIException
 import logging
 
@@ -10,14 +14,11 @@ from authentication.models import User
 logging.basicConfig()
 logger = logging.getLogger('django')
 
-
 class AnimalInputSerializer(serializers.Serializer):
     animal = serializers.CharField()
 
-
 class IdSerializer(serializers.Serializer):
     id = serializers.IntegerField()
-
 
 class AnnotationSerializer(serializers.Serializer):
     """
@@ -39,7 +40,6 @@ class LineSerializer(serializers.Serializer):
     type = serializers.CharField()
     description = serializers.CharField()
 
-
 class AnnotationsSerializer(serializers.Serializer):
     """
     This one feeds the dropdown
@@ -48,13 +48,11 @@ class AnnotationsSerializer(serializers.Serializer):
     animal_name = serializers.CharField()
     label = serializers.CharField()
 
-
 class BrainRegionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = BrainRegion
         fields = '__all__'
-
 
 class AnnotationPointsSerializer(serializers.ModelSerializer):
 
@@ -67,8 +65,6 @@ class NeuroglancerViewSerializer(serializers.ModelSerializer):
     class Meta:
         model = NeuroglancerView
         fields = '__all__'
-        ordering = ['-created']
-
 
 class NeuroglancerSerializer(serializers.ModelSerializer):
     """Override method of entering a neuroglancer_state into the DB.

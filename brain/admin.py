@@ -121,8 +121,8 @@ class InjectionVirusAdmin(AtlasAdminModel):
 
 @admin.register(ScanRun)
 class ScanRunAdmin(AtlasAdminModel, ExportCsvMixin):
-    list_display = ('animal', 'comments', 'created')
-    search_fields = ('animal__animal',)
+    list_display = ('animal', 'resolution', 'zresolution', 'created')
+    search_fields = ('animal__animal_name',)
     ordering = ['animal', 'comments', 'created']
     
 @admin.register(BrainRegion)

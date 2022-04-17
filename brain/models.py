@@ -136,7 +136,7 @@ class ScanRun(AtlasModel):
         db_table = 'scan_run'
 
     def __str__(self):
-        return "{} Scan ID: {}".format(self.animal.animal, self.id)
+        return "{} Scan ID: {}".format(self.animal, self.id)
 
 class BrainAtlas(AtlasModel):
     atlas_name = models.CharField(max_length=64, blank=False, null=False)

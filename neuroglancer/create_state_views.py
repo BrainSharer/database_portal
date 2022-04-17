@@ -119,11 +119,11 @@ def create_layer(state):
     
     return layer
         
-def create_neuroglancer_model(state):
+def create_neuroglancer_model(state, titles):
 
     owner = User.objects.first()
 
     neuroglancer_state = NeuroglancerModel.objects.create(owner=owner, neuroglancer_state=state,
         created=datetime.now(), updated=datetime.now(), user_date="999999", 
-        comments="XXXX", readonly=True)
+        comments=' '.join(titles), readonly=True)
     return neuroglancer_state.id

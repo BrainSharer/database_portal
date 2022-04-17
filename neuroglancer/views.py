@@ -53,17 +53,19 @@ def create_state(request):
         data = request.data
         layers = []
         data = [i for i in data if not (i['id'] == 0)]
+        titles = []
         state = prepare_top_attributes(data[0])
         for d in data:
             id = int(d['id'])
             if id > 0:
                 layer = create_layer(d)
                 layers.append(layer)
+                title = f"{d['prep_id']} {d['description']}" 
+                titles.append(title)
         state['layers'] = layers
         bottom = prepare_bottom_attributes()
         state.update(bottom)
-        print(state)
-        state_id = create_neuroglancer_model(state)
+        state_id = create_neuroglancer_model(state, titles)
         return JsonResponse(state_id, safe=False)
 
 class Annotation(views.APIView):

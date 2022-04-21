@@ -66,32 +66,28 @@ def get_layer_type(url):
         
 def prepare_top_attributes(layer):
     # {'id': 9, 'prep_id': 'DK39', 'lab': 'UCSD', 'description': 'C3', 'url': 'https://activebrainatlas.ucsd.edu/data/DK39/neuroglancer_data/C3', 'active': True, 'created': '2022-04-15T00:48:11', 'updated': '2022-04-15T14:48:11'}
-
-    prep_id = layer['prep_id']
+    layer_name = layer['layer_name']
     visible_layer = 'C1'
     state = {}
-    # animal
-    try:
-        query_set = Animal.objects.filter(animal_name=prep_id)
-    except Animal.DoesNotExist:
-        return state
-    if query_set is not None and len(query_set) > 0:
-        animal = query_set[0]
-
-    try:
-        query_set = ScanRun.objects.filter(animal=animal)
-    except ScanRun.DoesNotExist:
-        return state
-    if query_set is not None and len(query_set) > 0:
-        scan_run = query_set[0]
-    
-    state['dimensions'] = {'x':[scan_run.resolution, 'um'],
-                            'y':[scan_run.resolution, 'um'],
-                            'z':[scan_run.zresolution, 'um'] }
-    state['position'] = [scan_run.width / 2, scan_run.height / 2, 225]
-    state['selectedLayer'] = {'visible': True, 'layer': visible_layer}
+    resolution = layer['resolution']
+    zresolution = layer['zresolution']
+    # width and height should be in the REST/DB
+    width = 65000
+    height = 35000
     state['crossSectionScale'] = 90
-    state['projectionScale'] = scan_run.width
+
+    if 'atlas' in layer_name.lower():
+        width = 1000
+        height = 1000
+        visible_layer = layer_name
+        state['crossSectionScale'] = 1.5
+
+    state['dimensions'] = {'x':[resolution, 'um'],
+                            'y':[resolution, 'um'],
+                            'z':[zresolution, 'um'] }
+    state['position'] = [width / 2, height / 2, 225]
+    state['selectedLayer'] = {'visible': True, 'layer': visible_layer}
+    state['projectionScale'] = width
     return state
 
 def prepare_bottom_attributes():
@@ -104,7 +100,7 @@ def prepare_bottom_attributes():
         
         
 def create_layer(state):
-    layer_name = state['description']
+    layer_name = state['layer_name']
     url = state['url']
     layer = {}
     shaders = {}
@@ -114,8 +110,10 @@ def create_layer(state):
     layer['name'] = layer_name
     layer['shader'] = shaders.get(layer_name, 'C1')
     layer['source'] = f'precomputed://{url}'
-    layer['type'] = 'image'
+    layer['type'] = state['layer_type']
     layer['visible'] = True
+    if 'atlas' in layer_name.lower():
+        del layer['shader']
     
     return layer
         

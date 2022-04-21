@@ -140,7 +140,11 @@ class ScanRun(AtlasModel):
 
 class BrainAtlas(AtlasModel):
     atlas_name = models.CharField(max_length=64, blank=False, null=False)
+    lab = models.ForeignKey(Lab, models.CASCADE, blank=False, null=False, db_column='FK_lab_id')
     description = models.TextField(max_length=2001, blank=True, null=True)
+    url = models.TextField(max_length=2001, blank=False, null=False)
+    resolution = models.FloatField(verbose_name="XY Resolution (um)")
+    zresolution = models.FloatField(verbose_name="Z Resolution (um)")
     
     class Meta:
         managed = True

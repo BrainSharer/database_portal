@@ -1,5 +1,6 @@
 from django.shortcuts import render
 from rest_framework import permissions, viewsets, views
+from rest_framework.pagination import PageNumberPagination
 from django.http import JsonResponse
 from rest_framework.response import Response
 from django.http import Http404
@@ -16,7 +17,7 @@ from neuroglancer.models import NeuroglancerModel, AnnotationPoints, MouselightN
 from neuroglancer.atlas import get_scales, make_ontology_graph_CCFv3, make_ontology_graph_pma
 from neuroglancer.create_state_views import create_layer, prepare_top_attributes, \
     prepare_bottom_attributes, create_neuroglancer_model    
-from brain.models import BrainRegion
+from brain.models import BrainAtlas, BrainRegion
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.decorators import api_view
 
@@ -35,7 +36,7 @@ class NeuroglancerViewSet(viewsets.ModelViewSet):
     serializer_class = NeuroglancerSerializer
     permission_classes = [permissions.AllowAny]
 
-class NeuroglancerAvailableData(viewsets.ModelViewSet):
+class NeuroglancerAvailableData(views.APIView, PageNumberPagination):
     """
     API endpoint that allows the available neuroglancer data on the server
     to be viewed or added.
@@ -43,9 +44,32 @@ class NeuroglancerAvailableData(viewsets.ModelViewSet):
     There is no update or delete from the REST
     It was more convienent to do them there than here.
     """
-    queryset = NeuroglancerView.objects.all()
+    #queryset = NeuroglancerView.objects.all()
     serializer_class = NeuroglancerViewSerializer
     permission_classes = [permissions.AllowAny]
+    def get(self, request):
+        data = []
+        queryset = NeuroglancerView.objects.all()
+        for row in queryset:
+            data.append(row)
+        queryset = BrainAtlas.objects.all()
+        for row in queryset:
+            data_dict = {}
+            data_dict['id'] = row.id
+            data_dict["layer_name"] = row.atlas_name
+            data_dict["description"] = row.description
+            data_dict["url"] = row.url
+            data_dict["layer_type"] = 'segmentation'
+            data_dict["resolution"] = row.resolution
+            data_dict["zresolution"] = row.zresolution
+            data_dict["animal"] = row.atlas_name
+            data_dict["lab"] = row.lab
+            data.append(data_dict)
+        
+        results = self.paginate_queryset(data, request, view=self)
+        serializer = NeuroglancerViewSerializer(results, many=True)
+        return self.get_paginated_response(serializer.data)
+
 
 @api_view(['POST'])
 def create_state(request):
@@ -60,7 +84,7 @@ def create_state(request):
             if id > 0:
                 layer = create_layer(d)
                 layers.append(layer)
-                title = f"{d['prep_id']} {d['description']}" 
+                title = f"{d['animal']} {d['layer_name']}" 
                 titles.append(title)
         state['layers'] = layers
         bottom = prepare_bottom_attributes()

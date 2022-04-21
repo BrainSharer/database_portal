@@ -2,22 +2,10 @@ from django.db import models
 from django.conf import settings
 from django.utils.html import escape
 import re
-from enum import Enum
 from django.template.defaultfilters import truncatechars
+from authentication.models import Lab
 from brain.models import Animal, BrainRegion
-
-
-class AnnotationChoice(str, Enum):
-    POINT = 'point'
-    LINE = 'line'
-
-    @classmethod
-    def choices(cls):
-        return tuple((x.value, x.name) for x in cls)
-
-    def __str__(self):
-        return self.value
-
+from django_mysql.models import EnumField
 
 class NeuroglancerModel(models.Model):
     id = models.BigAutoField(primary_key=True)
@@ -106,10 +94,14 @@ class InputType(models.Model):
 
 class NeuroglancerView(models.Model):
     id = models.BigAutoField(primary_key=True)
-    prep_id = models.CharField(max_length=50, blank=False, null=False, verbose_name='Animal')
-    lab = models.CharField(max_length=100, blank=False, null=False)
+    animal = models.ForeignKey(Animal, models.CASCADE, null=True, db_column="FK_animal_id", verbose_name="Animal")
+    lab = models.ForeignKey(Lab, models.CASCADE, null=True, db_column="FK_lab_id", verbose_name="Lab")
+    layer_name = models.CharField(max_length=25, blank=False, null=False)
     description = models.TextField(max_length=2001, blank=False, null=False)
     url = models.TextField(max_length=2001, blank=False, null=False)
+    layer_type = EnumField(choices=['image','segmentation'], blank=False, null=False, default='image')
+    resolution = models.FloatField(verbose_name="XY Resolution (um)")
+    zresolution = models.FloatField(verbose_name="Z Resolution (um)")
     active = models.BooleanField(default=True, db_column='active')
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True, editable=False, null=False, blank=False)
@@ -117,9 +109,9 @@ class NeuroglancerView(models.Model):
     class Meta:
         managed = False
         db_table = 'available_neuroglancer_data'
-        verbose_name = 'Neuroglancer data'
-        verbose_name_plural = 'Neuroglancer data'
-        ordering = ['lab', 'prep_id', 'description']
+        verbose_name = 'Available Neuroglancer data'
+        verbose_name_plural = 'Available Neuroglancer data'
+        ordering = ['lab', 'animal', 'layer_name']
 
 
     def __str__(self):

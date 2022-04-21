@@ -60,11 +60,17 @@ class AnnotationPointsSerializer(serializers.ModelSerializer):
         model = AnnotationPoints
         fields = '__all__'
 
-class NeuroglancerViewSerializer(serializers.ModelSerializer):
+class NeuroglancerViewSerializer(serializers.Serializer):
+    id = serializers.CharField()
+    layer_name = serializers.CharField()
+    description = serializers.CharField()
+    url = serializers.CharField()
+    layer_type = serializers.CharField()
+    resolution = serializers.FloatField()
+    zresolution = serializers.FloatField()
+    lab = serializers.CharField()
+    animal = serializers.CharField()
 
-    class Meta:
-        model = NeuroglancerView
-        fields = '__all__'
 
 class NeuroglancerSerializer(serializers.ModelSerializer):
     """Override method of entering a neuroglancer_state into the DB.

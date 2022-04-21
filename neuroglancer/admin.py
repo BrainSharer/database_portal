@@ -149,7 +149,7 @@ make_active.short_description = "Mark selected rows as active"
 
 @admin.register(NeuroglancerView)
 class NeuroglancerViewAdmin(AtlasAdminModel):
-    list_display = ('id', 'prep_id', 'description', 'url', 'active','created')
+    list_display = ('id', 'animal', 'lab', 'layer_name', 'url', 'active','created')
 
 @admin.register(InputType)
 class InputTypeAdmin(AtlasAdminModel):

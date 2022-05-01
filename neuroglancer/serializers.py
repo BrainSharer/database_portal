@@ -60,16 +60,13 @@ class AnnotationPointsSerializer(serializers.ModelSerializer):
         model = AnnotationPoints
         fields = '__all__'
 
-class NeuroglancerViewSerializer(serializers.Serializer):
-    id = serializers.CharField()
-    layer_name = serializers.CharField()
-    description = serializers.CharField()
-    url = serializers.CharField()
-    layer_type = serializers.CharField()
-    resolution = serializers.FloatField()
-    zresolution = serializers.FloatField()
-    lab = serializers.CharField()
-    animal = serializers.CharField()
+class NeuroglancerViewSerializer(serializers.ModelSerializer):
+    lab_name = serializers.CharField(source='lab.lab_name')
+
+    class Meta:
+        model = NeuroglancerView
+        fields = '__all__'
+        ordering = ['id']
 
 
 class NeuroglancerSerializer(serializers.ModelSerializer):

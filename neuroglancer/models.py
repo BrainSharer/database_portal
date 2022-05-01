@@ -4,15 +4,13 @@ from django.utils.html import escape
 import re
 from django.template.defaultfilters import truncatechars
 from authentication.models import Lab
-from brain.models import Animal, BrainRegion
+from brain.models import AtlasModel, Animal, BrainRegion
 from django_mysql.models import EnumField
 
-class NeuroglancerModel(models.Model):
-    id = models.BigAutoField(primary_key=True)
+class NeuroglancerModel(AtlasModel):
     neuroglancer_state = models.JSONField()
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, models.CASCADE, null=True, db_column="FK_owner_id",
                                verbose_name="User")
-    created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True, editable=False, null=False, blank=False)
     user_date = models.CharField(max_length=25)
     comments = models.CharField(max_length=255)
@@ -75,35 +73,15 @@ class NeuroglancerModel(models.Model):
     def __str__(self):
         return u'{}'.format(self.comments)
 
-class InputType(models.Model):
-    id = models.BigAutoField(primary_key=True)
-    input_type = models.CharField(max_length=50, blank=False, null=False, verbose_name='Annotation Type')
-    description = models.TextField(max_length=255, blank=False, null=False)
-    active = models.BooleanField(default=True, db_column='active')
-    created = models.DateTimeField(auto_now_add=True)
-    updated = models.DateTimeField(auto_now=True, editable=False, null=False, blank=False)
-
-    class Meta:
-        managed = True
-        db_table = 'input_type'
-        verbose_name = 'Annotation Type'
-        verbose_name_plural = 'Annotation Types'
-
-    def __str__(self):
-        return u'{}'.format(self.input_type)
-
-class NeuroglancerView(models.Model):
-    id = models.BigAutoField(primary_key=True)
-    animal = models.ForeignKey(Animal, models.CASCADE, null=True, db_column="FK_animal_id", verbose_name="Animal")
-    lab = models.ForeignKey(Lab, models.CASCADE, null=True, db_column="FK_lab_id", verbose_name="Lab")
+class NeuroglancerView(AtlasModel):
+    group_name = models.CharField(max_length=50, verbose_name='Animal/Structure name')
+    lab = models.ForeignKey(Lab, models.CASCADE, null=True, db_column="FK_lab_id", verbose_name='Lab')
     layer_name = models.CharField(max_length=25, blank=False, null=False)
     description = models.TextField(max_length=2001, blank=False, null=False)
     url = models.TextField(max_length=2001, blank=False, null=False)
     layer_type = EnumField(choices=['image','segmentation'], blank=False, null=False, default='image')
     resolution = models.FloatField(verbose_name="XY Resolution (um)")
     zresolution = models.FloatField(verbose_name="Z Resolution (um)")
-    active = models.BooleanField(default=True, db_column='active')
-    created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True, editable=False, null=False, blank=False)
 
     class Meta:
@@ -111,11 +89,11 @@ class NeuroglancerView(models.Model):
         db_table = 'available_neuroglancer_data'
         verbose_name = 'Available Neuroglancer data'
         verbose_name_plural = 'Available Neuroglancer data'
-        ordering = ['lab', 'animal', 'layer_name']
+        ordering = ['lab', 'group_name', 'layer_name']
 
 
     def __str__(self):
-        return u'{} {}'.format(self.prep_id, self.description)
+        return u'{} {}'.format(self.group_name, self.description)
 
 class AnnotationAbstract(models.Model):
     id = models.BigAutoField(primary_key=True)

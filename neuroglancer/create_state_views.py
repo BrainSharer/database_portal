@@ -65,7 +65,7 @@ def get_layer_type(url):
 
         
 def prepare_top_attributes(layer):
-    # {'id': 9, 'prep_id': 'DK39', 'lab': 'UCSD', 'description': 'C3', 'url': 'https://activebrainatlas.ucsd.edu/data/DK39/neuroglancer_data/C3', 'active': True, 'created': '2022-04-15T00:48:11', 'updated': '2022-04-15T14:48:11'}
+    # {'id': 9, 'group_name': 'DK39', 'lab': 'UCSD', 'description': 'C3', 'url': 'https://activebrainatlas.ucsd.edu/data/DK39/neuroglancer_data/C3', 'active': True, 'created': '2022-04-15T00:48:11', 'updated': '2022-04-15T14:48:11'}
     layer_name = layer['layer_name']
     visible_layer = 'C1'
     state = {}

@@ -10,9 +10,8 @@ from timeit import default_timer as timer
 from django.conf import settings
 from authentication.models import User
 from brain.models import Animal, ScanRun, BrainRegion
-from neuroglancer.models import ArchiveSet, AnnotationPoints, AnnotationPointArchive, InputType
+from neuroglancer.models import AnnotationPoints, AnnotationPointArchive
 import logging
-import neuroglancer
 logging.basicConfig()
 logger = logging.getLogger(__name__)
 from neuroglancer.bulk_insert import BulkCreateManager
@@ -102,7 +101,6 @@ def bulk_annotations(animal, layer, loggedInUser, label):
     :param loggedInUser: int of owner
     :param label: str of the layer name
     '''
-    manual_input = InputType.objects.get(pk=MANUAL)
     bulk_mgr = BulkCreateManager(chunk_size=100)
     scale_xy, z_scale = get_scales(animal.id)
     annotations = layer['annotations']
@@ -113,7 +111,7 @@ def bulk_annotations(animal, layer, loggedInUser, label):
         brain_region = get_brain_region(annotation)
         if brain_region is not None and animal is not None and loggedInUser is not None:
             bulk_mgr.add(AnnotationPoints(animal=animal, brain_region=brain_region,
-            label=label, owner=loggedInUser, input_type=manual_input,
+            label=label, owner=loggedInUser,
             x=x1, y=y1, z=z1))
     bulk_mgr.done()
 

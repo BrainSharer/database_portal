@@ -36,7 +36,7 @@ class NeuroglancerViewSet(viewsets.ModelViewSet):
     serializer_class = NeuroglancerSerializer
     permission_classes = [permissions.AllowAny]
 
-class NeuroglancerAvailableData(views.APIView, PageNumberPagination):
+class NeuroglancerAvailableDataXXX(views.APIView, PageNumberPagination):
     """
     API endpoint that allows the available neuroglancer data on the server
     to be viewed or added.
@@ -52,23 +52,19 @@ class NeuroglancerAvailableData(views.APIView, PageNumberPagination):
         queryset = NeuroglancerView.objects.all()
         for row in queryset:
             data.append(row)
-        queryset = BrainAtlas.objects.all()
-        for row in queryset:
-            data_dict = {}
-            data_dict['id'] = row.id
-            data_dict["layer_name"] = row.atlas_name
-            data_dict["description"] = row.description
-            data_dict["url"] = row.url
-            data_dict["layer_type"] = 'segmentation'
-            data_dict["resolution"] = row.resolution
-            data_dict["zresolution"] = row.zresolution
-            data_dict["animal"] = row.atlas_name
-            data_dict["lab"] = row.lab
-            data.append(data_dict)
         
         results = self.paginate_queryset(data, request, view=self)
         serializer = NeuroglancerViewSerializer(results, many=True)
         return self.get_paginated_response(serializer.data)
+
+class NeuroglancerAvailableData(viewsets.ModelViewSet):
+    """
+    API endpoint that allows the available neuroglancer data on the server
+    to be viewed.
+    """
+    queryset = NeuroglancerView.objects.all()
+    serializer_class = NeuroglancerViewSerializer
+    permission_classes = [permissions.AllowAny]
 
 
 @api_view(['POST'])
@@ -84,7 +80,7 @@ def create_state(request):
             if id > 0:
                 layer = create_layer(d)
                 layers.append(layer)
-                title = f"{d['animal']} {d['layer_name']}" 
+                title = f"{d['group_name']} {d['layer_name']}" 
                 titles.append(title)
         state['layers'] = layers
         bottom = prepare_bottom_attributes()

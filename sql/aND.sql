@@ -24,7 +24,7 @@ DROP TABLE IF EXISTS `available_neuroglancer_data`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `available_neuroglancer_data` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `FK_animal_id` int(11) NOT NULL,
+  `FK_biosource_id` int(11) DEFAULT NULL,
   `FK_lab_id` int(11) NOT NULL,
   `layer_name` varchar(25) NOT NULL,
   `description` varchar(2001) DEFAULT NULL,
@@ -36,9 +36,9 @@ CREATE TABLE `available_neuroglancer_data` (
   `created` datetime NOT NULL,
   `updated` timestamp NULL DEFAULT current_timestamp(),
   PRIMARY KEY (`id`),
-  KEY `K__available_nd_animal_id` (`FK_animal_id`),
+  KEY `K__available_nd_animal_id` (`FK_biosource_id`),
   KEY `K__available_nd_lab_id` (`FK_lab_id`),
-  CONSTRAINT `FK__available_nd_animal_id` FOREIGN KEY (`FK_animal_id`) REFERENCES `biosource` (`id`),
+  CONSTRAINT `FK__available_nd_animal_id` FOREIGN KEY (`FK_biosource_id`) REFERENCES `biosource` (`id`),
   CONSTRAINT `FK__available_nd_lab_id` FOREIGN KEY (`FK_lab_id`) REFERENCES `auth_lab` (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=64 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -52,6 +52,21 @@ LOCK TABLES `available_neuroglancer_data` WRITE;
 INSERT INTO `available_neuroglancer_data` VALUES (1,4,2,'C1',NULL,'https://activebrainatlas.ucsd.edu/data/DK39/neuroglancer_data/C1','image',0.325,10,1,'2022-04-15 00:48:11','2022-04-21 02:20:51'),(2,4,2,'C2',NULL,'https://activebrainatlas.ucsd.edu/data/DK39/neuroglancer_data/C2','image',0.325,10,1,'2022-04-15 00:48:11','2022-04-21 02:20:51'),(3,4,2,'C3',NULL,'https://activebrainatlas.ucsd.edu/data/DK39/neuroglancer_data/C3','image',0.325,10,1,'2022-04-15 00:48:11','2022-04-21 02:20:51'),(4,5,2,'C2',NULL,'https://activebrainatlas.ucsd.edu/data/DK40/neuroglancer_data/C2','image',0.325,10,1,'2022-04-15 00:48:11','2022-04-21 02:20:51'),(5,5,2,'C1',NULL,'https://activebrainatlas.ucsd.edu/data/DK40/neuroglancer_data/C1','image',0.325,10,1,'2022-04-15 00:48:11','2022-04-21 02:20:51'),(6,5,2,'C3',NULL,'https://activebrainatlas.ucsd.edu/data/DK40/neuroglancer_data/C3','image',0.325,10,1,'2022-04-15 00:48:11','2022-04-21 02:20:51'),(7,6,2,'C2',NULL,'https://activebrainatlas.ucsd.edu/data/DK41/neuroglancer_data/C2','image',0.325,10,1,'2022-04-15 00:48:11','2022-04-21 02:20:51'),(8,6,2,'C1',NULL,'https://activebrainatlas.ucsd.edu/data/DK41/neuroglancer_data/C1','image',0.325,10,1,'2022-04-15 00:48:11','2022-04-21 02:20:51'),(9,6,2,'C3',NULL,'https://activebrainatlas.ucsd.edu/data/DK41/neuroglancer_data/C3','image',0.325,10,1,'2022-04-15 00:48:11','2022-04-21 02:20:51'),(10,7,2,'C3',NULL,'https://activebrainatlas.ucsd.edu/data/DK43/neuroglancer_data/C3','image',0.325,10,1,'2022-04-15 00:48:11','2022-04-21 02:20:51'),(11,7,2,'C1',NULL,'https://activebrainatlas.ucsd.edu/data/DK43/neuroglancer_data/C1','image',0.325,10,1,'2022-04-15 00:48:11','2022-04-21 02:20:51'),(12,7,2,'C2',NULL,'https://activebrainatlas.ucsd.edu/data/DK43/neuroglancer_data/C2','image',0.325,10,1,'2022-04-15 00:48:11','2022-04-21 02:20:51'),(13,8,2,'C3',NULL,'https://activebrainatlas.ucsd.edu/data/DK46/neuroglancer_data/C3','image',0.325,10,1,'2022-04-15 00:48:11','2022-04-21 02:20:51'),(14,8,2,'C2',NULL,'https://activebrainatlas.ucsd.edu/data/DK46/neuroglancer_data/C2','image',0.325,10,1,'2022-04-15 00:48:11','2022-04-21 02:20:51'),(15,8,2,'C1',NULL,'https://activebrainatlas.ucsd.edu/data/DK46/neuroglancer_data/C1','image',0.325,10,1,'2022-04-15 00:48:11','2022-04-21 02:20:51'),(16,9,2,'C3',NULL,'https://activebrainatlas.ucsd.edu/data/DK50/neuroglancer_data/C3','image',0.325,10,1,'2022-04-15 00:48:11','2022-04-21 02:20:51'),(17,9,2,'C2',NULL,'https://activebrainatlas.ucsd.edu/data/DK50/neuroglancer_data/C2','image',0.325,10,1,'2022-04-15 00:48:11','2022-04-21 02:20:51'),(18,9,2,'C1',NULL,'https://activebrainatlas.ucsd.edu/data/DK50/neuroglancer_data/C1','image',0.325,10,1,'2022-04-15 00:48:11','2022-04-21 02:20:51'),(19,1,2,'C2',NULL,'https://activebrainatlas.ucsd.edu/data/DK52/neuroglancer_data/C2','image',0.325,10,1,'2022-04-15 00:48:11','2022-04-21 02:20:51'),(20,1,2,'C1',NULL,'https://activebrainatlas.ucsd.edu/data/DK52/neuroglancer_data/C1','image',0.325,10,1,'2022-04-15 00:48:11','2022-04-21 02:20:51'),(21,1,2,'C3',NULL,'https://activebrainatlas.ucsd.edu/data/DK52/neuroglancer_data/C3','image',0.325,10,1,'2022-04-15 00:48:11','2022-04-21 02:20:51'),(22,11,2,'C2',NULL,'https://activebrainatlas.ucsd.edu/data/DK54/neuroglancer_data/C2','image',0.325,10,1,'2022-04-15 00:48:11','2022-04-21 02:20:51'),(23,11,2,'C1',NULL,'https://activebrainatlas.ucsd.edu/data/DK54/neuroglancer_data/C1','image',0.325,10,1,'2022-04-15 00:48:11','2022-04-21 02:20:51'),(24,11,2,'C3',NULL,'https://activebrainatlas.ucsd.edu/data/DK54/neuroglancer_data/C3','image',0.325,10,1,'2022-04-15 00:48:11','2022-04-21 02:20:51'),(25,12,2,'C1',NULL,'https://activebrainatlas.ucsd.edu/data/DK55/neuroglancer_data/C1','image',0.325,10,1,'2022-04-15 00:48:11','2022-04-21 02:20:51'),(26,12,2,'C2',NULL,'https://activebrainatlas.ucsd.edu/data/DK55/neuroglancer_data/C2','image',0.325,10,1,'2022-04-15 00:48:11','2022-04-21 02:20:51'),(27,12,2,'C3',NULL,'https://activebrainatlas.ucsd.edu/data/DK55/neuroglancer_data/C3','image',0.325,10,1,'2022-04-15 00:48:11','2022-04-21 02:20:51'),(28,13,2,'C2',NULL,'https://activebrainatlas.ucsd.edu/data/DK60/neuroglancer_data/C2','image',0.325,10,1,'2022-04-15 00:48:11','2022-04-21 02:20:51'),(29,13,2,'C1',NULL,'https://activebrainatlas.ucsd.edu/data/DK60/neuroglancer_data/C1','image',0.325,10,1,'2022-04-15 00:48:11','2022-04-21 02:20:51'),(30,13,2,'C3',NULL,'https://activebrainatlas.ucsd.edu/data/DK60/neuroglancer_data/C3','image',0.325,10,1,'2022-04-15 00:48:11','2022-04-21 02:20:51'),(31,14,2,'C3',NULL,'https://activebrainatlas.ucsd.edu/data/DK61/neuroglancer_data/C3','image',0.325,10,1,'2022-04-15 00:48:11','2022-04-21 02:20:51'),(32,14,2,'C2',NULL,'https://activebrainatlas.ucsd.edu/data/DK61/neuroglancer_data/C2','image',0.325,10,1,'2022-04-15 00:48:11','2022-04-21 02:20:51'),(33,14,2,'C1',NULL,'https://activebrainatlas.ucsd.edu/data/DK61/neuroglancer_data/C1','image',0.325,10,1,'2022-04-15 00:48:11','2022-04-21 02:20:51'),(34,15,2,'C2',NULL,'https://activebrainatlas.ucsd.edu/data/DK62/neuroglancer_data/C2','image',0.325,10,1,'2022-04-15 00:48:11','2022-04-21 02:20:51'),(35,15,2,'C1',NULL,'https://activebrainatlas.ucsd.edu/data/DK62/neuroglancer_data/C1','image',0.325,10,1,'2022-04-15 00:48:11','2022-04-21 02:20:51'),(36,15,2,'C3',NULL,'https://activebrainatlas.ucsd.edu/data/DK62/neuroglancer_data/C3','image',0.325,10,1,'2022-04-15 00:48:11','2022-04-21 02:20:51'),(37,16,2,'C2',NULL,'https://activebrainatlas.ucsd.edu/data/DK63/neuroglancer_data/C2','image',0.325,10,1,'2022-04-15 00:48:11','2022-04-21 02:20:51'),(38,16,2,'C1',NULL,'https://activebrainatlas.ucsd.edu/data/DK63/neuroglancer_data/C1','image',0.325,10,1,'2022-04-15 00:48:11','2022-04-21 02:20:51'),(39,17,2,'C1',NULL,'https://activebrainatlas.ucsd.edu/data/DK73/neuroglancer_data/C1','image',0.325,10,1,'2022-04-15 00:48:11','2022-04-21 02:20:51');
 /*!40000 ALTER TABLE `available_neuroglancer_data` ENABLE KEYS */;
 UNLOCK TABLES;
+
+ALTER TABLE available_neuroglancer_data ADD COLUMN group_name varchar(50) NOT NULL AFTER id;
+
+UPDATE available_neuroglancer_data AD
+INNER JOIN biosource B ON B.id=AD.FK_biosource_id 
+SET AD.group_name = B.animal_name;
+
+
+ALTER TABLE available_neuroglancer_data DROP CONSTRAINT FK__available_nd_animal_id;
+ALTER TABLE available_neuroglancer_data DROP KEY K__available_nd_animal_id;
+ALTER TABLE available_neuroglancer_data DROP COLUMN FK_biosource_id;
+ALTER TABLE available_neuroglancer_data ADD INDEX K__AND_group_name (group_name);
+
+update available_neuroglancer_data set resolution = 0.325 where resolution < 9;
+
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;

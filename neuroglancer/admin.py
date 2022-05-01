@@ -15,7 +15,7 @@ from pygments.formatters import HtmlFormatter
 from pygments.lexers import JsonLexer
 from django.utils.safestring import mark_safe
 from brain.admin import AtlasAdminModel
-from neuroglancer.models import InputType, AnnotationPoints, \
+from neuroglancer.models import AnnotationPoints, \
     NeuroglancerModel, NeuroglancerView, ArchiveSet, AnnotationPointArchive, MouselightNeuron, \
     ViralTracingLayer
 from neuroglancer.forms import NeuroglancerModelForm, NeuroglancerUpdateForm
@@ -149,15 +149,7 @@ make_active.short_description = "Mark selected rows as active"
 
 @admin.register(NeuroglancerView)
 class NeuroglancerViewAdmin(AtlasAdminModel):
-    list_display = ('id', 'animal', 'lab', 'layer_name', 'url', 'active','created')
-
-@admin.register(InputType)
-class InputTypeAdmin(AtlasAdminModel):
-    list_display = ('id', 'input_type', 'description', 'active','created')
-    ordering = ['id']
-    readonly_fields = ['created', 'updated']
-    list_filter = ['created', 'active']
-    search_fields = ['input_type', 'description']
+    list_display = ('id', 'group_name', 'lab', 'layer_name', 'url', 'active','created')
 
 @admin.register(AnnotationPointArchive)
 class AnnotationPointArchiveAdmin(admin.ModelAdmin):

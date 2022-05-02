@@ -5,6 +5,10 @@ from django.contrib.auth.decorators import login_required
 from authentication.models import User
 from django.conf import settings
 
+from rest_framework import generics
+from rest_framework import permissions
+from authentication.serializers import RegisterSerializer
+
 class SessionVarView(TemplateView):
     '''
     This gets the session var from Neuroglancer to check
@@ -22,7 +26,7 @@ class SessionVarView(TemplateView):
         if request.user.is_authenticated:
             data = {'user_id':request.user.id, 'username': request.user.username}
         
-        if settings.DEBUG:
+        if settings.DEBUG and False:
             userid = 1
             browser = str(request.META['HTTP_USER_AGENT']).lower()
             if 'firefox' in browser:
@@ -32,8 +36,11 @@ class SessionVarView(TemplateView):
         
         return JsonResponse(data)
 
+class RegisterView(generics.CreateAPIView):
+    queryset = User.objects.all()
+    permission_classes = (permissions.AllowAny,)
+    serializer_class = RegisterSerializer
 
-    
 
 @login_required(redirect_field_name='next', login_url='/devlogin')
 def dev_login_view(request):

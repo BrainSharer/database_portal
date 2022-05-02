@@ -64,7 +64,8 @@ class NeuroglancerAvailableData(viewsets.ModelViewSet):
     """
     queryset = NeuroglancerView.objects.all()
     serializer_class = NeuroglancerViewSerializer
-    permission_classes = [permissions.AllowAny]
+    #permission_classes = [permissions.AllowAny]
+    permission_classes = [permissions.IsAuthenticated]
 
 
 @api_view(['POST'])

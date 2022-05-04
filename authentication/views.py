@@ -54,13 +54,13 @@ class ValidateUserView(generics.ListAPIView):
         queryset = User.objects.all()
         username = self.request.query_params.get('username')
         if username is not None:
-            return queryset.filter(username=username)
+            queryset = queryset.filter(username=username)
 
         email = self.request.query_params.get('email')
         if email is not None:
-            return queryset.filter(email=email)
+            queryset = queryset.filter(email=email)
 
-        return User.objects.filter(pk=0)
+        return queryset
 
 
 @login_required(redirect_field_name='next', login_url='/devlogin')

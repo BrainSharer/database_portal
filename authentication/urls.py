@@ -1,6 +1,7 @@
 from django.urls import include, path
 from rest_framework import routers
-from authentication.views import SessionVarView, dev_login_view, RegisterView
+from authentication.views import SessionVarView, dev_login_view, \
+    RegisterView, ValidateUserView
 
 router = routers.DefaultRouter()
 #router.register(r'users', UserViewSet)
@@ -12,4 +13,5 @@ urlpatterns = [
     path(r'session', SessionVarView.as_view(), name='session-var'),
     path(r'devlogin/', dev_login_view, name='devlogin'),
     path('register/', RegisterView.as_view(), name='auth_register'),
+    path('validate/', ValidateUserView.as_view(), name='auth_validate'),
 ]

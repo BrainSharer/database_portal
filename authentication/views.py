@@ -7,7 +7,7 @@ from django.conf import settings
 
 from rest_framework import generics
 from rest_framework import permissions
-from authentication.serializers import RegisterSerializer
+from authentication.serializers import RegisterSerializer, ValidateUserSerializer
 
 class SessionVarView(TemplateView):
     '''
@@ -40,6 +40,27 @@ class RegisterView(generics.CreateAPIView):
     queryset = User.objects.all()
     permission_classes = (permissions.AllowAny,)
     serializer_class = RegisterSerializer
+
+class ValidateUserView(generics.ListAPIView):
+    queryset = User.objects.all()
+    permission_classes = (permissions.AllowAny,)
+    serializer_class = ValidateUserSerializer
+
+    def get_queryset(self):
+        """
+        Optionally restricts the returned purchases to a given user,
+        by filtering against a `username` query parameter in the URL.
+        """
+        queryset = User.objects.all()
+        username = self.request.query_params.get('username')
+        if username is not None:
+            return queryset.filter(username=username)
+
+        email = self.request.query_params.get('email')
+        if email is not None:
+            return queryset.filter(email=email)
+
+        return User.objects.filter(pk=0)
 
 
 @login_required(redirect_field_name='next', login_url='/devlogin')

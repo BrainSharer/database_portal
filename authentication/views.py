@@ -7,7 +7,8 @@ from django.conf import settings
 
 from rest_framework import generics
 from rest_framework import permissions
-from authentication.serializers import RegisterSerializer, ValidateUserSerializer
+from rest_framework_jwt.views import ObtainJSONWebToken
+from authentication.serializers import JWTSerializer, RegisterSerializer, ValidateUserSerializer
 
 class SessionVarView(TemplateView):
     '''
@@ -40,6 +41,9 @@ class RegisterView(generics.CreateAPIView):
     queryset = User.objects.all()
     permission_classes = (permissions.AllowAny,)
     serializer_class = RegisterSerializer
+
+class ObtainJWTView(ObtainJSONWebToken):
+    serializer_class = JWTSerializer
 
 class ValidateUserView(generics.ListAPIView):
     queryset = User.objects.all()

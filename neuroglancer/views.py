@@ -17,8 +17,7 @@ from neuroglancer.models import NeuroglancerModel, AnnotationPoints, MouselightN
 from neuroglancer.atlas import get_scales, make_ontology_graph_CCFv3, make_ontology_graph_pma
 from neuroglancer.create_state_views import create_layer, prepare_top_attributes, \
     prepare_bottom_attributes, create_neuroglancer_model    
-from brain.models import BrainAtlas, BrainRegion
-from django.views.decorators.csrf import csrf_exempt
+from brain.models import BrainRegion
 from rest_framework.decorators import api_view
 
 import logging

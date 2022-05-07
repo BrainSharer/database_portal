@@ -13,6 +13,11 @@ class ValidateUserSerializer(serializers.ModelSerializer):
         model = User
         fields = ('username', 'email')
 
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ('id', 'username', 'first_name', 'last_name', 'email', 'email')
+
 
 class RegisterSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(required=True)

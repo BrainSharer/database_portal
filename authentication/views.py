@@ -3,14 +3,17 @@ from django.views.generic import TemplateView
 from django.shortcuts import redirect
 from django.contrib.auth.decorators import login_required
 from authentication.models import User
+from django.http import Http404
 from django.conf import settings
 
 from rest_framework import generics
 from rest_framework import permissions
 from rest_framework_jwt.views import ObtainJSONWebToken
-from authentication.serializers import JWTSerializer, RegisterSerializer, ValidateUserSerializer
+from rest_framework.response import Response
+from authentication.serializers import JWTSerializer, RegisterSerializer, \
+    UserSerializer, ValidateUserSerializer
 
-class SessionVarView(TemplateView):
+class SessionVarView(generics.ListAPIView):
     '''
     This gets the session var from Neuroglancer to check
     if the user is logged in. Note, this works fine on the
@@ -23,24 +26,43 @@ class SessionVarView(TemplateView):
     '''
 
     def get(self, request, *args, **kwargs):
-        data = {'user_id':0, 'username': None}
+        # data = {'id':0, 'username': None}
         if request.user.is_authenticated:
-            data = {'user_id':request.user.id, 'username': request.user.username}
+            user = User.objects.get(pk=request.user.id) 
+            # data = {'user_id':user.id, 'username': user.username}
         
-        if settings.DEBUG and False:
+        if settings.DEBUG:
             userid = 1
             browser = str(request.META['HTTP_USER_AGENT']).lower()
             if 'firefox' in browser:
                 userid = 2
             user = User.objects.get(pk=userid) 
-            data = {'user_id':user.id, 'username': user.username}
+            # data = {'user_id':user.id, 'username': user.username}
         
-        return JsonResponse(data)
+        serializer = UserSerializer(user, many=False)
+        return Response(serializer.data)
 
 class RegisterView(generics.CreateAPIView):
     queryset = User.objects.all()
     permission_classes = (permissions.AllowAny,)
     serializer_class = RegisterSerializer
+
+class UserView(generics.CreateAPIView):
+    queryset = User.objects.all()
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
+    serializer_class = UserSerializer
+    
+    def get(self, request, username):
+        user = {'id':0}
+        try:
+           queryset = User.objects.filter(username=username)
+        except User.DoesNotExist:
+            raise Http404
+        if queryset is not None and len(queryset) > 0:
+            user = queryset[0]
+
+        serializer = UserSerializer(user, many=False)
+        return Response(serializer.data)
 
 class ObtainJWTView(ObtainJSONWebToken):
     serializer_class = JWTSerializer

@@ -26,7 +26,7 @@ class SessionVarView(generics.ListAPIView):
     '''
 
     def get(self, request, *args, **kwargs):
-        user = {}
+        user = {'username':''}
         # data = {'id':0, 'username': None}
         if request.user.is_authenticated:
             user = User.objects.get(pk=request.user.id) 

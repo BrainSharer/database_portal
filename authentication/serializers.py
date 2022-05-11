@@ -13,6 +13,7 @@ class ValidateUserSerializer(serializers.ModelSerializer):
         model = User
         fields = ('username', 'email')
 
+
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User

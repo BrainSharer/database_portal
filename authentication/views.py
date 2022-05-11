@@ -64,6 +64,7 @@ class UserView(generics.CreateAPIView):
         serializer = UserSerializer(user, many=False)
         return Response(serializer.data)
 
+
 class ObtainJWTView(ObtainJSONWebToken):
     serializer_class = JWTSerializer
 

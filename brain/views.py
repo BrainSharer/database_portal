@@ -1,6 +1,6 @@
 from brain.models import Animal
 from django.http import Http404
-from rest_framework import views
+from rest_framework import views, viewsets, permissions
 from rest_framework.response import Response
 from brain.serializers import AnimalSerializer
 
@@ -9,7 +9,7 @@ class AnimalList(views.APIView):
     List all animals. No creation at this time.
     """
     def get(self, request, format=None):
-        animals = Animal.objects.filter(active=True).order_by('animal')
+        animals = Animal.objects.filter(active=True).order_by('animal_name')
         serializer = AnimalSerializer(animals, many=True)
         return Response(serializer.data)
 
@@ -21,6 +21,16 @@ class AnimalList(views.APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     """
+
+
+class Animal(viewsets.ModelViewSet):
+    """
+    API endpoint that allows the available neuroglancer data on the server
+    to be viewed.
+    """
+    queryset = Animal.objects.filter(active=True)
+    serializer_class = AnimalSerializer
+    permission_classes = [permissions.AllowAny]
 
 class AnimalDetail(views.APIView):
     """

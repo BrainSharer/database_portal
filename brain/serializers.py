@@ -4,4 +4,4 @@ from brain.models import Animal
 class AnimalSerializer(serializers.ModelSerializer):
     class Meta:
         model = Animal
-        fields = ['animal', ]
+        fields = '__all__'

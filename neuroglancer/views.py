@@ -35,6 +35,7 @@ class NeuroglancerViewSet(viewsets.ModelViewSet):
     serializer_class = NeuroglancerSerializer
     permission_classes = [permissions.AllowAny]
 
+
 class NeuroglancerAvailableDataXXX(views.APIView, PageNumberPagination):
     """
     API endpoint that allows the available neuroglancer data on the server
@@ -56,6 +57,10 @@ class NeuroglancerAvailableDataXXX(views.APIView, PageNumberPagination):
         serializer = NeuroglancerViewSerializer(results, many=True)
         return self.get_paginated_response(serializer.data)
 
+
+class LargeResultsSetPagination(PageNumberPagination):
+    page_size = 50
+
 class NeuroglancerAvailableData(viewsets.ModelViewSet):
     """
     API endpoint that allows the available neuroglancer data on the server
@@ -64,7 +69,20 @@ class NeuroglancerAvailableData(viewsets.ModelViewSet):
     queryset = NeuroglancerView.objects.all()
     serializer_class = NeuroglancerViewSerializer
     permission_classes = [permissions.AllowAny]
+    pagination_class = LargeResultsSetPagination
     #permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        """
+        Optionally restricts the returned purchases to a given animal,
+        by filtering against a `animal` query parameter in the URL.
+        """
+        queryset = NeuroglancerView.objects.all()
+        animal = self.request.query_params.get('animal')
+        if animal is not None:
+            queryset = queryset.filter(group_name=animal)
+
+        return queryset
 
 
 @api_view(['POST'])

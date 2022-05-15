@@ -100,8 +100,6 @@ class NeuroglancerSerializer(serializers.ModelSerializer):
         """
         This gets called when a user clicks Save in Neuroglancer
         """
-        print(validated_data)
-        print('ID', obj.id)
         obj.neuroglancer_state = validated_data.get('neuroglancer_state', obj.neuroglancer_state)
         obj.user_date = validated_data.get('user_date', obj.user_date)
         obj.comments = validated_data.get('comments', obj.comments)

@@ -79,6 +79,7 @@ class NeuroglancerView(AtlasModel):
     layer_name = models.CharField(max_length=25, blank=False, null=False)
     description = models.TextField(max_length=2001, blank=False, null=False)
     url = models.TextField(max_length=2001, blank=False, null=False)
+    thumbnail_url = models.TextField(max_length=2001, blank=False, null=False, verbose_name='Thumbnail name')
     layer_type = EnumField(choices=['image','segmentation'], blank=False, null=False, default='image')
     resolution = models.FloatField(verbose_name="XY Resolution (um)")
     zresolution = models.FloatField(verbose_name="Z Resolution (um)")

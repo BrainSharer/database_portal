@@ -2,16 +2,29 @@ from django.http import JsonResponse
 from django.views.generic import TemplateView
 from django.shortcuts import redirect
 from django.contrib.auth.decorators import login_required
-from authentication.models import User
+from authentication.models import Lab, User
 from django.http import Http404
 from django.conf import settings
 
-from rest_framework import generics
+from rest_framework import generics, viewsets
 from rest_framework import permissions
 from rest_framework_jwt.views import ObtainJSONWebToken
 from rest_framework.response import Response
-from authentication.serializers import JWTSerializer, RegisterSerializer, \
+from authentication.serializers import LabSerializer, JWTSerializer, RegisterSerializer, \
     UserSerializer, ValidateUserSerializer
+
+
+
+class LabViewSet(viewsets.ModelViewSet):
+    """
+    API endpoint that allows the neuroglancer states to be viewed or edited.
+    Note, the update, and insert methods are over ridden in the serializer.
+    It was more convienent to do them there than here.
+    """
+    queryset = Lab.objects.all()
+    serializer_class = LabSerializer
+    permission_classes = [permissions.AllowAny]
+
 
 class SessionVarView(generics.ListAPIView):
     '''

@@ -60,6 +60,18 @@ class AnnotationPointsSerializer(serializers.ModelSerializer):
         model = AnnotationPoints
         fields = '__all__'
 
+class NeuroglancerGroupViewSerializer(serializers.ModelSerializer):
+    '''
+    This is to form the groups with just distinct group_name
+    and layer_type
+    '''
+
+    class Meta:
+        model = NeuroglancerView
+        fields = ['group_name', 'layer_type']
+        ordering = ['group_name', 'layer_type']
+
+
 class NeuroglancerViewSerializer(serializers.ModelSerializer):
     lab_name = serializers.CharField(source='lab.lab_name')
 

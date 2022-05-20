@@ -18,7 +18,7 @@ urlpatterns = [
     path(r'public', views.public_list, name='public'),
     path('annotation/<int:animal_id>/<str:label>', views.Annotation.as_view()),
     path('annotations', views.Annotations.as_view()),
-    # path('states', views.NeuroglancerAvailableData.as_view()),
+    path('groups', views.NeuroglancerGroupAvailableData.as_view()),
     path('landmark_list',views.LandmarkList.as_view()),
     path('createstate', views.create_state),
     path('fetch_layers/<int:animal_id>', fetch_layers, name='fetch_layers'),

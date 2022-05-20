@@ -3,14 +3,16 @@ from rest_framework import permissions, viewsets, views
 from rest_framework.pagination import PageNumberPagination
 from django.http import JsonResponse
 from rest_framework.response import Response
+from rest_framework.decorators import api_view
 from django.http import Http404
 from django.db.models import Q
 import string
 import random
 import numpy as np
 from scipy.interpolate import splprep, splev
+
 from neuroglancer.serializers import AnnotationSerializer, \
-    AnnotationsSerializer, NeuroglancerSerializer, NeuronSerializer, AnatomicalRegionSerializer, \
+    AnnotationsSerializer, NeuroglancerGroupViewSerializer, NeuroglancerSerializer, NeuronSerializer, AnatomicalRegionSerializer, \
     ViralTracingSerializer, NeuroglancerViewSerializer
 from neuroglancer.models import NeuroglancerModel, AnnotationPoints, MouselightNeuron, \
     ViralTracingLayer, NeuroglancerView
@@ -18,12 +20,10 @@ from neuroglancer.atlas import get_scales, make_ontology_graph_CCFv3, make_ontol
 from neuroglancer.create_state_views import create_layer, prepare_top_attributes, \
     prepare_bottom_attributes, create_neuroglancer_model    
 from brain.models import BrainRegion
-from rest_framework.decorators import api_view
 
 import logging
 logging.basicConfig()
 logger = logging.getLogger(__name__)
-
 
 class NeuroglancerViewSet(viewsets.ModelViewSet):
     """
@@ -36,30 +36,11 @@ class NeuroglancerViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.AllowAny]
 
 
-class NeuroglancerAvailableDataXXX(views.APIView, PageNumberPagination):
-    """
-    API endpoint that allows the available neuroglancer data on the server
-    to be viewed or added.
-    Note, the create method is over ridden in the serializer.
-    There is no update or delete from the REST
-    It was more convienent to do them there than here.
-    """
-    #queryset = NeuroglancerView.objects.all()
-    serializer_class = NeuroglancerViewSerializer
-    permission_classes = [permissions.AllowAny]
-    def get(self, request):
-        data = []
-        queryset = NeuroglancerView.objects.all()
-        for row in queryset:
-            data.append(row)
-        
-        results = self.paginate_queryset(data, request, view=self)
-        serializer = NeuroglancerViewSerializer(results, many=True)
-        return self.get_paginated_response(serializer.data)
-
 
 class LargeResultsSetPagination(PageNumberPagination):
     page_size = 50
+class SmallResultsSetPagination(PageNumberPagination):
+    page_size = 5
 
 class NeuroglancerAvailableData(viewsets.ModelViewSet):
     """
@@ -79,10 +60,36 @@ class NeuroglancerAvailableData(viewsets.ModelViewSet):
         """
         queryset = NeuroglancerView.objects.all()
         animal = self.request.query_params.get('animal')
+        lab = self.request.query_params.get('lab')
+        layer_type = self.request.query_params.get('layer_type')
         if animal is not None:
-            queryset = queryset.filter(group_name=animal)
+            queryset = queryset.filter(group_name__icontains=animal)
+        if lab is not None and int(lab) > 0:
+            queryset = queryset.filter(lab=lab)
+        if layer_type is not None and layer_type != '':
+            queryset = queryset.filter(layer_type=layer_type)
 
         return queryset
+
+class NeuroglancerGroupAvailableData(views.APIView):
+    """
+    API endpoint that allows the available neuroglancer data on the server
+    to be viewed.
+    """
+    queryset = NeuroglancerView.objects.all()
+    serializer_class = NeuroglancerGroupViewSerializer
+    permission_classes = [permissions.AllowAny]
+    #permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        """
+        Just getting distinct group_name and layer_type
+        for the frontend create-view page
+        """
+        data = NeuroglancerView.objects.order_by('group_name', 'layer_type').values('group_name', 'layer_type').distinct()
+        serializer = NeuroglancerGroupViewSerializer(data, many=True)
+        return Response(serializer.data)
+
 
 
 @api_view(['POST'])

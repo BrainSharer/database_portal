@@ -1,4 +1,4 @@
-from authentication.models import User
+from authentication.models import Lab, User
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
 from django.contrib.auth.password_validation import validate_password
@@ -6,6 +6,13 @@ from django.core.exceptions import ValidationError
 
 from django.contrib.auth import authenticate, user_logged_in
 from rest_framework_jwt.serializers import JSONWebTokenSerializer, jwt_payload_handler, jwt_encode_handler
+
+
+class LabSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Lab
+        fields = '__all__'
+
 
 
 class ValidateUserSerializer(serializers.ModelSerializer):

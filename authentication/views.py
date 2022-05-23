@@ -8,11 +8,23 @@ from django.conf import settings
 
 from rest_framework import generics, viewsets
 from rest_framework import permissions
-from rest_framework_jwt.views import ObtainJSONWebToken
-from rest_framework.response import Response
-from authentication.serializers import LabSerializer, JWTSerializer, RegisterSerializer, \
-    UserSerializer, ValidateUserSerializer
+#from rest_framework_jwt
 
+from rest_framework.generics import GenericAPIView
+from rest_framework.response import Response
+from authentication.serializers import LabSerializer, RegisterSerializer, \
+    UserSerializer, ValidateUserSerializer, JSONWebTokenSerializer, JSONWebTokenAuthentication
+
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated 
+
+class HelloView(APIView):
+    permission_classes = (IsAuthenticated,)             # <-- And here
+
+    def get(self, request):
+        content = {'message': 'Hello, World!'}
+        return Response(content)
 
 
 class LabViewSet(viewsets.ModelViewSet):
@@ -44,7 +56,7 @@ class SessionVarView(generics.ListAPIView):
             user = User.objects.get(pk=request.user.id) 
             # data = {'user_id':user.id, 'username': user.username}
         
-        if settings.DEBUG:
+        if settings.DEBUG and False:
             userid = 1
             browser = str(request.META['HTTP_USER_AGENT']).lower()
             if 'firefox' in browser:
@@ -78,8 +90,8 @@ class UserView(generics.CreateAPIView):
         return Response(serializer.data)
 
 
-class ObtainJWTView(ObtainJSONWebToken):
-    serializer_class = JWTSerializer
+#class ObtainJWTView(ObtainJSONWebToken):
+#    serializer_class = JWTSerializer
 
 class ValidateUserView(generics.ListAPIView):
     queryset = User.objects.all()
@@ -117,3 +129,39 @@ def dev_login_view(request):
         return redirect("http://localhost:8000/admin")
     else:
         return redirect(f"http://localhost:8080/?id={nid}")
+
+
+class BaseJSONWebTokenAPIView(GenericAPIView):
+    """Base JWT auth view used for all other JWT views (verify/refresh)."""
+
+    permission_classes = ()
+    authentication_classes = ()
+
+    serializer_class = JSONWebTokenSerializer
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+
+        serializer.is_valid(raise_exception=True)
+
+        user = serializer.validated_data.get('user') or request.user
+        token = serializer.validated_data.get('token')
+        issued_at = serializer.validated_data.get('issued_at')
+        response_data = JSONWebTokenAuthentication. \
+            jwt_create_response_payload(token, user, request, issued_at)
+
+        response = Response(response_data, status=status.HTTP_201_CREATED)
+
+        #if api_settings.JWT_AUTH_COOKIE:
+        #    set_cookie_with_token(response, api_settings.JWT_AUTH_COOKIE, token)
+
+        return response
+
+
+class ObtainJSONWebTokenView(BaseJSONWebTokenAPIView):
+    """
+    API View that receives a POST with a user's username and password.
+    Returns a JSON Web Token that can be used for authenticated requests.
+    """
+
+    serializer_class = JSONWebTokenSerializer

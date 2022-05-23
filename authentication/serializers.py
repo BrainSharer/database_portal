@@ -1,11 +1,15 @@
-from authentication.models import Lab, User
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
-from django.contrib.auth.password_validation import validate_password
-from django.core.exceptions import ValidationError
-
-from django.contrib.auth import authenticate, user_logged_in
+from rest_framework_jwt.utils import get_username_field
+from rest_framework_jwt.authentication import JSONWebTokenAuthentication
 from rest_framework_jwt.serializers import JSONWebTokenSerializer, jwt_payload_handler, jwt_encode_handler
+from django.core.exceptions import ValidationError
+from django.contrib.auth.password_validation import validate_password
+from django.contrib.auth import authenticate, user_logged_in
+from django.utils.translation import ugettext_lazy as _
+
+from authentication.models import Lab, User
+from authentication.utils import unix_epoch
 
 
 class LabSerializer(serializers.ModelSerializer):
@@ -87,3 +91,46 @@ class JWTSerializer(JSONWebTokenSerializer):
             msg = 'Must include "username" and "password".'
             # msg = msg.format()
             raise serializers.ValidationError(msg)
+
+
+class JSONWebTokenSerializer(serializers.Serializer):
+    """
+    Serializer class used to validate a username and password.
+    'username' is identified by the custom UserModel.USERNAME_FIELD.
+    Returns a JSON Web Token that can be used to authenticate later calls.
+    """
+
+    password = serializers.CharField(
+        write_only=True, required=True, style={'input_type': 'password'})
+    token = serializers.CharField(read_only=True)
+
+    def __init__(self, *args, **kwargs):
+        """Dynamically add the USERNAME_FIELD to self.fields."""
+        super(JSONWebTokenSerializer, self).__init__(*args, **kwargs)
+
+        self.fields[self.username_field
+                    ] = serializers.CharField(write_only=True, required=True)
+
+    @property
+    def username_field(self):
+        return get_username_field()
+
+    def validate(self, data):
+        credentials = {
+            self.username_field: data.get(self.username_field),
+            'password': data.get('password')
+        }
+
+        user = authenticate(self.context['request'], **credentials)
+
+        if not user:
+            msg = _('Unable to log in with provided credentials.')
+            raise serializers.ValidationError(msg)
+
+        payload = JSONWebTokenAuthentication.jwt_create_payload(user)
+
+        return {
+            'token': JSONWebTokenAuthentication.jwt_encode_payload(payload),
+            'user': user,
+            'issued_at': payload.get('iat', unix_epoch())
+        }

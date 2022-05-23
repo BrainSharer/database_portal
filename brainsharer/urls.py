@@ -6,8 +6,9 @@ from django.conf.urls.static import static
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include('oauth_app.urls')),
+#    path('', include('oauth_app.urls')),
     path('', include('authentication.urls')),
+    # path('api/', include(('api.urls', 'api'))),
     path('', include('brain.urls')),
     path('', include('neuroglancer.urls')),
 ]

@@ -1,4 +1,3 @@
-import base64
 from typing import Any, Dict, Tuple
 from datetime import datetime
 import requests
@@ -7,10 +6,9 @@ from django.core.management.utils import get_random_secret_key
 from django.conf import settings
 from django.http import HttpResponse
 from django.core.exceptions import ValidationError
-from rest_framework_jwt.settings import api_settings
+from rest_framework_simplejwt.tokens import RefreshToken
 from authentication.utils import get_now
 from authentication.models import User
-import json
 
 GOOGLE_ID_TOKEN_INFO_URL = 'https://www.googleapis.com/oauth2/v3/tokeninfo'
 GOOGLE_ACCESS_TOKEN_OBTAIN_URL = 'https://oauth2.googleapis.com/token'
@@ -18,6 +16,13 @@ GOOGLE_USER_INFO_URL = 'https://www.googleapis.com/oauth2/v3/userinfo'
 
 
 
+def get_tokens_for_user(user):
+    refresh = RefreshToken.for_user(user)
+
+    return {
+        'refresh': str(refresh),
+        'access': str(refresh.access_token),
+    }
 
 def user_create(email, password=None, **extra_fields) -> User:
     extra_fields = {
@@ -78,13 +83,16 @@ def user_get_or_create(*, email: str, **extra_data) -> Tuple[User, bool]:
 
 
 def jwt_login(*, response: HttpResponse, user: User) -> HttpResponse:
-
-    user_dict = json.dumps({'id': user.id, 'username': user.username, 'first_name': user.first_name, 'last_name': user.last_name, 'email': user.email})
-    #set_cookie_with_token(response, 'user', user_dict)
-    #nav_json = json.dumps(nav_data)
-    #nav_b64=base64.b64encode(user_dict)
-    response.set_cookie('user', user_dict)
-
+    token = get_tokens_for_user(user)
+    print('jwt login get token')
+    print(token)
+    response.set_cookie('id', user.id)
+    response.set_cookie('username', user.username)
+    response.set_cookie('first_name', user.first_name)
+    response.set_cookie('last_name', user.last_name)
+    response.set_cookie('email', user.email)
+    response.set_cookie('access', token['access'])
+    response.set_cookie('refresh', token['refresh'])
     user_record_login(user=user)
 
     return response
@@ -143,7 +151,7 @@ def google_get_user_info(*, access_token: str) -> Dict[str, Any]:
 
 def set_cookie_with_token(response, name, token):
     params = {
-        'expires': datetime.utcnow() + api_settings.JWT_EXPIRATION_DELTA,
+        'expires': datetime.timedelta(seconds=3600),
         'domain': 'localhost',
         'path': '/',
         'secure': False,

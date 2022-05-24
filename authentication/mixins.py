@@ -1,4 +1,4 @@
-from rest_framework_jwt.authentication import JSONWebTokenAuthentication
+#from rest_framework_jwt.authentication import JSONWebTokenAuthentication
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import exceptions as rest_exceptions
 
@@ -8,10 +8,11 @@ from authentication.utils import get_error_message
 from authentication.models import User
 
 
+"""
 class ApiAuthMixin:
     authentication_classes = (JSONWebTokenAuthentication, )
     permission_classes = (IsAuthenticated, )
-
+"""
 
 class PublicApiMixin:
     authentication_classes = ()

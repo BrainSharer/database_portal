@@ -8,12 +8,12 @@ from django.conf import settings
 
 from rest_framework import generics, viewsets
 from rest_framework import permissions
-#from rest_framework_jwt
 
 from rest_framework.generics import GenericAPIView
 from rest_framework.response import Response
 from authentication.serializers import LabSerializer, RegisterSerializer, \
-    UserSerializer, ValidateUserSerializer, JSONWebTokenSerializer, JSONWebTokenAuthentication
+    UserSerializer, ValidateUserSerializer, JSONWebTokenSerializer
+    # , JSONWebTokenAuthentication
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -88,10 +88,6 @@ class UserView(generics.CreateAPIView):
 
         serializer = UserSerializer(user, many=False)
         return Response(serializer.data)
-
-
-#class ObtainJWTView(ObtainJSONWebToken):
-#    serializer_class = JWTSerializer
 
 class ValidateUserView(generics.ListAPIView):
     queryset = User.objects.all()

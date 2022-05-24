@@ -6,22 +6,10 @@ from django.conf import settings
 from django.shortcuts import redirect
 
 from authentication.mixins import ApiErrorsMixin, PublicApiMixin
-from authentication.views import ObtainJSONWebTokenView
+#from authentication.views import ObtainJSONWebTokenView
 from authentication.services import user_get_or_create, \
-    jwt_login, google_get_access_token, google_get_user_info, user_record_login
+    jwt_login, google_get_access_token, google_get_user_info
 
-
-class LoginApi(ApiErrorsMixin, ObtainJSONWebTokenView):
-    def post(self, request, *args, **kwargs):
-        # Reference: https://github.com/Styria-Digital/django-rest-framework-jwt/blob/master/src/rest_framework_jwt/views.py#L44
-        serializer = self.get_serializer(data=request.data)
-
-        serializer.is_valid(raise_exception=True)
-
-        user = serializer.object.get('user') or request.user
-        user_record_login(user=user)
-
-        return super().post(request, *args, **kwargs)
 
 
 

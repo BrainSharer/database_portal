@@ -49,9 +49,9 @@ class NeuroglancerAvailableData(viewsets.ModelViewSet):
     """
     queryset = NeuroglancerView.objects.all()
     serializer_class = NeuroglancerViewSerializer
-    permission_classes = [permissions.AllowAny]
+    #permission_classes = [permissions.AllowAny]
     pagination_class = LargeResultsSetPagination
-    #permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
         """

@@ -1,8 +1,8 @@
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
-from rest_framework_jwt.utils import get_username_field
-from rest_framework_jwt.authentication import JSONWebTokenAuthentication
-from rest_framework_jwt.serializers import JSONWebTokenSerializer, jwt_payload_handler, jwt_encode_handler
+#from rest_framework_jwt.utils import get_username_field
+#from rest_framework_jwt.authentication import JSONWebTokenAuthentication
+#from rest_framework_jwt.serializers import JSONWebTokenSerializer, jwt_payload_handler, jwt_encode_handler
 from django.core.exceptions import ValidationError
 from django.contrib.auth.password_validation import validate_password
 from django.contrib.auth import authenticate, user_logged_in
@@ -61,7 +61,7 @@ class RegisterSerializer(serializers.ModelSerializer):
 
         return user
 
-
+"""
 class JWTSerializer(JSONWebTokenSerializer):
     def validate(self, attrs):
         credentials = {
@@ -91,7 +91,7 @@ class JWTSerializer(JSONWebTokenSerializer):
             msg = 'Must include "username" and "password".'
             # msg = msg.format()
             raise serializers.ValidationError(msg)
-
+"""
 
 class JSONWebTokenSerializer(serializers.Serializer):
     """

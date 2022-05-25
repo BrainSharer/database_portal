@@ -8,7 +8,6 @@ from neuroglancer.models import NeuroglancerModel
 from datetime import datetime
 
 def fetch_layers(request, animal_id):
-    print('animal is ', animal_id)
     animal = Animal.objects.get(pk=animal_id)
     url = animal.lab.lab_url
     if 'ucsd' in url.lower():

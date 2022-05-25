@@ -84,8 +84,6 @@ def user_get_or_create(*, email: str, **extra_data) -> Tuple[User, bool]:
 
 def jwt_login(*, response: HttpResponse, user: User) -> HttpResponse:
     token = get_tokens_for_user(user)
-    print('jwt login get token')
-    print(token)
     response.set_cookie('id', user.id)
     response.set_cookie('username', user.username)
     response.set_cookie('first_name', user.first_name)
@@ -127,7 +125,6 @@ def google_get_access_token(*, code: str, redirect_uri: str) -> str:
     }
 
     response = requests.post(GOOGLE_ACCESS_TOKEN_OBTAIN_URL, data=data)
-    print(response.content)
 
     if not response.ok:
         raise ValidationError('Failed to obtain access token from Google.')

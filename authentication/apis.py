@@ -6,7 +6,6 @@ from django.conf import settings
 from django.shortcuts import redirect
 
 from authentication.mixins import ApiErrorsMixin, PublicApiMixin
-#from authentication.views import ObtainJSONWebTokenView
 from authentication.services import user_get_or_create, \
     jwt_login, google_get_access_token, google_get_user_info
 

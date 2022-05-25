@@ -83,6 +83,9 @@ class NeuroglancerView(AtlasModel):
     layer_type = EnumField(choices=['image','segmentation'], blank=False, null=False, default='image')
     resolution = models.FloatField(verbose_name="XY Resolution (um)")
     zresolution = models.FloatField(verbose_name="Z Resolution (um)")
+    width = models.IntegerField(null=False, blank=False, default=60000, verbose_name="Width (pixels)")
+    height = models.IntegerField(null=False, blank=False, default=30000, verbose_name="Height (pixels)")
+    depth = models.IntegerField(null=False, blank=False, default=450, verbose_name="Depth (pixels, sections)")
     updated = models.DateTimeField(auto_now=True, editable=False, null=False, blank=False)
 
     class Meta:

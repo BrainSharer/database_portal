@@ -71,20 +71,19 @@ def prepare_top_attributes(layer):
     resolution = layer['resolution']
     zresolution = layer['zresolution']
     # width and height should be in the REST/DB
-    width = 65000
-    height = 35000
+    width = layer['width']
+    height = layer['height']
+    depth = layer['depth']
     state['crossSectionScale'] = 90
 
     if 'atlas' in layer_name.lower():
-        width = 1000
-        height = 1000
         visible_layer = layer_name
         state['crossSectionScale'] = 1.5
 
     state['dimensions'] = {'x':[resolution, 'um'],
                             'y':[resolution, 'um'],
                             'z':[zresolution, 'um'] }
-    state['position'] = [width / 2, height / 2, 225]
+    state['position'] = [width / 2, height / 2, depth / 2]
     state['selectedLayer'] = {'visible': True, 'layer': visible_layer}
     state['projectionScale'] = width
     return state

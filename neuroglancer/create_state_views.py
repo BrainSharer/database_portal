@@ -66,7 +66,7 @@ def get_layer_type(url):
 def prepare_top_attributes(layer):
     # {'id': 9, 'group_name': 'DK39', 'lab': 'UCSD', 'description': 'C3', 'url': 'https://activebrainatlas.ucsd.edu/data/DK39/neuroglancer_data/C3', 'active': True, 'created': '2022-04-15T00:48:11', 'updated': '2022-04-15T14:48:11'}
     layer_name = layer['layer_name']
-    visible_layer = 'C1'
+    visible_layer = layer_name
     state = {}
     resolution = layer['resolution']
     zresolution = layer['zresolution']
@@ -74,11 +74,7 @@ def prepare_top_attributes(layer):
     width = layer['width']
     height = layer['height']
     depth = layer['depth']
-    state['crossSectionScale'] = 90
-
-    if 'atlas' in layer_name.lower():
-        visible_layer = layer_name
-        state['crossSectionScale'] = 1.5
+    state['crossSectionScale'] = width / 1000 # 1 is good for downsampled stacks/volume and 60 is good for full resu
 
     state['dimensions'] = {'x':[resolution, 'um'],
                             'y':[resolution, 'um'],
@@ -110,7 +106,8 @@ def create_layer(state):
     layer['source'] = f'precomputed://{url}'
     layer['type'] = state['layer_type']
     layer['visible'] = True
-    if 'atlas' in layer_name.lower():
+
+    if 'layer_type' in state and state['layer_type'] == 'segmentation':
         del layer['shader']
     
     return layer

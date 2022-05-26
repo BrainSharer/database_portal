@@ -42,7 +42,7 @@ class SessionVarView(generics.ListAPIView):
             user = User.objects.get(pk=request.user.id) 
             # data = {'user_id':user.id, 'username': user.username}
         
-        if settings.DEBUG and False:
+        if settings.DEBUG:
             userid = 1
             browser = str(request.META['HTTP_USER_AGENT']).lower()
             if 'firefox' in browser:

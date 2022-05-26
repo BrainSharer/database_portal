@@ -74,7 +74,22 @@ def prepare_top_attributes(layer):
     width = layer['width']
     height = layer['height']
     depth = layer['depth']
-    state['crossSectionScale'] = width / 1000 # 1 is good for downsampled stacks/volume and 60 is good for full resu
+    print(layer)
+    # Note, the princeton version of the Allen atlas has an attribute called: crossSectionOrientation which sets the
+    # orientation of the views in the 4 panels. It is necessary for this one but not others. 
+    if 'cross_section_orientation' in layer and layer['cross_section_orientation'] is not None:
+        cso = layer['cross_section_orientation']
+        cso_list = []
+        for x in cso.split(','):
+            try:
+                cso_list.append(float(x))
+            except ValueError:
+                break
+
+        if len(cso_list) == 4:
+            state['crossSectionOrientation'] = cso_list
+    
+    state['crossSectionScale'] = width / 1000 # 1 is good for downsampled stacks/volume and 60 is good for full res
 
     state['dimensions'] = {'x':[resolution, 'um'],
                             'y':[resolution, 'um'],

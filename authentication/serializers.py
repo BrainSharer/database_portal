@@ -1,6 +1,5 @@
 from django.core.exceptions import ValidationError
 from django.contrib.auth.password_validation import validate_password
-from django.utils.translation import ugettext_lazy as _
 
 from rest_framework import serializers
 
@@ -11,20 +10,6 @@ class LabSerializer(serializers.ModelSerializer):
     class Meta:
         model = Lab
         fields = '__all__'
-
-
-class ValidateUserSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = ('username', 'email')
-
-
-class UserSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = ('id', 'username', 'first_name',
-                  'last_name', 'email', 'email')
-
 
 class RegisterSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(required=True)
@@ -56,3 +41,17 @@ class RegisterSerializer(serializers.ModelSerializer):
         user.save()
 
         return user
+
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ('id', 'username', 'first_name',
+                  'last_name', 'email', 'email')
+
+class ValidateUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ('username', 'email')
+
+

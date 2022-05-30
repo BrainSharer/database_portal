@@ -21,6 +21,22 @@ class LabViewSet(viewsets.ModelViewSet):
     """
     queryset = Lab.objects.all()
     serializer_class = LabSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+
+
+class RegisterView(generics.CreateAPIView):
+    """
+    Description of RegisterView
+    This is when a person registers to become a user on the registration page. 
+    This must be allowed to accept posts so
+    we AllowAny
+
+    Inheritance:
+        generics.CreateAPIView:
+
+    """
+    queryset = User.objects.all()
+    serializer_class = RegisterSerializer
     permission_classes = [permissions.AllowAny]
 
 
@@ -53,16 +69,12 @@ class SessionVarView(generics.ListAPIView):
         serializer = UserSerializer(user, many=False)
         return Response(serializer.data)
 
-class RegisterView(generics.CreateAPIView):
-    queryset = User.objects.all()
-    permission_classes = (permissions.AllowAny,)
-    serializer_class = RegisterSerializer
 
 class UserView(generics.CreateAPIView):
     queryset = User.objects.all()
-    permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
     serializer_class = UserSerializer
-    
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+
     def get(self, request, username):
         user = {'id':0}
         try:
@@ -75,10 +87,11 @@ class UserView(generics.CreateAPIView):
         serializer = UserSerializer(user, many=False)
         return Response(serializer.data)
 
+
 class ValidateUserView(generics.ListAPIView):
     queryset = User.objects.all()
-    permission_classes = (permissions.AllowAny,)
     serializer_class = ValidateUserSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
     def get_queryset(self):
         """

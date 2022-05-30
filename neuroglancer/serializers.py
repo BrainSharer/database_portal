@@ -1,15 +1,11 @@
 from rest_framework import serializers
-from rest_framework.response import Response
 from rest_framework import serializers
-from rest_framework import status
-
 from rest_framework.exceptions import APIException
 import logging
 
 from brain.models import BrainRegion
 from neuroglancer.models import AnnotationPoints, NeuroglancerModel, NeuroglancerView
 from neuroglancer.atlas import update_annotation_data
-from authentication.models import User
 
 logging.basicConfig()
 logger = logging.getLogger('django')
@@ -17,17 +13,41 @@ logger = logging.getLogger('django')
 class AnimalInputSerializer(serializers.Serializer):
     animal = serializers.CharField()
 
-class IdSerializer(serializers.Serializer):
-    id = serializers.IntegerField()
 
 class AnnotationSerializer(serializers.Serializer):
     """
     This one feeds the data import
+    Note, this is the singular one!
     """
     id = serializers.CharField()
     point = serializers.ListField()
     type = serializers.CharField()
     description = serializers.CharField()
+
+
+class AnnotationsSerializer(serializers.Serializer):
+    """
+    This one feeds the dropdown
+    Note, this is the plural one!
+    """
+    animal_id = serializers.IntegerField()
+    animal_name = serializers.CharField()
+    label = serializers.CharField()
+
+class AnnotationPointsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AnnotationPoints
+        fields = '__all__'
+
+
+class BrainRegionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = BrainRegion
+        fields = '__all__'
+
+
+class IdSerializer(serializers.Serializer):
+    id = serializers.IntegerField()
 
 
 class LineSerializer(serializers.Serializer):
@@ -40,52 +60,11 @@ class LineSerializer(serializers.Serializer):
     type = serializers.CharField()
     description = serializers.CharField()
 
-class AnnotationsSerializer(serializers.Serializer):
-    """
-    This one feeds the dropdown
-    """
-    animal_id = serializers.IntegerField()
-    animal_name = serializers.CharField()
-    label = serializers.CharField()
-
-class BrainRegionSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = BrainRegion
-        fields = '__all__'
-
-class AnnotationPointsSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = AnnotationPoints
-        fields = '__all__'
-
-class NeuroglancerGroupViewSerializer(serializers.ModelSerializer):
-    '''
-    This is to form the groups with just distinct group_name
-    and layer_type
-    '''
-
-    class Meta:
-        model = NeuroglancerView
-        fields = ['group_name', 'layer_type']
-        ordering = ['group_name', 'layer_type']
-
-
-class NeuroglancerViewSerializer(serializers.ModelSerializer):
-    lab_name = serializers.CharField(source='lab.lab_name')
-
-    class Meta:
-        model = NeuroglancerView
-        fields = '__all__'
-        ordering = ['id']
-
 
 class NeuroglancerSerializer(serializers.ModelSerializer):
     """Override method of entering a neuroglancer_state into the DB.
     The neuroglancer_state can't be in the NeuroglancerModel when it is returned
     to neuroglancer as it crashes neuroglancer."""
-    # owner_id = serializers.IntegerField()
     lab = serializers.CharField()
 
     class Meta:
@@ -136,22 +115,46 @@ class NeuroglancerSerializer(serializers.ModelSerializer):
         obj.neuroglancer_state = None
         return obj
 
+class NeuroglancerGroupViewSerializer(serializers.ModelSerializer):
+    '''
+    This is to form the groups with just distinct group_name
+    and layer_type
+    '''
+
+    class Meta:
+        model = NeuroglancerView
+        fields = ['group_name', 'layer_type']
+        ordering = ['group_name', 'layer_type']
+
+
+class NeuroglancerViewSerializer(serializers.ModelSerializer):
+    lab_name = serializers.CharField(source='lab.lab_name')
+
+    class Meta:
+        model = NeuroglancerView
+        fields = '__all__'
+        ordering = ['id']
+
+
  
 class NeuronSerializer(serializers.Serializer):
     """
     Serializes a list of brain atlas segment Ids
+    Used for the Mouselight data
     """
     segmentId = serializers.ListField()
 
 class AnatomicalRegionSerializer(serializers.Serializer):
     """
     Serializes a list of brain atlas region names
+    Used for the Mouselight data
     """
     segment_names = serializers.ListField()
 
 class ViralTracingSerializer(serializers.Serializer):
     """
     Serializes a list of tracing brain urls
+    Used for the Mouselight data
     """
     brain_names = serializers.ListField()
     frac_injections = serializers.ListField()

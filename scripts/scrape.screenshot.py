@@ -26,7 +26,7 @@ def do_screen_capturing(url, screen_path, width, height):
     if width and height:
         driver.set_window_size(width, height)
     driver.get(url)
-    sleep(60)
+    sleep(120) # TODO
     driver.save_screenshot(screen_path)
     driver.quit()
 
@@ -98,7 +98,8 @@ def get_screen_shot(**kwargs):
 
         if thumbnail:
             if not thumbnail_replace:
-                thumbnail_path = abspath(path, 'thumbnail_'+filename)
+                #thumbnail_path = abspath(path, 'thumbnail_'+filename)
+                thumbnail_path = f"/var/www/html/images/screenshot/thumbnail_{filename}"
             params = {
                 'width': thumbnail_width, 'height': thumbnail_height,
                 'thumbnail_path': thumbnail_path, 'crop_path': crop_path}

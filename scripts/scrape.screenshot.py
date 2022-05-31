@@ -1,6 +1,7 @@
 import os
 from subprocess import Popen, PIPE
 from selenium import webdriver
+from selenium.webdriver.chrome.service import Service
 from time import sleep
 import argparse
 
@@ -19,7 +20,9 @@ def do_screen_capturing(url, screen_path, width, height):
     print("Capturing screen..")
     chrome_options = webdriver.ChromeOptions()
     chrome_options.headless = True
-    driver = webdriver.Chrome(options=chrome_options)
+
+    service = Service("/usr/local/bin/chromedriver")
+    driver = webdriver.Chrome(service=service, options=chrome_options)
     #driver.set_script_timeout(15000)
     #driver.implicitly_wait(15000)
     #driver.set_page_load_timeout(15000)

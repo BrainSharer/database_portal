@@ -1,3 +1,4 @@
+from email import header
 from typing import Any, Dict, Tuple
 from datetime import datetime
 import requests
@@ -9,6 +10,10 @@ from django.core.exceptions import ValidationError
 from rest_framework_simplejwt.tokens import RefreshToken
 from authentication.utils import get_now
 from authentication.models import User
+
+GITHUB_ACCESS_TOKEN_OBTAIN_URL = 'https://github.com/login/oauth/access_token'
+GITHUB_USER_INFO_URL = 'https://api.github.com/user'
+GITHUB_USER_EMAIL_INFO_URL = 'https://api.github.com/user/emails'
 
 GOOGLE_ID_TOKEN_INFO_URL = 'https://www.googleapis.com/oauth2/v3/tokeninfo'
 GOOGLE_ACCESS_TOKEN_OBTAIN_URL = 'https://oauth2.googleapis.com/token'
@@ -95,7 +100,64 @@ def jwt_login(*, response: HttpResponse, user: User) -> HttpResponse:
 
     return response
 
+##### Github stuff
+def github_get_access_token(*, code: str, redirect_uri: str) -> str:
+    """
+    See: https://docs.github.com/en/developers/apps/building-oauth-apps/authorizing-oauth-apps
+    params to send to Github:
+        client_id:	string	Required. The client ID you received from GitHub for your OAuth App.
+        client_secret:	string	Required. The client secret you received from GitHub for your OAuth App.
+        code:	string	Required. The code you received as a response to Step 1.
+        redirect_uri:	string	The URL in your application where users are sent after authorization.
 
+    Args:
+        * (undefined):
+        code (str):
+        redirect_uri (str):
+
+    Returns:
+        str
+
+    """
+    data = {
+        'client_id': settings.GITHUB_OAUTH2_CLIENT_ID,
+        'client_secret': settings.GITHUB_OAUTH2_CLIENT_SECRET,
+        'code': code,
+        'redirect_uri': redirect_uri
+    }
+
+    headers = {'Accept': 'application/json'}
+    response = requests.post(GITHUB_ACCESS_TOKEN_OBTAIN_URL, data=data, headers=headers)
+
+    if not response.ok:
+        raise ValidationError('Failed to obtain access token from Github.')
+    print('response json')
+    print(response.json())
+    access_token = response.json()['access_token']
+    return access_token
+
+
+def github_get_user_info(*, access_token: str) -> Dict[str, Any]:
+    """
+    Description of github_get_user_info
+
+    Args:
+        * (undefined):
+        access_token (str):
+
+    Returns:
+        Dict[str, Any]
+
+    """
+    headers = {'Authorization': f'token {access_token}'}
+    response = requests.get(GITHUB_USER_INFO_URL, headers=headers)
+
+    if not response.ok:
+        raise ValidationError('Failed to obtain user info from Github.')
+
+    return response.json()
+
+##### Google stuff
 def google_validate_id_token(*, id_token: str) -> bool:
     # Reference: https://developers.google.com/identity/sign-in/web/backend-auth#verify-the-integrity-of-the-id-token
     response = requests.get(

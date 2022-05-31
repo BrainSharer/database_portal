@@ -27,7 +27,7 @@ logger = logging.getLogger(__name__)
 
 
 class LargeResultsSetPagination(PageNumberPagination):
-    page_size = 50
+    page_size = 500
 
 class NeuroglancerAvailableData(viewsets.ModelViewSet):
     """
@@ -65,6 +65,7 @@ class NeuroglancerViewSet(viewsets.ModelViewSet):
     It was more convienent to do them there than here.
     """
     serializer_class = NeuroglancerSerializer
+    pagination_class = LargeResultsSetPagination
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
     def get_queryset(self):

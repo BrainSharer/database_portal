@@ -20,12 +20,11 @@ def do_screen_capturing(url, screen_path, width, height):
     print("Capturing screen..")
     chrome_options = webdriver.ChromeOptions()
     chrome_options.headless = True
-
     service = Service("/usr/local/bin/chromedriver")
     driver = webdriver.Chrome(service=service, options=chrome_options)
-    #driver.set_script_timeout(15000)
-    #driver.implicitly_wait(15000)
-    #driver.set_page_load_timeout(15000)
+    driver.set_script_timeout(130)
+    driver.implicitly_wait(130)
+    driver.set_page_load_timeout(130)
     if width and height:
         driver.set_window_size(width, height)
     driver.get(url)
@@ -35,7 +34,7 @@ def do_screen_capturing(url, screen_path, width, height):
 
 
 def do_crop(params):
-    print("Croping captured image..")
+    print("Cropping captured image..")
     command = [
         'convert',
         params['screen_path'],

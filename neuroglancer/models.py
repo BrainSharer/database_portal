@@ -80,7 +80,7 @@ class NeuroglancerView(AtlasModel):
     description = models.TextField(max_length=2001, blank=False, null=False)
     url = models.TextField(max_length=2001, blank=False, null=False)
     thumbnail_url = models.TextField(max_length=2001, blank=False, null=False, verbose_name='Thumbnail name')
-    layer_type = EnumField(choices=['image','segmentation'], blank=False, null=False, default='image')
+    layer_type = EnumField(choices=['annotation', 'image','segmentation'], blank=False, null=False, default='image')
     cross_section_orientation = models.CharField(max_length=255, blank=True, null=True, verbose_name='Cross section orientation (4 numbers seperated by comma)')
     resolution = models.FloatField(verbose_name="XY Resolution (um)")
     zresolution = models.FloatField(verbose_name="Z Resolution (um)")

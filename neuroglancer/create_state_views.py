@@ -74,7 +74,6 @@ def prepare_top_attributes(layer):
     width = layer['width']
     height = layer['height']
     depth = layer['depth']
-    print(layer)
     # Note, the princeton version of the Allen atlas has an attribute called: crossSectionOrientation which sets the
     # orientation of the views in the 4 panels. It is necessary for this one but not others. 
     if 'cross_section_orientation' in layer and layer['cross_section_orientation'] is not None:
@@ -89,14 +88,17 @@ def prepare_top_attributes(layer):
         if len(cso_list) == 4:
             state['crossSectionOrientation'] = cso_list
     
-    state['crossSectionScale'] = width / 1000 # 1 is good for downsampled stacks/volume and 60 is good for full res
+    # 1 is good for downsampled stacks/volume and 
+    # 60 is good for full res
+    # 3 is good for annotation layer
+    state['crossSectionScale'] = min(width / 100, 100) 
 
     state['dimensions'] = {'x':[resolution, 'um'],
                             'y':[resolution, 'um'],
                             'z':[zresolution, 'um'] }
     state['position'] = [width / 2, height / 2, depth / 2]
     state['selectedLayer'] = {'visible': True, 'layer': visible_layer}
-    state['projectionScale'] = width
+    state['projectionScale'] = 1024
     return state
 
 def prepare_bottom_attributes():
@@ -116,14 +118,17 @@ def create_layer(state):
     shaders['C1'] = '#uicontrol invlerp normalized\n#uicontrol float gamma slider(min=0.05, max=2.5, default=1.0, step=0.05)\n\nvoid main() {\n    float pix =  normalized();\n    pix = pow(pix,gamma);\n  \t  emitGrayscale(pix) ;\n}'
     shaders['C2'] = '#uicontrol invlerp normalized  (range=[0,45000])\n#uicontrol float gamma slider(min=0.05, max=2.5, default=1.0, step=0.05)\n#uicontrol bool colour checkbox(default=true)\n\n\n  void main() {\n    float pix =  normalized();\n    pix = pow(pix,gamma);\n\n    if (colour) {\n  \t   emitRGB(vec3(pix,0,0));\n  \t} else {\n  \t  emitGrayscale(pix) ;\n  \t}\n\n}\n'
     shaders['C3'] = '#uicontrol invlerp normalized  (range=[0,5000])\n#uicontrol float gamma slider(min=0.05, max=2.5, default=1.0, step=0.05)\n#uicontrol bool colour checkbox(default=true)\n\n  void main() {\n    float pix =  normalized();\n    pix = pow(pix,gamma);\n\n    if (colour){\n       emitRGB(vec3(0, (pix),0));\n    } else {\n      emitGrayscale(pix) ;\n    }\n\n}\n'
+    shaders['annotation'] = '#uicontrol float size slider(min=0, max=10, default=1)\nvoid main() {setColor(defaultColor());setPointMarkerSize(size);}'
     layer['name'] = layer_name
-    layer['shader'] = shaders.get(layer_name, 'C1')
+    if 'layer_type' in state and state['layer_type'] == 'image':
+        layer['shader'] = shaders.get(layer_name, 'C1')
+    if 'layer_type' in state and state['layer_type'] == 'annotation':
+        layer['shader'] = shaders.get('annotation')
+    
     layer['source'] = f'precomputed://{url}'
     layer['type'] = state['layer_type']
     layer['visible'] = True
 
-    if 'layer_type' in state and state['layer_type'] == 'segmentation':
-        del layer['shader']
     
     return layer
         
